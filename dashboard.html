@@ -372,10 +372,15 @@
         <section class="welcome">
             <div>
                 <h1>My Dashboard 👋</h1>
-                <p>Manage your campus marketplace activity in one place.</p>
+                <p id="userEmail">Loading your account...</p>
             </div>
 
             <a href="sell.html" class="btn">+ Sell an Item</a>
+            <button class="btn" id="logoutBtn" type="button">
+  Logout
+</button>
+            
+            
         </section>
 
         <!-- Statistics -->
@@ -556,35 +561,78 @@
         <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
     </footer>
 
-    <script>
-        // Demo dashboard data
-        // Abhi ye sample data hai, database se connected nahi hai.
+   ```html
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-        const listings = [
-            { name: "Engineering Mathematics Book", price: 250, status: "Active", icon: "📚" },
-            { name: "Scientific Calculator", price: 450, status: "Active", icon: "🧮" },
-            { name: "College Backpack", price: 300, status: "Sold", icon: "🎒" }
-        ];
+  import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-        const savedItems = [
-            { name: "Second-hand Laptop", price: 12000 },
-            { name: "Programming Notes", price: 100 }
-        ];
+  const firebaseConfig = {
+    apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+    authDomain: "campus-cart-62492.firebaseapp.com",
+    projectId: "campus-cart-62492",
+    storageBucket: "campus-cart-62492.firebasestorage.app",
+    messagingSenderId: "182996728543",
+    appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+    measurementId: "G-NN86N2NE52"
+  };
 
-        // Statistics calculate karna
-        const activeCount = listings.filter(
-            item => item.status === "Active"
-        ).length;
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
 
-        const soldCount = listings.filter(
-            item => item.status === "Sold"
-        ).length;
+  const userEmail = document.getElementById("userEmail");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-        document.getElementById("totalListings").textContent = listings.length;
-        document.getElementById("activeListings").textContent = activeCount;
-        document.getElementById("soldListings").textContent = soldCount;
-        document.getElementById("savedCount").textContent = savedItems.length;
-    </script>
+  // Check whether the student is logged in
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      userEmail.textContent = "Logged in as: " + user.email;
+    } else {
+      window.location.replace("login.html");
+    }
+  });
+
+  // Logout functionality
+  logoutBtn.addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+      window.location.replace("login.html");
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Logout failed. Please try again.");
+    }
+  });
+
+  // Temporary demo data for dashboard statistics
+  const listings = [
+    { name: "Engineering Mathematics Book", price: 250, status: "Active", icon: "📚" },
+    { name: "Scientific Calculator", price: 450, status: "Active", icon: "🧮" },
+    { name: "College Backpack", price: 300, status: "Sold", icon: "🎒" }
+  ];
+
+  const savedItems = [
+    { name: "Second-hand Laptop", price: 12000 },
+    { name: "Programming Notes", price: 100 }
+  ];
+
+  const activeCount = listings.filter(
+    item => item.status === "Active"
+  ).length;
+
+  const soldCount = listings.filter(
+    item => item.status === "Sold"
+  ).length;
+
+  document.getElementById("totalListings").textContent = listings.length;
+  document.getElementById("activeListings").textContent = activeCount;
+  document.getElementById("soldListings").textContent = soldCount;
+  document.getElementById("savedCount").textContent = savedItems.length;
+</script>
+```
 
 </body>
 </html>
