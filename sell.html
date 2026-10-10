@@ -803,141 +803,421 @@
     </footer>
 
     <!-- JAVASCRIPT -->
-    <script>
-        // Form ke elements select karna
-        const sellForm = document.getElementById("sellForm");
-        const productImage = document.getElementById("productImage");
-        const imagePreview = document.getElementById("imagePreview");
-        const previewCardImage = document.getElementById("previewCardImage");
-        const previewPlaceholder = document.getElementById("previewPlaceholder");
-        const successMessage = document.getElementById("successMessage");
+    
 
-        // Live preview ke liye elements
-        const itemName = document.getElementById("itemName");
-        const category = document.getElementById("category");
-        const condition = document.getElementById("condition");
-        const price = document.getElementById("price");
-        const description = document.getElementById("description");
+<script type="module">
+    // ==========================================
+    // 1. FIREBASE IMPORTS
+    // ==========================================
 
-        const previewTitle = document.getElementById("previewTitle");
-        const previewCategory = document.getElementById("previewCategory");
-        const previewCondition = document.getElementById("previewCondition");
-        const previewPrice = document.getElementById("previewPrice");
-        const previewDescription = document.getElementById("previewDescription");
+    import {
+        initializeApp,
+        getApp,
+        getApps
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-        // Form mein type karte hi preview update hoga
-        function updatePreview() {
-            previewTitle.textContent =
-                itemName.value.trim() || "Your item name";
+    import {
+        getAuth,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-            previewCategory.textContent =
-                category.value || "YOUR CATEGORY";
+    import {
+        getFirestore,
+        collection,
+        addDoc,
+        serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-            previewCondition.textContent =
-                condition.value || "Condition";
 
-            previewPrice.textContent =
-                price.value && Number(price.value) > 0
-                    ? "₹" + Number(price.value).toLocaleString("en-IN")
-                    : "₹0";
+    // ==========================================
+    // 2. FIREBASE CONFIGURATION
+    // ==========================================
 
-            previewDescription.textContent =
-                description.value.trim() ||
-                "Your product description will appear here.";
+    const firebaseConfig = {
+        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+        authDomain: "campus-cart-62492.firebaseapp.com",
+        projectId: "campus-cart-62492",
+        storageBucket: "campus-cart-62492.firebasestorage.app",
+        messagingSenderId: "182996728543",
+        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+        measurementId: "G-NN86N2NE52"
+    };
+
+
+    // ==========================================
+    // 3. INITIALIZE FIREBASE
+    // ==========================================
+
+    const app = getApps().length
+        ? getApp()
+        : initializeApp(firebaseConfig);
+
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+
+    // ==========================================
+    // 4. SELECT HTML ELEMENTS
+    // ==========================================
+
+    const sellForm = document.getElementById("sellForm");
+
+    const productImage = document.getElementById("productImage");
+    const imagePreview = document.getElementById("imagePreview");
+    const previewCardImage = document.getElementById("previewCardImage");
+    const previewPlaceholder = document.getElementById("previewPlaceholder");
+
+    const successMessage = document.getElementById("successMessage");
+
+    const itemName = document.getElementById("itemName");
+    const category = document.getElementById("category");
+    const condition = document.getElementById("condition");
+    const price = document.getElementById("price");
+    const originalPriceInput = document.getElementById("originalPrice");
+    const description = document.getElementById("description");
+    const campus = document.getElementById("campus");
+
+    const previewTitle = document.getElementById("previewTitle");
+    const previewCategory = document.getElementById("previewCategory");
+    const previewCondition = document.getElementById("previewCondition");
+    const previewPrice = document.getElementById("previewPrice");
+    const previewDescription = document.getElementById("previewDescription");
+
+
+    // ==========================================
+    // 5. CHECK REQUIRED ELEMENTS
+    // ==========================================
+
+    if (!sellForm) {
+        console.error(
+            'Form not found. Check that your form has id="sellForm".'
+        );
+        throw new Error("Sell form not found.");
+    }
+
+    if (
+        !productImage ||
+        !imagePreview ||
+        !previewCardImage ||
+        !previewPlaceholder ||
+        !successMessage ||
+        !itemName ||
+        !category ||
+        !condition ||
+        !price ||
+        !originalPriceInput ||
+        !description ||
+        !previewTitle ||
+        !previewCategory ||
+        !previewCondition ||
+        !previewPrice ||
+        !previewDescription
+    ) {
+        console.error(
+            "Some required HTML elements are missing. Check your element IDs."
+        );
+        throw new Error("Required sell page elements are missing.");
+    }
+
+
+    // ==========================================
+    // 6. AUTHENTICATION STATUS
+    // ==========================================
+
+    let currentUser = null;
+    let authReady = false;
+
+    onAuthStateChanged(
+        auth,
+
+        (user) => {
+            currentUser = user;
+            authReady = true;
+
+            if (!user) {
+                window.location.replace("login.html");
+            }
+        },
+
+        (error) => {
+            console.error("Authentication error:", error);
+            showMessage(
+                "Could not verify your login. Please refresh the page.",
+                true
+            );
+        }
+    );
+
+
+    // ==========================================
+    // 7. SHOW SUCCESS OR ERROR MESSAGE
+    // ==========================================
+
+    function showMessage(message, isError = false) {
+        successMessage.textContent = message;
+        successMessage.style.display = "block";
+
+        // Use existing styling wherever possible.
+        successMessage.style.color = isError ? "#b91c1c" : "#15803d";
+
+        successMessage.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest"
+        });
+    }
+
+
+    // ==========================================
+    // 8. LIVE PRODUCT PREVIEW
+    // ==========================================
+
+    function updatePreview() {
+        previewTitle.textContent =
+            itemName.value.trim() || "Your item name";
+
+        previewCategory.textContent =
+            category.value || "YOUR CATEGORY";
+
+        previewCondition.textContent =
+            condition.value || "Condition";
+
+        const sellingPrice = Number(price.value);
+
+        previewPrice.textContent =
+            price.value.trim() !== "" &&
+            Number.isFinite(sellingPrice) &&
+            sellingPrice > 0
+                ? "₹" + sellingPrice.toLocaleString("en-IN")
+                : "₹0";
+
+        previewDescription.textContent =
+            description.value.trim() ||
+            "Your product description will appear here.";
+    }
+
+
+    [
+        itemName,
+        category,
+        condition,
+        price,
+        description
+    ].forEach((element) => {
+        element.addEventListener("input", updatePreview);
+        element.addEventListener("change", updatePreview);
+    });
+
+
+    // ==========================================
+    // 9. IMAGE PREVIEW
+    // ==========================================
+
+    productImage.addEventListener("change", () => {
+        const file = productImage.files[0];
+
+        if (!file) {
+            resetImagePreview();
+            return;
         }
 
-        // Live preview events
-        [itemName, category, condition, price, description]
-            .forEach(function(element) {
-                element.addEventListener("input", updatePreview);
-                element.addEventListener("change", updatePreview);
-            });
+        // Only allow image files.
+        if (!file.type.startsWith("image/")) {
+            alert("Please choose a valid image file.");
 
-        // Image upload and preview
-        productImage.addEventListener("change", function() {
-            const file = productImage.files[0];
+            productImage.value = "";
+            resetImagePreview();
+            return;
+        }
 
-            if (!file) {
-                imagePreview.style.display = "none";
-                previewCardImage.style.display = "none";
-                previewPlaceholder.style.display = "block";
-                return;
+        // Maximum image size: 5 MB.
+        if (file.size > 5 * 1024 * 1024) {
+            alert("Please choose an image smaller than 5 MB.");
+
+            productImage.value = "";
+            resetImagePreview();
+            return;
+        }
+
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+            imagePreview.src = event.target.result;
+            imagePreview.style.display = "block";
+
+            previewCardImage.src = event.target.result;
+            previewCardImage.style.display = "block";
+
+            previewPlaceholder.style.display = "none";
+        };
+
+        reader.onerror = () => {
+            alert("Could not preview this image. Please try another.");
+
+            productImage.value = "";
+            resetImagePreview();
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+
+    function resetImagePreview() {
+        imagePreview.removeAttribute("src");
+        imagePreview.style.display = "none";
+
+        previewCardImage.removeAttribute("src");
+        previewCardImage.style.display = "none";
+
+        previewPlaceholder.style.display = "block";
+    }
+
+
+    // ==========================================
+    // 10. SUBMIT FORM AND SAVE TO FIRESTORE
+    // ==========================================
+
+    sellForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        // Wait for Firebase to confirm login status.
+        if (!authReady) {
+            showMessage(
+                "Checking your login. Please try again in a moment.",
+                true
+            );
+            return;
+        }
+
+        // User must be logged in.
+        if (!currentUser) {
+            alert("Please log in before listing your product.");
+            window.location.href = "login.html";
+            return;
+        }
+
+        // Read and validate prices.
+        const sellingPrice = Number(price.value);
+        const originalPrice = originalPriceInput.value.trim();
+
+        if (
+            price.value.trim() === "" ||
+            !Number.isFinite(sellingPrice) ||
+            sellingPrice <= 0
+        ) {
+            alert("Selling price must be greater than zero.");
+            price.focus();
+            return;
+        }
+
+        if (
+            originalPrice !== "" &&
+            (
+                !Number.isFinite(Number(originalPrice)) ||
+                Number(originalPrice) < 0
+            )
+        ) {
+            alert("Please enter a valid, non-negative original price.");
+            originalPriceInput.focus();
+            return;
+        }
+
+        // Prevent duplicate submissions while saving.
+        const submitButton = sellForm.querySelector(
+            'button[type="submit"], input[type="submit"]'
+        );
+
+        if (submitButton) {
+            submitButton.disabled = true;
+        }
+
+        showMessage("Saving your product listing...");
+
+        try {
+            // Save product details in Firestore.
+            const docRef = await addDoc(
+                collection(db, "listings"),
+                {
+                    name: itemName.value.trim(),
+                    category: category.value,
+                    condition: condition.value,
+
+                    price: sellingPrice,
+
+                    originalPrice:
+                        originalPrice === ""
+                            ? null
+                            : Number(originalPrice),
+
+                    description: description.value.trim(),
+
+                    campus: campus
+                        ? campus.value.trim()
+                        : "",
+
+                    // Image is preview-only for now.
+                    imageUrl: "",
+
+                    // Seller information.
+                    sellerId: currentUser.uid,
+                    sellerEmail: currentUser.email || "",
+
+                    status: "Active",
+                    createdAt: serverTimestamp()
+                }
+            );
+
+            console.log("Listing saved with ID:", docRef.id);
+
+            showMessage(
+                "Success! Your product has been saved to CampusKart."
+            );
+
+            // Clear form after successful save.
+            sellForm.reset();
+            resetImagePreview();
+            updatePreview();
+
+        } catch (error) {
+            console.error("Firestore listing error:", error);
+
+            showMessage(
+                "Your listing could not be saved. Check your internet, Firestore rules, and browser Console.",
+                true
+            );
+
+            alert(
+                "Firebase error: " +
+                (error.code || error.message || "Unknown error")
+            );
+
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
             }
+        }
+    });
 
-            // Image size limit: 5 MB
-            if (file.size > 5 * 1024 * 1024) {
-                alert("Please choose an image smaller than 5 MB.");
-                productImage.value = "";
-                return;
-            }
 
-            if (!file.type.startsWith("image/")) {
-                alert("Please choose a valid image file.");
-                productImage.value = "";
-                return;
-            }
+    // ==========================================
+    // 11. RESET FORM
+    // ==========================================
 
-            const reader = new FileReader();
+    sellForm.addEventListener("reset", () => {
+        setTimeout(() => {
+            resetImagePreview();
+            successMessage.style.display = "none";
+            updatePreview();
+        }, 0);
+    });
 
-            reader.onload = function(event) {
-                imagePreview.src = event.target.result;
-                imagePreview.style.display = "block";
 
-                previewCardImage.src = event.target.result;
-                previewCardImage.style.display = "block";
+    // ==========================================
+    // 12. INITIAL PREVIEW
+    // ==========================================
 
-                previewPlaceholder.style.display = "none";
-            };
+    updatePreview();
 
-            reader.readAsDataURL(file);
-        });
-
-        // Form submit
-        sellForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            const sellingPrice = Number(price.value);
-            const originalPrice = document.getElementById("originalPrice").value;
-
-            if (sellingPrice <= 0) {
-                alert("Selling price must be greater than zero.");
-                price.focus();
-                return;
-            }
-
-            if (originalPrice !== "" && Number(originalPrice) < 0) {
-                alert("Original price cannot be negative.");
-                return;
-            }
-
-            // Frontend demo: listing abhi permanently save nahi hoti.
-            successMessage.style.display = "block";
-            successMessage.textContent =
-                "Your form looks good! This is a demo: your listing has not been saved or published. A database and seller account are needed to publish it.";
-
-            successMessage.scrollIntoView({
-                behavior: "smooth",
-                block: "nearest"
-            });
-        });
-
-        // Clear karne par preview reset karna
-        sellForm.addEventListener("reset", function() {
-            setTimeout(function() {
-                imagePreview.removeAttribute("src");
-                imagePreview.style.display = "none";
-
-                previewCardImage.removeAttribute("src");
-                previewCardImage.style.display = "none";
-
-                previewPlaceholder.style.display = "block";
-                successMessage.style.display = "none";
-
-                updatePreview();
-            }, 0);
-        });
-
-    </script>
+</script>
 
 </body>
 </html>
