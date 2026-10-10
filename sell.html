@@ -1,0 +1,945 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sell an Item | CampusKart</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #101c35;
+            --teal: #16c6b1;
+            --light: #f5f8fc;
+            --white: #ffffff;
+            --text: #26344d;
+            --muted: #6b7890;
+            --border: #e1e8f0;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button, input, select, textarea {
+            font: inherit;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1150px;
+            margin: auto;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-content {
+            min-height: 75px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            color: var(--navy);
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 23px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 700;
+            color: #526078;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #079e8e;
+        }
+
+        .login-link {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* HEADER */
+        .page-header {
+            background: var(--navy);
+            color: white;
+            padding: 42px 0 55px;
+        }
+
+        .eyebrow {
+            color: var(--teal);
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .page-header h1 {
+            font-size: clamp(30px, 5vw, 44px);
+            line-height: 1.2;
+            margin: 12px 0;
+        }
+
+        .page-header h1 span {
+            color: var(--teal);
+        }
+
+        .page-header p {
+            color: #c3cede;
+            max-width: 580px;
+            font-size: 15px;
+        }
+
+        /* MAIN LAYOUT */
+        .main-section {
+            padding: 40px 0 70px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+            gap: 25px;
+            align-items: start;
+        }
+
+        .form-card,
+        .preview-card,
+        .tips-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .form-card h2,
+        .preview-card h2,
+        .tips-card h2 {
+            color: var(--navy);
+            font-size: 21px;
+            margin-bottom: 6px;
+        }
+
+        .section-description {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 25px;
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 7px;
+        }
+
+        .required {
+            color: #d34a4a;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            border: 1px solid #dce4ee;
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text);
+            background: white;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(22, 198, 177, 0.12);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 105px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .help-text {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        /* IMAGE UPLOAD */
+        .upload-box {
+            display: block;
+            border: 2px dashed #cbd8e5;
+            border-radius: 12px;
+            padding: 25px 15px;
+            text-align: center;
+            background: #f9fbfd;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .upload-box:hover {
+            border-color: var(--teal);
+            background: #f0fcf9;
+        }
+
+        .upload-icon {
+            font-size: 33px;
+            margin-bottom: 5px;
+        }
+
+        .upload-box strong {
+            display: block;
+            color: var(--navy);
+            font-size: 14px;
+        }
+
+        .upload-box span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .upload-box input {
+            display: none;
+        }
+
+        .image-preview {
+            display: none;
+            width: 100%;
+            max-height: 260px;
+            object-fit: contain;
+            margin-top: 15px;
+            border-radius: 10px;
+            background: var(--light);
+        }
+
+        /* BUTTONS */
+        .submit-button {
+            width: 100%;
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            padding: 14px;
+            border-radius: 9px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .submit-button:hover {
+            background: #0fb49f;
+        }
+
+        .reset-button {
+            width: 100%;
+            background: white;
+            color: var(--navy);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 9px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* PREVIEW */
+        .preview-image {
+            background: #edf2f8;
+            min-height: 160px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .preview-image img {
+            width: 100%;
+            max-height: 230px;
+            object-fit: cover;
+            display: none;
+        }
+
+        .preview-placeholder {
+            text-align: center;
+            color: #8390a4;
+            font-size: 13px;
+            padding: 25px;
+        }
+
+        .preview-category {
+            color: #079e8e;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .preview-title {
+            color: var(--navy);
+            font-size: 19px;
+            font-weight: 800;
+            margin: 6px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .preview-description {
+            font-size: 13px;
+            color: var(--muted);
+            overflow-wrap: anywhere;
+        }
+
+        .preview-price {
+            color: var(--navy);
+            font-size: 25px;
+            font-weight: 800;
+            margin-top: 12px;
+        }
+
+        .preview-condition {
+            display: inline-block;
+            margin-top: 7px;
+            background: #e5faf5;
+            color: #087d70;
+            padding: 5px 9px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        /* TIPS */
+        .tips-card {
+            margin-top: 20px;
+        }
+
+        .tips-card ul {
+            padding-left: 19px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .tips-card li {
+            margin: 11px 0;
+        }
+
+        .success-message {
+            display: none;
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 9px;
+            background: #e5faf5;
+            border: 1px solid #bcecdf;
+            color: #087d70;
+            font-size: 13px;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--navy);
+            color: white;
+            padding: 35px 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer p {
+            color: #b6c2d5;
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #c2ccdc;
+            font-size: 13px;
+        }
+
+        .copyright {
+            border-top: 1px solid #34425b;
+            margin-top: 25px;
+            padding-top: 18px;
+            text-align: center;
+            color: #aebbd0;
+            font-size: 12px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 800px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-column {
+                order: -1;
+            }
+
+            .preview-card {
+                display: grid;
+                grid-template-columns: 130px 1fr;
+                gap: 15px;
+            }
+
+            .preview-card h2 {
+                grid-column: 1 / -1;
+            }
+
+            .preview-image {
+                min-height: 120px;
+                margin: 0;
+            }
+
+            .preview-content {
+                min-width: 0;
+            }
+
+            .tips-card {
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .nav-content {
+                padding: 12px 0;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                gap: 19px;
+            }
+
+            .nav-links a {
+                white-space: nowrap;
+                font-size: 13px;
+            }
+
+            .login-link {
+                font-size: 12px;
+                padding: 8px 11px;
+            }
+
+            .page-header {
+                padding: 32px 0 45px;
+            }
+
+            .main-section {
+                padding-top: 25px;
+            }
+
+            .form-card,
+            .preview-card,
+            .tips-card {
+                padding: 18px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .preview-card {
+                grid-template-columns: 100px 1fr;
+                gap: 12px;
+            }
+
+            .preview-image {
+                min-height: 110px;
+            }
+
+            .preview-title {
+                font-size: 16px;
+            }
+
+            .preview-price {
+                font-size: 21px;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container nav-content">
+
+            <a href="index.html" class="logo">
+                Campus<span>Kart</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="browse.html">Browse</a>
+                <a href="sell.html" class="active">Sell</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+
+            <a href="login.html" class="login-link">Log in</a>
+
+        </div>
+    </header>
+
+    <!-- PAGE HEADER -->
+    <section class="page-header">
+        <div class="container">
+            <span class="eyebrow">SELL SMART. REUSE MORE.</span>
+
+            <h1>List Your Item.<br><span>Find It a New Home.</span></h1>
+
+            <p>
+                Turn your unused college essentials into something
+                useful for another student. Create your listing below.
+            </p>
+        </div>
+    </section>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-section">
+        <div class="container layout">
+
+            <!-- SELL FORM -->
+            <section class="form-card">
+                <h2>Item Details</h2>
+                <p class="section-description">
+                    Enter the details of the item you want to sell.
+                </p>
+
+                <form id="sellForm">
+
+                    <!-- IMAGE -->
+                    <div class="form-group">
+                        <label>Product Photo</label>
+
+                        <label class="upload-box" for="productImage">
+                            <div class="upload-icon">📸</div>
+                            <strong>Click to upload a photo</strong>
+                            <span>Choose an image from your device</span>
+                            <input type="file"
+                                   id="productImage"
+                                   accept="image/*">
+                        </label>
+
+                        <img id="imagePreview"
+                             class="image-preview"
+                             alt="Selected product preview">
+                    </div>
+
+                    <!-- TITLE -->
+                    <div class="form-group">
+                        <label for="itemName">
+                            Item Name <span class="required">*</span>
+                        </label>
+
+                        <input type="text"
+                               id="itemName"
+                               placeholder="e.g. Engineering Mathematics Book"
+                               maxlength="70"
+                               required>
+                    </div>
+
+                    <!-- CATEGORY + CONDITION -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="category">
+                                Category <span class="required">*</span>
+                            </label>
+
+                            <select id="category" required>
+                                <option value="">Select category</option>
+                                <option value="Books">Books</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Notes">Notes & Study Material</option>
+                                <option value="Hostel Essentials">Hostel Essentials</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="condition">
+                                Condition <span class="required">*</span>
+                            </label>
+
+                            <select id="condition" required>
+                                <option value="">Select condition</option>
+                                <option value="Like New">Like New</option>
+                                <option value="Good">Good</option>
+                                <option value="Well Maintained">Well Maintained</option>
+                                <option value="Used">Used</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- PRICE + ORIGINAL PRICE -->
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="price">
+                                Selling Price (₹) <span class="required">*</span>
+                            </label>
+
+                            <input type="number"
+                                   id="price"
+                                   min="1"
+                                   max="1000000"
+                                   step="1"
+                                   placeholder="e.g. 250"
+                                   required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="originalPrice">
+                                Original Price (₹)
+                            </label>
+
+                            <input type="number"
+                                   id="originalPrice"
+                                   min="0"
+                                   max="1000000"
+                                   step="1"
+                                   placeholder="e.g. 500">
+
+                            <span class="help-text">
+                                Optional: original purchase price.
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <!-- DESCRIPTION -->
+                    <div class="form-group">
+                        <label for="description">
+                            Description <span class="required">*</span>
+                        </label>
+
+                        <textarea id="description"
+                                  maxlength="500"
+                                  placeholder="Mention item details, usage and any defects..."
+                                  required></textarea>
+                    </div>
+
+                    <!-- CAMPUS -->
+                    <div class="form-group">
+                        <label for="campus">
+                            College / Campus
+                        </label>
+
+                        <input type="text"
+                               id="campus"
+                               placeholder="Enter your college name">
+                    </div>
+
+                    <!-- SUBMIT -->
+                    <button type="submit" class="submit-button">
+                        Create Listing →
+                    </button>
+
+                    <button type="reset" class="reset-button">
+                        Clear Form
+                    </button>
+
+                    <div class="success-message" id="successMessage"
+                         role="status">
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- PREVIEW AND TIPS -->
+            <aside class="preview-column">
+
+                <section class="preview-card">
+                    <h2>Live Preview</h2>
+
+                    <div class="preview-image">
+                        <div class="preview-placeholder"
+                             id="previewPlaceholder">
+                            📦<br>
+                            Your product photo will appear here.
+                        </div>
+
+                        <img id="previewCardImage"
+                             alt="Product card preview">
+                    </div>
+
+                    <div class="preview-content">
+                        <span class="preview-category" id="previewCategory">
+                            YOUR CATEGORY
+                        </span>
+
+                        <h3 class="preview-title" id="previewTitle">
+                            Your item name
+                        </h3>
+
+                        <p class="preview-description"
+                           id="previewDescription">
+                            Your product description will appear here.
+                        </p>
+
+                        <div class="preview-price" id="previewPrice">
+                            ₹0
+                        </div>
+
+                        <span class="preview-condition"
+                              id="previewCondition">
+                            Condition
+                        </span>
+                    </div>
+                </section>
+
+                <section class="tips-card">
+                    <h2>Tips for Selling</h2>
+
+                    <ul>
+                        <li>Upload a clear photo of your actual item.</li>
+                        <li>Choose the correct category and condition.</li>
+                        <li>Set a fair and student-friendly price.</li>
+                        <li>Mention any damage honestly.</li>
+                        <li>Arrange exchanges in a safe public campus location.</li>
+                    </ul>
+                </section>
+
+            </aside>
+
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+
+            <div class="footer-content">
+                <div>
+                    <a href="index.html" class="logo">
+                        Campus<span>Kart</span>
+                    </a>
+                    <p>Buy. Sell. Connect. Right on Campus.</p>
+                </div>
+
+                <div class="footer-links">
+                    <a href="index.html">Home</a>
+                    <a href="browse.html">Browse</a>
+                    <a href="sell.html">Sell</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+            </div>
+
+            <div class="copyright">
+                © 2026 CampusKart. Built for campus life.
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Form ke elements select karna
+        const sellForm = document.getElementById("sellForm");
+        const productImage = document.getElementById("productImage");
+        const imagePreview = document.getElementById("imagePreview");
+        const previewCardImage = document.getElementById("previewCardImage");
+        const previewPlaceholder = document.getElementById("previewPlaceholder");
+        const successMessage = document.getElementById("successMessage");
+
+        // Live preview ke liye elements
+        const itemName = document.getElementById("itemName");
+        const category = document.getElementById("category");
+        const condition = document.getElementById("condition");
+        const price = document.getElementById("price");
+        const description = document.getElementById("description");
+
+        const previewTitle = document.getElementById("previewTitle");
+        const previewCategory = document.getElementById("previewCategory");
+        const previewCondition = document.getElementById("previewCondition");
+        const previewPrice = document.getElementById("previewPrice");
+        const previewDescription = document.getElementById("previewDescription");
+
+        // Form mein type karte hi preview update hoga
+        function updatePreview() {
+            previewTitle.textContent =
+                itemName.value.trim() || "Your item name";
+
+            previewCategory.textContent =
+                category.value || "YOUR CATEGORY";
+
+            previewCondition.textContent =
+                condition.value || "Condition";
+
+            previewPrice.textContent =
+                price.value && Number(price.value) > 0
+                    ? "₹" + Number(price.value).toLocaleString("en-IN")
+                    : "₹0";
+
+            previewDescription.textContent =
+                description.value.trim() ||
+                "Your product description will appear here.";
+        }
+
+        // Live preview events
+        [itemName, category, condition, price, description]
+            .forEach(function(element) {
+                element.addEventListener("input", updatePreview);
+                element.addEventListener("change", updatePreview);
+            });
+
+        // Image upload and preview
+        productImage.addEventListener("change", function() {
+            const file = productImage.files[0];
+
+            if (!file) {
+                imagePreview.style.display = "none";
+                previewCardImage.style.display = "none";
+                previewPlaceholder.style.display = "block";
+                return;
+            }
+
+            // Image size limit: 5 MB
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Please choose an image smaller than 5 MB.");
+                productImage.value = "";
+                return;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                alert("Please choose a valid image file.");
+                productImage.value = "";
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                imagePreview.style.display = "block";
+
+                previewCardImage.src = event.target.result;
+                previewCardImage.style.display = "block";
+
+                previewPlaceholder.style.display = "none";
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        // Form submit
+        sellForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const sellingPrice = Number(price.value);
+            const originalPrice = document.getElementById("originalPrice").value;
+
+            if (sellingPrice <= 0) {
+                alert("Selling price must be greater than zero.");
+                price.focus();
+                return;
+            }
+
+            if (originalPrice !== "" && Number(originalPrice) < 0) {
+                alert("Original price cannot be negative.");
+                return;
+            }
+
+            // Frontend demo: listing abhi permanently save nahi hoti.
+            successMessage.style.display = "block";
+            successMessage.textContent =
+                "Your form looks good! This is a demo: your listing has not been saved or published. A database and seller account are needed to publish it.";
+
+            successMessage.scrollIntoView({
+                behavior: "smooth",
+                block: "nearest"
+            });
+        });
+
+        // Clear karne par preview reset karna
+        sellForm.addEventListener("reset", function() {
+            setTimeout(function() {
+                imagePreview.removeAttribute("src");
+                imagePreview.style.display = "none";
+
+                previewCardImage.removeAttribute("src");
+                previewCardImage.style.display = "none";
+
+                previewPlaceholder.style.display = "block";
+                successMessage.style.display = "none";
+
+                updatePreview();
+            }, 0);
+        });
+
+    </script>
+
+</body>
+</html>
+```
+

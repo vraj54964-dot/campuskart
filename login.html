@@ -1,0 +1,420 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CampusKart | Login</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navbar */
+        header {
+            background: #101b35;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: #2dd4bf;
+        }
+
+        nav {
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #dce5f5;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: #2dd4bf;
+        }
+
+        /* Main login section */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 45px 18px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .welcome-text {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .welcome-icon {
+            width: 68px;
+            height: 68px;
+            background: #ccfbf1;
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 32px;
+            margin: 0 auto 18px;
+        }
+
+        .welcome-text h1 {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-text p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .login-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid #e5eaf2;
+            box-shadow: 0 10px 35px #101b3510;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 9px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .form-group input:focus {
+            border-color: #0f766e;
+            box-shadow: 0 0 0 3px #0f766e18;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            background: none;
+            color: #0f766e;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            margin: 4px 0 23px;
+        }
+
+        .remember {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #475569;
+        }
+
+        .remember input {
+            accent-color: #0f766e;
+        }
+
+        .form-options a,
+        .signup-text a {
+            color: #0f766e;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .form-options a:hover,
+        .signup-text a:hover {
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: #0f766e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #115e59;
+        }
+
+        .signup-text {
+            text-align: center;
+            margin-top: 23px;
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        .demo-notice {
+            background: #f0fdfa;
+            color: #115e59;
+            border: 1px solid #ccfbf1;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        footer {
+            background: #101b35;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 22px 15px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 17px 5%;
+            }
+
+            nav {
+                gap: 13px;
+            }
+
+            .login-card {
+                padding: 23px 19px;
+            }
+
+            .welcome-text h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <a href="index.html" class="logo">
+            Campus<span>Kart</span>
+        </a>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="browse.html">Browse</a>
+            <a href="sell.html">Sell</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="login.html" class="active">Login</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="login-container">
+
+            <div class="welcome-text">
+                <div class="welcome-icon">🎓</div>
+                <h1>Welcome Back!</h1>
+                <p>
+                    Login to your CampusKart account and
+                    connect with your campus community.
+                </p>
+            </div>
+
+            <div class="login-card">
+
+                <form id="loginForm">
+
+                    <div class="form-group">
+                        <label for="email">Enter Your Email</label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+
+                        <div class="password-wrapper">
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required
+                                minlength="6"
+                            >
+
+                            <button
+                                type="button"
+                                class="show-password"
+                                id="togglePassword"
+                            >
+                                Show
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+
+                        <label class="remember">
+                            <input type="checkbox" id="remember">
+                            Remember me
+                        </label>
+
+                        <a href="#" id="forgotPassword">
+                            Forgot password?
+                        </a>
+
+                    </div>
+
+                    <button type="submit" class="login-btn">
+                        Login to CampusKart →
+                    </button>
+
+                </form>
+
+                <p class="signup-text">
+                    Don't have an account?
+                    <a href="signup.html">Create Account</a>
+                </p>
+
+                <div class="demo-notice">
+                    <p id="message">Enter your email and password to log in.</p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
+    </footer>
+
+    
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+  import {
+    getAuth,
+    signInWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+    authDomain: "campus-cart-62492.firebaseapp.com",
+    projectId: "campus-cart-62492",
+    storageBucket: "campus-cart-62492.firebasestorage.app",
+    messagingSenderId: "182996728543",
+    appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+    measurementId: "G-NN86N2NE52"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const loginForm = document.getElementById("loginForm");
+  const message = document.getElementById("message");
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    message.textContent = "Logging in...";
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+
+      message.textContent = "Login successful!";
+
+      window.location.href = "dashboard.html";
+
+    } catch (error) {
+      console.error(error);
+
+      if (
+        error.code === "auth/invalid-credential" ||
+        error.code === "auth/wrong-password" ||
+        error.code === "auth/user-not-found"
+      ) {
+        message.textContent = "Incorrect email or password.";
+      } else {
+        message.textContent = error.message;
+      }
+    }
+  });
+</script>
+
+
+</body>
+</html>

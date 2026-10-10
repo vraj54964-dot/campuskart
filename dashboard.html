@@ -1,0 +1,590 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusKart | Dashboard</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+        }
+
+        header {
+            background: #101b35;
+            color: white;
+            padding: 18px 7%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #2dd4bf;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        nav a {
+            color: #dce5f5;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            color: #2dd4bf;
+        }
+
+        .container {
+            max-width: 1150px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .welcome {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .welcome h1 {
+            font-size: 30px;
+            margin-bottom: 8px;
+        }
+
+        .welcome p {
+            color: #64748b;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #0f766e;
+            color: white;
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #115e59;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px solid #e5eaf2;
+            box-shadow: 0 4px 15px #101b3508;
+        }
+
+        .stat-card .icon {
+            font-size: 25px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card h2 {
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 22px;
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            background: white;
+            padding: 24px;
+            border: 1px solid #e5eaf2;
+            border-radius: 14px;
+            margin-bottom: 22px;
+        }
+
+        .panel-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .panel-heading h2 {
+            font-size: 19px;
+        }
+
+        .panel-heading a {
+            color: #0f766e;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .listing {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 15px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .listing:last-child {
+            border-bottom: none;
+        }
+
+        .product-icon {
+            width: 58px;
+            height: 58px;
+            background: #e7f8f5;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 29px;
+            flex-shrink: 0;
+        }
+
+        .listing-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .listing-info h3 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .listing-info p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .price {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .status {
+            display: inline-block;
+            font-size: 11px;
+            padding: 5px 9px;
+            border-radius: 20px;
+            margin-top: 7px;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .sold {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .activity {
+            display: flex;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #edf0f5;
+        }
+
+        .activity:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            background: #e7f8f5;
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .activity p {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .activity small {
+            color: #64748b;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .action-card {
+            border: 1px solid #e5eaf2;
+            border-radius: 10px;
+            padding: 17px;
+            text-decoration: none;
+            color: #172033;
+        }
+
+        .action-card:hover {
+            border-color: #0f766e;
+            background: #f0fdfa;
+        }
+
+        .action-card div {
+            font-size: 24px;
+            margin-bottom: 9px;
+        }
+
+        .action-card h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .action-card p {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .empty-message {
+            color: #64748b;
+            font-size: 14px;
+            padding: 10px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: #101b35;
+            color: #cbd5e1;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 850px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 18px 5%;
+            }
+
+            nav {
+                gap: 13px;
+            }
+
+            .container {
+                padding: 0 14px;
+                margin-top: 25px;
+            }
+
+            .welcome h1 {
+                font-size: 25px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 16px;
+            }
+
+            .stat-card h2 {
+                font-size: 24px;
+            }
+
+            .panel {
+                padding: 17px;
+            }
+
+            .listing {
+                flex-wrap: wrap;
+            }
+
+            .price {
+                margin-left: 72px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Campus<span>Kart</span></div>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="browse.html">Browse</a>
+            <a href="sell.html">Sell</a>
+            <a href="dashboard.html" class="active">Dashboard</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </header>
+
+    <main class="container">
+
+        <section class="welcome">
+            <div>
+                <h1>My Dashboard 👋</h1>
+                <p>Manage your campus marketplace activity in one place.</p>
+            </div>
+
+            <a href="sell.html" class="btn">+ Sell an Item</a>
+        </section>
+
+        <!-- Statistics -->
+        <section class="stats">
+
+            <div class="stat-card">
+                <div class="icon">📦</div>
+                <h2 id="totalListings">3</h2>
+                <p>Total Listings</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">🟢</div>
+                <h2 id="activeListings">2</h2>
+                <p>Active Listings</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">✅</div>
+                <h2 id="soldListings">1</h2>
+                <p>Items Sold</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="icon">❤️</div>
+                <h2 id="savedCount">2</h2>
+                <p>Saved Items</p>
+            </div>
+
+        </section>
+
+        <section class="content-grid">
+
+            <!-- My Listings -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <h2>📦 My Listings</h2>
+                    <a href="sell.html">+ Add New</a>
+                </div>
+
+                <div id="myListings">
+
+                    <div class="listing">
+                        <div class="product-icon">📚</div>
+                        <div class="listing-info">
+                            <h3>Engineering Mathematics Book</h3>
+                            <p>Books · Good Condition</p>
+                            <span class="status">Active</span>
+                        </div>
+                        <div class="price">₹250</div>
+                    </div>
+
+                    <div class="listing">
+                        <div class="product-icon">🧮</div>
+                        <div class="listing-info">
+                            <h3>Scientific Calculator</h3>
+                            <p>Electronics · Like New</p>
+                            <span class="status">Active</span>
+                        </div>
+                        <div class="price">₹450</div>
+                    </div>
+
+                    <div class="listing">
+                        <div class="product-icon">🎒</div>
+                        <div class="listing-info">
+                            <h3>College Backpack</h3>
+                            <p>Bags · Good Condition</p>
+                            <span class="status sold">Sold</span>
+                        </div>
+                        <div class="price">₹300</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <h2>🔔 Recent Activity</h2>
+                </div>
+
+                <div class="activity">
+                    <div class="activity-icon">💬</div>
+                    <div>
+                        <p><strong>New message received</strong></p>
+                        <small>A student is interested in your book.</small>
+                    </div>
+                </div>
+
+                <div class="activity">
+                    <div class="activity-icon">❤️</div>
+                    <div>
+                        <p><strong>Item saved</strong></p>
+                        <small>You saved a programming book.</small>
+                    </div>
+                </div>
+
+                <div class="activity">
+                    <div class="activity-icon">✅</div>
+                    <div>
+                        <p><strong>Item marked as sold</strong></p>
+                        <small>Your backpack listing was sold.</small>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="content-grid">
+
+            <!-- Saved Items -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <h2>❤️ Saved Items</h2>
+                    <a href="browse.html">Browse More</a>
+                </div>
+
+                <div class="listing">
+                    <div class="product-icon">💻</div>
+                    <div class="listing-info">
+                        <h3>Second-hand Laptop</h3>
+                        <p>Electronics · Good Condition</p>
+                    </div>
+                    <div class="price">₹12,000</div>
+                </div>
+
+                <div class="listing">
+                    <div class="product-icon">📖</div>
+                    <div class="listing-info">
+                        <h3>Programming Notes</h3>
+                        <p>Study Material · Like New</p>
+                    </div>
+                    <div class="price">₹100</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="panel">
+                <div class="panel-heading">
+                    <h2>⚡ Quick Actions</h2>
+                </div>
+
+                <div class="quick-actions">
+
+                    <a href="sell.html" class="action-card">
+                        <div>➕</div>
+                        <h3>Sell an Item</h3>
+                        <p>List your product</p>
+                    </a>
+
+                    <a href="browse.html" class="action-card">
+                        <div>🔍</div>
+                        <h3>Browse Items</h3>
+                        <p>Find campus deals</p>
+                    </a>
+
+                    <a href="index.html" class="action-card">
+                        <div>🏠</div>
+                        <h3>Home Page</h3>
+                        <p>Explore CampusKart</p>
+                    </a>
+
+                    <a href="login.html" class="action-card">
+                        <div>👤</div>
+                        <h3>My Account</h3>
+                        <p>Login or sign up</p>
+                    </a>
+
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
+    </footer>
+
+    <script>
+        // Demo dashboard data
+        // Abhi ye sample data hai, database se connected nahi hai.
+
+        const listings = [
+            { name: "Engineering Mathematics Book", price: 250, status: "Active", icon: "📚" },
+            { name: "Scientific Calculator", price: 450, status: "Active", icon: "🧮" },
+            { name: "College Backpack", price: 300, status: "Sold", icon: "🎒" }
+        ];
+
+        const savedItems = [
+            { name: "Second-hand Laptop", price: 12000 },
+            { name: "Programming Notes", price: 100 }
+        ];
+
+        // Statistics calculate karna
+        const activeCount = listings.filter(
+            item => item.status === "Active"
+        ).length;
+
+        const soldCount = listings.filter(
+            item => item.status === "Sold"
+        ).length;
+
+        document.getElementById("totalListings").textContent = listings.length;
+        document.getElementById("activeListings").textContent = activeCount;
+        document.getElementById("soldListings").textContent = soldCount;
+        document.getElementById("savedCount").textContent = savedItems.length;
+    </script>
+
+</body>
+</html>

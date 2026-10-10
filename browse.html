@@ -1,0 +1,1252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Browse Marketplace | CampusKart</title>
+
+    <style>
+        /* ===== 1. BASIC SETTINGS ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #101c35;
+            --teal: #16c6b1;
+            --light: #f5f8fc;
+            --white: #ffffff;
+            --text: #26344d;
+            --muted: #6b7890;
+            --border: #e4eaf2;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        /* ===== 2. NAVBAR ===== */
+        .navbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-content {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .logo {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            color: var(--navy);
+            white-space: nowrap;
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            color: #526078;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #079e8e;
+        }
+
+        .sell-button {
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            border-radius: 9px;
+            padding: 11px 17px;
+            font-size: 14px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        /* ===== 3. PAGE HEADING ===== */
+        .page-header {
+            background: var(--navy);
+            color: white;
+            padding: 48px 0 58px;
+        }
+
+        .breadcrumb {
+            color: #b6c2d5;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .page-header h1 {
+            font-size: clamp(30px, 5vw, 45px);
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .page-header h1 span {
+            color: var(--teal);
+        }
+
+        .page-header p {
+            color: #c2ccdc;
+            max-width: 600px;
+            font-size: 15px;
+        }
+
+        /* ===== 4. SEARCH BAR ===== */
+        .search-wrapper {
+            margin-top: -25px;
+            position: relative;
+        }
+
+        .search-box {
+            background: white;
+            border-radius: 13px;
+            padding: 12px;
+            display: flex;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(16, 28, 53, 0.10);
+        }
+
+        .search-box input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border: none;
+            outline: none;
+        }
+
+        .search-box button {
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 23px;
+            font-weight: 700;
+        }
+
+        /* ===== 5. MAIN LAYOUT ===== */
+        .marketplace {
+            padding: 42px 0 70px;
+        }
+
+        .marketplace-layout {
+            display: grid;
+            grid-template-columns: 245px 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+
+        /* ===== 6. FILTER SIDEBAR ===== */
+        .filter-panel {
+            background: white;
+            padding: 23px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
+
+        .filter-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .filter-heading h2 {
+            color: var(--navy);
+            font-size: 19px;
+        }
+
+        .reset-button {
+            background: none;
+            border: none;
+            color: #079e8e;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .filter-group {
+            padding: 18px 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .filter-group h3 {
+            color: var(--navy);
+            font-size: 14px;
+            margin-bottom: 13px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            font-size: 13px;
+            color: #526078;
+            cursor: pointer;
+        }
+
+        .filter-option input {
+            accent-color: #0ba996;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .price-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .price-inputs input {
+            width: 50%;
+            min-width: 0;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            outline-color: var(--teal);
+        }
+
+        .apply-button {
+            margin-top: 12px;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background: var(--navy);
+            color: white;
+            font-weight: 700;
+        }
+
+        /* ===== 7. RESULTS TOOLBAR ===== */
+        .results-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .results-toolbar h2 {
+            font-size: 22px;
+            color: var(--navy);
+        }
+
+        .results-count {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        .sort-select {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            color: var(--text);
+            max-width: 190px;
+            outline-color: var(--teal);
+        }
+
+        /* ===== 8. PRODUCT GRID ===== */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .product-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            overflow: hidden;
+            transition: 0.25s;
+            min-width: 0;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(16, 28, 53, 0.08);
+        }
+
+        .product-image {
+            height: 175px;
+            background: #e8eef5;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.04);
+        }
+
+        .condition-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #e2faf4;
+            color: #087d70;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .product-details {
+            padding: 15px;
+        }
+
+        .product-category {
+            color: #079e8e;
+            text-transform: uppercase;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+        }
+
+        .product-details h3 {
+            font-size: 15px;
+            color: var(--navy);
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+
+        .product-description {
+            color: var(--muted);
+            font-size: 12px;
+            min-height: 38px;
+        }
+
+        .product-condition {
+            color: #68768b;
+            font-size: 11px;
+            margin-top: 8px;
+        }
+
+        .product-bottom {
+            border-top: 1px solid #edf1f6;
+            margin-top: 13px;
+            padding-top: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .product-price {
+            color: var(--navy);
+            font-size: 20px;
+            font-weight: 800;
+        }
+
+        .view-button {
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 7px;
+            padding: 8px 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .view-button:hover {
+            background: #203657;
+        }
+
+        /* ===== 9. EMPTY RESULTS ===== */
+        .empty-state {
+            display: none;
+            background: white;
+            padding: 45px 20px;
+            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            margin-top: 15px;
+        }
+
+        .empty-state .empty-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            color: var(--navy);
+            margin-bottom: 5px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* ===== 10. FOOTER ===== */
+        .footer {
+            background: var(--navy);
+            color: white;
+            padding: 40px 0 20px;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer .logo {
+            color: white;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+
+        .footer p {
+            color: #b6c2d5;
+            font-size: 13px;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #c2ccdc;
+            font-size: 13px;
+        }
+
+        .footer-links a:hover {
+            color: var(--teal);
+        }
+
+        .copyright {
+            text-align: center;
+            border-top: 1px solid #34425b;
+            margin-top: 25px;
+            padding-top: 18px;
+            font-size: 12px;
+            color: #aebbd0;
+        }
+
+        /* ===== 11. RESPONSIVE DESIGN ===== */
+        @media (max-width: 1050px) {
+            .marketplace-layout {
+                grid-template-columns: 210px 1fr;
+                gap: 18px;
+            }
+
+            .product-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .product-image {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 700px) {
+            .nav-content {
+                padding: 13px 0;
+                flex-wrap: wrap;
+            }
+
+            .logo {
+                font-size: 24px;
+            }
+
+            .nav-links {
+                order: 3;
+                width: 100%;
+                overflow-x: auto;
+                gap: 20px;
+                padding: 4px 0;
+            }
+
+            .nav-links a {
+                white-space: nowrap;
+                font-size: 13px;
+            }
+
+            .sell-button {
+                padding: 9px 11px;
+                font-size: 12px;
+            }
+
+            .page-header {
+                padding: 35px 0 48px;
+            }
+
+            .marketplace {
+                padding-top: 28px;
+            }
+
+            .marketplace-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-panel {
+                padding: 16px;
+            }
+
+            .filter-heading {
+                margin-bottom: 8px;
+            }
+
+            .filter-group {
+                padding: 12px 0;
+            }
+
+            .filter-option {
+                margin: 9px 0;
+            }
+
+            .results-toolbar {
+                align-items: flex-start;
+            }
+
+            .results-toolbar h2 {
+                font-size: 19px;
+            }
+
+            .sort-select {
+                max-width: 155px;
+                font-size: 12px;
+            }
+
+            .product-grid {
+                gap: 12px;
+            }
+
+            .product-image {
+                height: 145px;
+            }
+
+            .product-details {
+                padding: 11px;
+            }
+
+            .product-details h3 {
+                font-size: 13px;
+            }
+
+            .product-price {
+                font-size: 17px;
+            }
+
+            .view-button {
+                padding: 7px;
+                font-size: 10px;
+            }
+
+            .footer-content {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-image {
+                height: 210px;
+            }
+
+            .search-box button {
+                padding: 10px 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="container nav-content">
+
+            <a href="index.html" class="logo">
+                Campus<span>Kart</span>
+            </a>
+
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="browse.html" class="active">Browse</a>
+                <a href="sell.html">Sell</a>
+                <a href="dashboard.html">Dashboard</a>
+            </nav>
+
+            <a href="login.html" class="sell-button">Log in</a>
+
+        </div>
+    </header>
+
+    <main>
+
+        <!-- PAGE HEADER -->
+        <section class="page-header">
+            <div class="container">
+                <div class="breadcrumb">
+                    Home / Browse Marketplace
+                </div>
+
+                <h1>Find Your Next <span>Campus Essential.</span></h1>
+
+                <p>
+                    Discover affordable books, electronics, notes and
+                    everyday essentials listed by fellow students.
+                </p>
+            </div>
+        </section>
+
+        <!-- SEARCH BAR -->
+        <section class="search-wrapper">
+            <div class="container">
+                <form class="search-box" id="searchForm">
+                    <input
+                        type="search"
+                        id="searchInput"
+                        placeholder="Search books, calculators, bags..."
+                        aria-label="Search products"
+                    >
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- MARKETPLACE -->
+        <section class="marketplace">
+            <div class="container marketplace-layout">
+
+                <!-- FILTER SIDEBAR -->
+                <aside class="filter-panel">
+
+                    <div class="filter-heading">
+                        <h2>Filters</h2>
+                        <button class="reset-button" id="resetButton"
+                                type="button">
+                            Reset all
+                        </button>
+                    </div>
+
+                    <!-- CATEGORY FILTER -->
+                    <div class="filter-group">
+                        <h3>Category</h3>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category"
+                                   value="all" checked>
+                            All Categories
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category"
+                                   value="books">
+                            Books
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category"
+                                   value="electronics">
+                            Electronics
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category"
+                                   value="notes">
+                            Notes & Study Material
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category"
+                                   value="hostel">
+                            Hostel Essentials
+                        </label>
+                    </div>
+
+                    <!-- PRICE FILTER -->
+                    <div class="filter-group">
+                        <h3>Price Range (₹)</h3>
+
+                        <div class="price-inputs">
+                            <input type="number" id="minPrice"
+                                   placeholder="Min" min="0">
+                            <input type="number" id="maxPrice"
+                                   placeholder="Max" min="0">
+                        </div>
+
+                        <button type="button" class="apply-button"
+                                id="applyPrice">
+                            Apply Price
+                        </button>
+                    </div>
+
+                    <!-- CONDITION FILTER -->
+                    <div class="filter-group">
+                        <h3>Condition</h3>
+
+                        <label class="filter-option">
+                            <input type="checkbox" name="condition"
+                                   value="like new">
+                            Like New
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="checkbox" name="condition"
+                                   value="good">
+                            Good
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="checkbox" name="condition"
+                                   value="well maintained">
+                            Well Maintained
+                        </label>
+                    </div>
+
+                </aside>
+
+                <!-- PRODUCTS AREA -->
+                <div class="results-area">
+
+                    <div class="results-toolbar">
+                        <div>
+                            <h2>Explore Items</h2>
+                            <p class="results-count" id="resultsCount"
+                               aria-live="polite">
+                                Showing products
+                            </p>
+                        </div>
+
+                        <select class="sort-select" id="sortSelect"
+                                aria-label="Sort products">
+                            <option value="default">Sort: Featured</option>
+                            <option value="low">Price: Low to High</option>
+                            <option value="high">Price: High to Low</option>
+                            <option value="name">Name: A to Z</option>
+                        </select>
+                    </div>
+
+                    <div class="product-grid" id="productGrid">
+
+                        <!-- PRODUCT 1 -->
+                        <article class="product-card"
+                            data-category="books"
+                            data-price="250"
+                            data-condition="good"
+                            data-name="Engineering Mathematics"
+                            data-search="engineering mathematics textbook semester book">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80"
+                                    alt="Engineering study book"
+                                    loading="lazy">
+                                <span class="condition-tag">Good</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Books</span>
+                                <h3>Engineering Mathematics</h3>
+                                <p class="product-description">
+                                    Semester study textbook.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Good
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹250</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- PRODUCT 2 -->
+                        <article class="product-card"
+                            data-category="electronics"
+                            data-price="400"
+                            data-condition="like new"
+                            data-name="Scientific Calculator"
+                            data-search="scientific calculator electronics casio">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&w=600&q=80"
+                                    alt="Scientific calculator"
+                                    loading="lazy">
+                                <span class="condition-tag">Like New</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Electronics</span>
+                                <h3>Scientific Calculator</h3>
+                                <p class="product-description">
+                                    A useful exam companion.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Like New
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹400</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- PRODUCT 3 -->
+                        <article class="product-card"
+                            data-category="notes"
+                            data-price="100"
+                            data-condition="well maintained"
+                            data-name="Physics Study Notes"
+                            data-search="physics notes handwritten study material">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80"
+                                    alt="Physics study notes"
+                                    loading="lazy">
+                                <span class="condition-tag">Well Maintained</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Notes</span>
+                                <h3>Physics Study Notes</h3>
+                                <p class="product-description">
+                                    Revision and exam preparation notes.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Well Maintained
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹100</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- PRODUCT 4 -->
+                        <article class="product-card"
+                            data-category="hostel"
+                            data-price="350"
+                            data-condition="good"
+                            data-name="College Backpack"
+                            data-search="college backpack bag hostel">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
+                                    alt="College backpack"
+                                    loading="lazy">
+                                <span class="condition-tag">Good</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Hostel Essentials</span>
+                                <h3>College Backpack</h3>
+                                <p class="product-description">
+                                    An everyday campus bag.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Good
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹350</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- PRODUCT 5 -->
+                        <article class="product-card"
+                            data-category="books"
+                            data-price="180"
+                            data-condition="like new"
+                            data-name="C++ Programming Book"
+                            data-search="c++ programming coding book computer science">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80"
+                                    alt="Programming book"
+                                    loading="lazy">
+                                <span class="condition-tag">Like New</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Books</span>
+                                <h3>C++ Programming Book</h3>
+                                <p class="product-description">
+                                    Programming basics and practice.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Like New
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹180</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                        <!-- PRODUCT 6 -->
+                        <article class="product-card"
+                            data-category="electronics"
+                            data-price="700"
+                            data-condition="good"
+                            data-name="Wireless Headphones"
+                            data-search="wireless headphones audio electronics music">
+                            <div class="product-image">
+                                <img
+                                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
+                                    alt="Headphones"
+                                    loading="lazy">
+                                <span class="condition-tag">Good</span>
+                            </div>
+
+                            <div class="product-details">
+                                <span class="product-category">Electronics</span>
+                                <h3>Wireless Headphones</h3>
+                                <p class="product-description">
+                                    For music and online classes.
+                                </p>
+                                <p class="product-condition">
+                                    Condition: Good
+                                </p>
+
+                                <div class="product-bottom">
+                                    <span class="product-price">₹700</span>
+                                    <button class="view-button"
+                                            type="button">
+                                        View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <!-- NO RESULTS MESSAGE -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">🔎</div>
+                        <h3>No products found</h3>
+                        <p>
+                            Try changing your search or removing some filters.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+
+            <div class="footer-content">
+                <div>
+                    <a href="index.html" class="logo">
+                        Campus<span>Kart</span>
+                    </a>
+                    <p>Buy. Sell. Connect. Right on Campus.</p>
+                </div>
+
+                <div class="footer-links">
+                    <a href="index.html">Home</a>
+                    <a href="browse.html">Browse</a>
+                    <a href="sell.html">Sell</a>
+                    <a href="dashboard.html">Dashboard</a>
+                </div>
+            </div>
+
+            <div class="copyright">
+                © 2026 CampusKart. Built for campus life.
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // HTML elements ko select karna
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const productGrid = document.getElementById("productGrid");
+        const resultsCount = document.getElementById("resultsCount");
+        const emptyState = document.getElementById("emptyState");
+
+        const minPriceInput = document.getElementById("minPrice");
+        const maxPriceInput = document.getElementById("maxPrice");
+        const sortSelect = document.getElementById("sortSelect");
+        const resetButton = document.getElementById("resetButton");
+        const applyPriceButton = document.getElementById("applyPrice");
+
+        const productCards = Array.from(
+            document.querySelectorAll(".product-card")
+        );
+
+        // Selected category
+        function getSelectedCategory() {
+            return document.querySelector(
+                'input[name="category"]:checked'
+            ).value;
+        }
+
+        // Selected conditions
+        function getSelectedConditions() {
+            return Array.from(
+                document.querySelectorAll(
+                    'input[name="condition"]:checked'
+                )
+            ).map(function(input) {
+                return input.value;
+            });
+        }
+
+        // Main filter function
+        function filterProducts() {
+            const searchText = searchInput.value
+                .toLowerCase()
+                .trim();
+
+            const category = getSelectedCategory();
+            const conditions = getSelectedConditions();
+
+            const minPrice = minPriceInput.value === ""
+                ? 0
+                : Number(minPriceInput.value);
+
+            const maxPrice = maxPriceInput.value === ""
+                ? Infinity
+                : Number(maxPriceInput.value);
+
+            // Invalid price range check
+            if (minPrice < 0 || maxPrice < 0 ||
+                minPrice > maxPrice) {
+                resultsCount.textContent =
+                    "Please enter a valid price range.";
+                return;
+            }
+
+            // Search and filter
+            const filteredProducts = productCards.filter(function(card) {
+                const name = card.dataset.name.toLowerCase();
+                const keywords = card.dataset.search.toLowerCase();
+                const productCategory = card.dataset.category;
+                const price = Number(card.dataset.price);
+                const condition = card.dataset.condition;
+
+                const matchesSearch =
+                    name.includes(searchText) ||
+                    keywords.includes(searchText);
+
+                const matchesCategory =
+                    category === "all" ||
+                    productCategory === category;
+
+                const matchesPrice =
+                    price >= minPrice &&
+                    price <= maxPrice;
+
+                const matchesCondition =
+                    conditions.length === 0 ||
+                    conditions.includes(condition);
+
+                return matchesSearch &&
+                    matchesCategory &&
+                    matchesPrice &&
+                    matchesCondition;
+            });
+
+            // Sorting products
+            const sortValue = sortSelect.value;
+
+            if (sortValue === "low") {
+                filteredProducts.sort(function(a, b) {
+                    return Number(a.dataset.price) -
+                           Number(b.dataset.price);
+                });
+            } else if (sortValue === "high") {
+                filteredProducts.sort(function(a, b) {
+                    return Number(b.dataset.price) -
+                           Number(a.dataset.price);
+                });
+            } else if (sortValue === "name") {
+                filteredProducts.sort(function(a, b) {
+                    return a.dataset.name.localeCompare(
+                        b.dataset.name
+                    );
+                });
+            }
+
+            // Hide all cards first
+            productCards.forEach(function(card) {
+                card.style.display = "none";
+            });
+
+            // Show matching cards in sorted order
+            filteredProducts.forEach(function(card) {
+                card.style.display = "";
+                productGrid.appendChild(card);
+            });
+
+            // Update result count
+            resultsCount.textContent =
+                "Showing " + filteredProducts.length +
+                " of " + productCards.length + " products";
+
+            // Show empty message if no match
+            emptyState.style.display =
+                filteredProducts.length === 0 ? "block" : "none";
+        }
+
+        // Search button
+        searchForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            filterProducts();
+        });
+
+        // Category change
+        document.querySelectorAll('input[name="category"]')
+            .forEach(function(input) {
+                input.addEventListener("change", filterProducts);
+            });
+
+        // Condition change
+        document.querySelectorAll('input[name="condition"]')
+            .forEach(function(input) {
+                input.addEventListener("change", filterProducts);
+            });
+
+        // Apply price range
+        applyPriceButton.addEventListener("click", filterProducts);
+
+        // Enter key in price inputs
+        [minPriceInput, maxPriceInput].forEach(function(input) {
+            input.addEventListener("keydown", function(event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    filterProducts();
+                }
+            });
+        });
+
+        // Sort products
+        sortSelect.addEventListener("change", filterProducts);
+
+        // Reset all filters
+        resetButton.addEventListener("click", function() {
+            searchInput.value = "";
+            minPriceInput.value = "";
+            maxPriceInput.value = "";
+            sortSelect.value = "default";
+
+            document.querySelector(
+                'input[name="category"][value="all"]'
+            ).checked = true;
+
+            document.querySelectorAll('input[name="condition"]')
+                .forEach(function(input) {
+                    input.checked = false;
+                });
+
+            filterProducts();
+        });
+
+        // Initial display
+        filterProducts();
+
+        // Demo product detail buttons
+        document.querySelectorAll(".view-button")
+            .forEach(function(button) {
+                button.addEventListener("click", function() {
+                    const card = button.closest(".product-card");
+                    const name = card.dataset.name;
+                    const price = card.dataset.price;
+                    const condition = card.dataset.condition;
+
+                    alert(
+                        "Product: " + name +
+                        "\nPrice: ₹" + price +
+                        "\nCondition: " + condition +
+                        "\n\nThis is a demo listing. Product details " +
+                        "and seller contact will be added later."
+                    );
+                });
+            });
+    </script>
+
+</body>
+</html>
