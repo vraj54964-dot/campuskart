@@ -561,9 +561,18 @@
         <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
     </footer>
 
-   ```html
+   
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+  import {
+  getFirestore,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
   import {
     getAuth,
@@ -583,6 +592,7 @@
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  const db = getFirestore(app);
 
   const userEmail = document.getElementById("userEmail");
   const logoutBtn = document.getElementById("logoutBtn");
@@ -591,6 +601,7 @@
   onAuthStateChanged(auth, (user) => {
     if (user) {
       userEmail.textContent = "Logged in as: " + user.email;
+      loadMyListings(user);
     } else {
       window.location.replace("login.html");
     }
@@ -601,36 +612,101 @@
     try {
       await signOut(auth);
       window.location.replace("login.html");
+      
     } catch (error) {
       console.error("Logout error:", error);
       alert("Logout failed. Please try again.");
     }
   });
 
-  // Temporary demo data for dashboard statistics
-  const listings = [
-    { name: "Engineering Mathematics Book", price: 250, status: "Active", icon: "📚" },
-    { name: "Scientific Calculator", price: 450, status: "Active", icon: "🧮" },
-    { name: "College Backpack", price: 300, status: "Sold", icon: "🎒" }
-  ];
+  
+async function loadMyListings(user) {
+  const listingsContainer = document.getElementById("myListings");
 
-  const savedItems = [
-    { name: "Second-hand Laptop", price: 12000 },
-    { name: "Programming Notes", price: 100 }
-  ];
+  try {
+    listingsContainer.innerHTML =
+      '<p class="empty-message">Loading your listings...</p>';
 
-  const activeCount = listings.filter(
-    item => item.status === "Active"
-  ).length;
+    const listingsQuery = query(
+      collection(db, "listings"),
+      where("sellerId", "==", user.uid)
+    );
 
-  const soldCount = listings.filter(
-    item => item.status === "Sold"
-  ).length;
+    const snapshot = await getDocs(listingsQuery);
+    const myItems = snapshot.docs.map(item => ({
+      id: item.id,
+      ...item.data()
+    }));
 
-  document.getElementById("totalListings").textContent = listings.length;
-  document.getElementById("activeListings").textContent = activeCount;
-  document.getElementById("soldListings").textContent = soldCount;
-  document.getElementById("savedCount").textContent = savedItems.length;
+    // Update dashboard statistics
+    document.getElementById("totalListings").textContent =
+      myItems.length;
+
+    document.getElementById("activeListings").textContent =
+      myItems.filter(item => item.status === "Active").length;
+
+    document.getElementById("soldListings").textContent =
+      myItems.filter(item => item.status === "Sold").length;
+
+    // Saved items feature is not connected yet
+    document.getElementById("savedCount").textContent = "0";
+
+    if (myItems.length === 0) {
+      listingsContainer.innerHTML = `
+        <p class="empty-message">
+          You haven't listed any products yet.
+          <a href="sell.html">Sell your first item</a>
+        </p>
+      `;
+      return;
+    }
+
+    listingsContainer.replaceChildren();
+
+    myItems.forEach(item => {
+      const listing = document.createElement("div");
+      listing.className = "listing";
+
+      const icon = document.createElement("div");
+      icon.className = "product-icon";
+      icon.textContent =
+        item.category === "Books" ? "📚" :
+        item.category === "Electronics" ? "🧮" :
+        item.category === "Bags" ? "🎒" : "📦";
+
+      const info = document.createElement("div");
+      info.className = "listing-info";
+
+      const name = document.createElement("h3");
+      name.textContent = item.name || "Untitled product";
+
+      const details = document.createElement("p");
+      details.textContent =
+        `${item.category || "Other"} · ${item.condition || "Condition not specified"}`;
+
+      const status = document.createElement("span");
+      status.className =
+        item.status === "Sold" ? "status sold" : "status";
+      status.textContent = item.status || "Active";
+
+      info.append(name, details, status);
+
+      const price = document.createElement("div");
+      price.className = "price";
+      price.textContent =
+        `₹${Number(item.price || 0).toLocaleString("en-IN")}`;
+
+      listing.append(icon, info, price);
+      listingsContainer.appendChild(listing);
+    });
+
+  } catch (error) {
+    console.error("Error loading listings:", error);
+    listingsContainer.innerHTML =
+      '<p class="empty-message">Could not load listings. Please refresh the page.</p>';
+  }
+}
+
 </script>
 ```
 
