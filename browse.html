@@ -17,6 +17,7 @@
         :root {
             --navy: #101c35;
             --teal: #16c6b1;
+            --teal-dark: #079e8e;
             --light: #f5f8fc;
             --white: #ffffff;
             --text: #26344d;
@@ -93,7 +94,7 @@
 
         .nav-links a:hover,
         .nav-links a.active {
-            color: #079e8e;
+            color: var(--teal-dark);
         }
 
         .sell-button {
@@ -107,7 +108,7 @@
             white-space: nowrap;
         }
 
-        /* ===== 3. PAGE HEADING ===== */
+        /* ===== 3. PAGE HEADER ===== */
         .page-header {
             background: var(--navy);
             color: white;
@@ -168,9 +169,126 @@
             font-weight: 700;
         }
 
-        /* ===== 5. MAIN LAYOUT ===== */
+        /* ===== 5. CATEGORY ICON CARDS ===== */
+        .categories {
+            padding: 40px 0 10px;
+        }
+
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .section-title h2 {
+            color: var(--navy);
+            font-size: 22px;
+        }
+
+        .section-title p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .category-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px 12px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(16, 28, 53, 0.08);
+            border-color: var(--teal);
+        }
+
+        .category-card.active {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
+        .category-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #e2faf4;
+            display: grid;
+            place-items: center;
+            font-size: 26px;
+            margin: 0 auto 10px;
+        }
+
+        .category-card h3 {
+            color: var(--navy);
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .category-card span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        /* ===== 6. NOTES SECTION ===== */
+        .notes-section {
+            padding: 30px 0 10px;
+        }
+
+        .notes-banner {
+            background: linear-gradient(120deg, #0f766e, #16c6b1);
+            color: white;
+            border-radius: 16px;
+            padding: 26px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .notes-banner h2 {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+
+        .notes-banner p {
+            font-size: 14px;
+            color: #e6fffb;
+            max-width: 560px;
+        }
+
+        .notes-banner button {
+            background: white;
+            color: var(--navy);
+            border: none;
+            border-radius: 9px;
+            padding: 11px 18px;
+            font-weight: 800;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 18px;
+        }
+
+        /* ===== 7. MAIN LAYOUT ===== */
         .marketplace {
-            padding: 42px 0 70px;
+            padding: 36px 0 70px;
         }
 
         .marketplace-layout {
@@ -180,7 +298,7 @@
             align-items: start;
         }
 
-        /* ===== 6. FILTER SIDEBAR ===== */
+        /* ===== 8. FILTER SIDEBAR ===== */
         .filter-panel {
             background: white;
             padding: 23px;
@@ -203,7 +321,7 @@
         .reset-button {
             background: none;
             border: none;
-            color: #079e8e;
+            color: var(--teal-dark);
             font-size: 12px;
             font-weight: 800;
         }
@@ -262,7 +380,7 @@
             font-weight: 700;
         }
 
-        /* ===== 7. RESULTS TOOLBAR ===== */
+        /* ===== 9. RESULTS TOOLBAR ===== */
         .results-toolbar {
             display: flex;
             align-items: center;
@@ -292,7 +410,7 @@
             outline-color: var(--teal);
         }
 
-        /* ===== 8. PRODUCT GRID ===== */
+        /* ===== 10. PRODUCT GRID ===== */
         .product-grid {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -318,6 +436,9 @@
             background: #e8eef5;
             position: relative;
             overflow: hidden;
+            display: grid;
+            place-items: center;
+            font-size: 44px;
         }
 
         .product-image img {
@@ -325,6 +446,8 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            position: absolute;
+            inset: 0;
             transition: transform 0.3s;
         }
 
@@ -349,7 +472,7 @@
         }
 
         .product-category {
-            color: #079e8e;
+            color: var(--teal-dark);
             text-transform: uppercase;
             font-size: 10px;
             font-weight: 800;
@@ -399,7 +522,7 @@
         }
 
         .view-button,
-        .chat-button {
+        .email-button {
             border: none;
             border-radius: 7px;
             padding: 8px 10px;
@@ -416,16 +539,54 @@
             background: #203657;
         }
 
-        .chat-button {
+        .email-button {
             background: var(--teal);
             color: var(--navy);
         }
 
-        .chat-button:hover {
+        .email-button:hover {
             background: #0ba996;
         }
 
-        /* ===== 9. EMPTY RESULTS ===== */
+        /* ===== 11. SKELETON LOADER ===== */
+        .skeleton {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            overflow: hidden;
+        }
+
+        .skeleton-image,
+        .skeleton-line {
+            background: linear-gradient(90deg, #eef2f7 25%, #e2e8f0 50%, #eef2f7 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s infinite;
+        }
+
+        .skeleton-image {
+            height: 175px;
+        }
+
+        .skeleton-body {
+            padding: 15px;
+        }
+
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .skeleton-line.short {
+            width: 60%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== 12. EMPTY STATE ===== */
         .empty-state {
             display: none;
             background: white;
@@ -449,9 +610,20 @@
         .empty-state p {
             color: var(--muted);
             font-size: 14px;
+            margin-bottom: 14px;
         }
 
-        /* ===== 10. TOAST MESSAGE ===== */
+        .empty-state a {
+            display: inline-block;
+            background: var(--teal);
+            color: var(--navy);
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 14px;
+        }
+
+        /* ===== 13. TOAST ===== */
         .toast {
             position: fixed;
             left: 50%;
@@ -474,7 +646,7 @@
             opacity: 1;
         }
 
-        /* ===== 11. FOOTER ===== */
+        /* ===== 14. FOOTER ===== */
         .footer {
             background: var(--navy);
             color: white;
@@ -524,7 +696,7 @@
             color: #aebbd0;
         }
 
-        /* ===== 12. RESPONSIVE DESIGN ===== */
+        /* ===== 15. RESPONSIVE ===== */
         @media (max-width: 1050px) {
             .marketplace-layout {
                 grid-template-columns: 210px 1fr;
@@ -535,8 +707,12 @@
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .product-image {
-                height: 200px;
+            .notes-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
@@ -572,6 +748,27 @@
                 padding: 35px 0 48px;
             }
 
+            .categories {
+                padding-top: 28px;
+            }
+
+            .category-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .notes-banner {
+                padding: 20px;
+            }
+
+            .notes-banner h2 {
+                font-size: 20px;
+            }
+
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+
             .marketplace {
                 padding-top: 28px;
             }
@@ -584,20 +781,9 @@
                 padding: 16px;
             }
 
-            .filter-heading {
-                margin-bottom: 8px;
-            }
-
-            .filter-group {
-                padding: 12px 0;
-            }
-
-            .filter-option {
-                margin: 9px 0;
-            }
-
             .results-toolbar {
                 align-items: flex-start;
+                flex-direction: column;
             }
 
             .results-toolbar h2 {
@@ -605,7 +791,8 @@
             }
 
             .sort-select {
-                max-width: 155px;
+                max-width: 100%;
+                width: 100%;
                 font-size: 12px;
             }
 
@@ -630,7 +817,7 @@
             }
 
             .view-button,
-            .chat-button {
+            .email-button {
                 padding: 7px;
                 font-size: 10px;
             }
@@ -642,7 +829,8 @@
         }
 
         @media (max-width: 360px) {
-            .product-grid {
+            .product-grid,
+            .notes-grid {
                 grid-template-columns: 1fr;
             }
 
@@ -704,11 +892,71 @@
                     <input
                         type="search"
                         id="searchInput"
-                        placeholder="Search books, calculators, bags..."
+                        placeholder="Search books, calculators, notes, bags..."
                         aria-label="Search products"
                     >
                     <button type="submit">Search</button>
                 </form>
+            </div>
+        </section>
+
+        <!-- CATEGORY ICON CARDS -->
+        <section class="categories">
+            <div class="container">
+                <div class="section-title">
+                    <h2>Shop by Category</h2>
+                    <p>Category par click karke filter karein</p>
+                </div>
+
+                <div class="category-grid" id="categoryGrid">
+                    <button class="category-card active" type="button" data-category="all">
+                        <div class="category-icon">🛍️</div>
+                        <h3>All Items</h3>
+                        <span id="countAll">0 items</span>
+                    </button>
+
+                    <button class="category-card" type="button" data-category="books">
+                        <div class="category-icon">📚</div>
+                        <h3>Books</h3>
+                        <span id="countBooks">0 items</span>
+                    </button>
+
+                    <button class="category-card" type="button" data-category="electronics">
+                        <div class="category-icon">💻</div>
+                        <h3>Electronics</h3>
+                        <span id="countElectronics">0 items</span>
+                    </button>
+
+                    <button class="category-card" type="button" data-category="notes">
+                        <div class="category-icon">📝</div>
+                        <h3>Notes</h3>
+                        <span id="countNotes">0 items</span>
+                    </button>
+
+                    <button class="category-card" type="button" data-category="hostel">
+                        <div class="category-icon">🛏️</div>
+                        <h3>Hostel Essentials</h3>
+                        <span id="countHostel">0 items</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- NOTES SECTION -->
+        <section class="notes-section">
+            <div class="container">
+                <div class="notes-banner">
+                    <div>
+                        <h2>📝 Notes & Study Material</h2>
+                        <p>
+                            Semester notes, revision sheets aur exam preparation
+                            material seedhe classmates se paayein.
+                        </p>
+                    </div>
+                    <button type="button" id="seeAllNotes">See all notes →</button>
+                </div>
+
+                <div class="notes-grid" id="notesGrid"></div>
             </div>
         </section>
 
@@ -721,83 +969,68 @@
 
                     <div class="filter-heading">
                         <h2>Filters</h2>
-                        <button class="reset-button" id="resetButton"
-                                type="button">
+                        <button class="reset-button" id="resetButton" type="button">
                             Reset all
                         </button>
                     </div>
 
-                    <!-- CATEGORY FILTER -->
                     <div class="filter-group">
                         <h3>Category</h3>
 
                         <label class="filter-option">
-                            <input type="radio" name="category"
-                                   value="all" checked>
+                            <input type="radio" name="category" value="all" checked>
                             All Categories
                         </label>
 
                         <label class="filter-option">
-                            <input type="radio" name="category"
-                                   value="books">
+                            <input type="radio" name="category" value="books">
                             Books
                         </label>
 
                         <label class="filter-option">
-                            <input type="radio" name="category"
-                                   value="electronics">
+                            <input type="radio" name="category" value="electronics">
                             Electronics
                         </label>
 
                         <label class="filter-option">
-                            <input type="radio" name="category"
-                                   value="notes">
+                            <input type="radio" name="category" value="notes">
                             Notes & Study Material
                         </label>
 
                         <label class="filter-option">
-                            <input type="radio" name="category"
-                                   value="hostel">
+                            <input type="radio" name="category" value="hostel">
                             Hostel Essentials
                         </label>
                     </div>
 
-                    <!-- PRICE FILTER -->
                     <div class="filter-group">
                         <h3>Price Range (₹)</h3>
 
                         <div class="price-inputs">
-                            <input type="number" id="minPrice"
-                                   placeholder="Min" min="0">
-                            <input type="number" id="maxPrice"
-                                   placeholder="Max" min="0">
+                            <input type="number" id="minPrice" placeholder="Min" min="0">
+                            <input type="number" id="maxPrice" placeholder="Max" min="0">
                         </div>
 
-                        <button type="button" class="apply-button"
-                                id="applyPrice">
+                        <button type="button" class="apply-button" id="applyPrice">
                             Apply Price
                         </button>
                     </div>
 
-                    <!-- CONDITION FILTER -->
                     <div class="filter-group">
                         <h3>Condition</h3>
 
                         <label class="filter-option">
-                            <input type="checkbox" name="condition"
-                                   value="like new">
+                            <input type="checkbox" name="condition" value="like new">
                             Like New
                         </label>
 
                         <label class="filter-option">
-                            <input type="checkbox" name="condition"
-                                   value="good">
+                            <input type="checkbox" name="condition" value="good">
                             Good
                         </label>
 
                         <label class="filter-option">
-                            <input type="checkbox" name="condition"
-                                   value="well maintained">
+                            <input type="checkbox" name="condition" value="well maintained">
                             Well Maintained
                         </label>
                     </div>
@@ -810,14 +1043,12 @@
                     <div class="results-toolbar">
                         <div>
                             <h2>Explore Items</h2>
-                            <p class="results-count" id="resultsCount"
-                               aria-live="polite">
+                            <p class="results-count" id="resultsCount" aria-live="polite">
                                 Loading products...
                             </p>
                         </div>
 
-                        <select class="sort-select" id="sortSelect"
-                                aria-label="Sort products">
+                        <select class="sort-select" id="sortSelect" aria-label="Sort products">
                             <option value="default">Sort: Featured</option>
                             <option value="low">Price: Low to High</option>
                             <option value="high">Price: High to Low</option>
@@ -825,16 +1056,19 @@
                         </select>
                     </div>
 
-                    <!-- Products are loaded from Firebase by JavaScript -->
-                    <div class="product-grid" id="productGrid"></div>
+                    <!-- Skeleton loaders, Firebase data aane tak -->
+                    <div class="product-grid" id="productGrid">
+                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+                    </div>
 
-                    <!-- NO RESULTS MESSAGE -->
+                    <!-- EMPTY STATE -->
                     <div class="empty-state" id="emptyState">
                         <div class="empty-icon">🔎</div>
-                        <h3>No products found</h3>
-                        <p>
-                            Try changing your search or removing some filters.
-                        </p>
+                        <h3 id="emptyTitle">No products found</h3>
+                        <p id="emptyText">Try changing your search or removing some filters.</p>
+                        <a href="sell.html">+ Pehli listing daalein</a>
                     </div>
 
                 </div>
@@ -897,26 +1131,29 @@
             measurementId: "G-NN86N2NE52"
         };
 
-        const app = getApps().length
-            ? getApp()
-            : initializeApp(firebaseConfig);
-
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         // HTML elements
         const searchForm = document.getElementById("searchForm");
         const searchInput = document.getElementById("searchInput");
         const productGrid = document.getElementById("productGrid");
+        const notesGrid = document.getElementById("notesGrid");
         const resultsCount = document.getElementById("resultsCount");
         const emptyState = document.getElementById("emptyState");
+        const emptyTitle = document.getElementById("emptyTitle");
+        const emptyText = document.getElementById("emptyText");
         const minPriceInput = document.getElementById("minPrice");
         const maxPriceInput = document.getElementById("maxPrice");
         const sortSelect = document.getElementById("sortSelect");
         const resetButton = document.getElementById("resetButton");
         const applyPriceButton = document.getElementById("applyPrice");
+        const seeAllNotes = document.getElementById("seeAllNotes");
+        const categoryGrid = document.getElementById("categoryGrid");
         const toast = document.getElementById("toast");
 
         let productCards = [];
+        let allProducts = [];
         let toastTimer = null;
 
         // Chhota message dikhane ke liye
@@ -936,7 +1173,7 @@
             if (value === "hostel essentials") return "hostel";
             if (value === "books") return "books";
             if (value === "electronics") return "electronics";
-            if (value === "notes") return "notes";
+            if (value === "notes" || value === "notes & study material") return "notes";
 
             return value;
         }
@@ -945,12 +1182,26 @@
             return String(condition || "").toLowerCase().trim();
         }
 
+        // Category icon ke hisaab se emoji (image na ho to)
+        function categoryEmoji(category) {
+            const map = {
+                books: "📚",
+                electronics: "💻",
+                notes: "📝",
+                hostel: "🛏️"
+            };
+            return map[normalizeCategory(category)] || "🛍️";
+        }
+
         // Seller ko email bhejna (mailto)
-        function emailSeller(product, name, price) {
+        function emailSeller(product) {
             if (!product.sellerEmail) {
                 showToast("Is listing mein seller ka email nahi hai.");
                 return;
             }
+
+            const name = product.name || "Listing";
+            const price = Number(product.price) || 0;
 
             const subject = "CampusKart: " + name;
             const body =
@@ -995,10 +1246,14 @@
                 img.loading = "lazy";
 
                 img.addEventListener("error", function () {
-                    img.style.display = "none";
+                    img.remove();
                 });
 
                 imageBox.appendChild(img);
+            } else {
+                const icon = document.createElement("span");
+                icon.textContent = categoryEmoji(category);
+                imageBox.appendChild(icon);
             }
 
             const conditionTag = document.createElement("span");
@@ -1041,17 +1296,16 @@
 
             viewButton.addEventListener("click", function () {
                 window.location.href =
-                    "product-details.html?id=" +
-                    encodeURIComponent(product.id);
+                    "product-details.html?id=" + encodeURIComponent(product.id);
             });
 
             const emailButton = document.createElement("button");
-            emailButton.className = "chat-button";
+            emailButton.className = "email-button";
             emailButton.type = "button";
             emailButton.textContent = "Email Seller";
 
             emailButton.addEventListener("click", function () {
-                emailSeller(product, name, price);
+                emailSeller(product);
             });
 
             buttonGroup.append(viewButton, emailButton);
@@ -1070,49 +1324,92 @@
             return card;
         }
 
+        // Category counts update karna
+        function updateCategoryCounts(products) {
+            const counts = { all: products.length, books: 0, electronics: 0, notes: 0, hostel: 0 };
+
+            products.forEach(function (product) {
+                const cat = normalizeCategory(product.category);
+                if (counts[cat] !== undefined) counts[cat]++;
+            });
+
+            document.getElementById("countAll").textContent = counts.all + " items";
+            document.getElementById("countBooks").textContent = counts.books + " items";
+            document.getElementById("countElectronics").textContent = counts.electronics + " items";
+            document.getElementById("countNotes").textContent = counts.notes + " items";
+            document.getElementById("countHostel").textContent = counts.hostel + " items";
+        }
+
+        // Notes section mein latest 3 notes dikhana
+        function renderNotesPreview(products) {
+            notesGrid.replaceChildren();
+
+            const notes = products
+                .filter(function (p) {
+                    return normalizeCategory(p.category) === "notes";
+                })
+                .slice(0, 3);
+
+            if (notes.length === 0) {
+                const empty = document.createElement("p");
+                empty.style.color = "var(--muted)";
+                empty.style.fontSize = "14px";
+                empty.textContent = "Abhi koi notes nahi hain. Pehle aap notes share karein!";
+                notesGrid.appendChild(empty);
+                return;
+            }
+
+            notes.forEach(function (product) {
+                notesGrid.appendChild(createProductCard(product));
+            });
+        }
+
         // Firebase se products load karna
         async function loadProducts() {
             resultsCount.textContent = "Loading products...";
-            productGrid.replaceChildren();
 
             try {
                 const snapshot = await getDocs(collection(db, "listings"));
 
-                const products = snapshot.docs
+                allProducts = snapshot.docs
                     .map(function (docSnap) {
                         return { id: docSnap.id, ...docSnap.data() };
                     })
                     .filter(function (product) {
-                        return String(product.status || "")
-                            .toLowerCase() === "active";
+                        return String(product.status || "").toLowerCase() === "active";
                     });
 
-                products.forEach(function (product) {
+                productGrid.replaceChildren();
+
+                allProducts.forEach(function (product) {
                     productGrid.appendChild(createProductCard(product));
                 });
 
-                productCards = Array.from(
-                    productGrid.querySelectorAll(".product-card")
-                );
+                productCards = Array.from(productGrid.querySelectorAll(".product-card"));
 
+                updateCategoryCounts(allProducts);
+                renderNotesPreview(allProducts);
                 filterProducts();
 
                 if (productCards.length === 0) {
-                    resultsCount.textContent =
-                        "No active listings yet. Add a product from Sell.";
+                    emptyTitle.textContent = "Abhi koi listing nahi hai";
+                    emptyText.textContent = "Pehli listing aap daal sakte ho, Sell page par jaayein.";
+                    resultsCount.textContent = "No active listings yet.";
+                    emptyState.style.display = "block";
                 }
+
             } catch (error) {
                 console.error("Firebase product loading error:", error);
-                resultsCount.textContent =
-                    "Products could not be loaded. Please check your connection and Firebase permissions.";
+                productGrid.replaceChildren();
+                resultsCount.textContent = "Products load nahi ho paye. Connection aur Firebase permissions check karein.";
+                emptyTitle.textContent = "Kuch galat ho gaya";
+                emptyText.textContent = "Thodi der baad page refresh karke dobara try karein.";
                 emptyState.style.display = "block";
             }
         }
 
         function getSelectedCategory() {
-            return document.querySelector(
-                'input[name="category"]:checked'
-            ).value;
+            return document.querySelector('input[name="category"]:checked').value;
         }
 
         function getSelectedConditions() {
@@ -1123,24 +1420,35 @@
             });
         }
 
+        // Category icon cards ko sidebar radio ke saath sync karna
+        function setCategory(value) {
+            document.querySelector('input[name="category"][value="' + value + '"]').checked = true;
+
+            document.querySelectorAll(".category-card").forEach(function (card) {
+                card.classList.toggle("active", card.dataset.category === value);
+            });
+
+            filterProducts();
+        }
+
         // Search, filters aur sorting
         function filterProducts() {
             const searchText = searchInput.value.toLowerCase().trim();
             const category = getSelectedCategory();
             const conditions = getSelectedConditions();
 
-            const minPrice = minPriceInput.value === ""
-                ? 0
-                : Number(minPriceInput.value);
-
-            const maxPrice = maxPriceInput.value === ""
-                ? Infinity
-                : Number(maxPriceInput.value);
+            const minPrice = minPriceInput.value === "" ? 0 : Number(minPriceInput.value);
+            const maxPrice = maxPriceInput.value === "" ? Infinity : Number(maxPriceInput.value);
 
             if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice) {
                 resultsCount.textContent = "Please enter a valid price range.";
                 return;
             }
+
+            // Category cards ka active state sync rakhna
+            document.querySelectorAll(".category-card").forEach(function (card) {
+                card.classList.toggle("active", card.dataset.category === category);
+            });
 
             const filteredProducts = productCards.filter(function (card) {
                 const name = card.dataset.name || "";
@@ -1150,42 +1458,28 @@
                 const condition = card.dataset.condition || "";
 
                 const matchesSearch =
-                    name.includes(searchText) ||
-                    keywords.includes(searchText);
+                    name.includes(searchText) || keywords.includes(searchText);
 
                 const matchesCategory =
-                    category === "all" ||
-                    productCategory === category;
+                    category === "all" || productCategory === category;
 
                 const matchesPrice =
                     price >= minPrice && price <= maxPrice;
 
                 const matchesCondition =
-                    conditions.length === 0 ||
-                    conditions.includes(condition);
+                    conditions.length === 0 || conditions.includes(condition);
 
-                return (
-                    matchesSearch &&
-                    matchesCategory &&
-                    matchesPrice &&
-                    matchesCondition
-                );
+                return matchesSearch && matchesCategory && matchesPrice && matchesCondition;
             });
 
             const sortValue = sortSelect.value;
 
             if (sortValue === "low") {
-                filteredProducts.sort((a, b) =>
-                    Number(a.dataset.price) - Number(b.dataset.price)
-                );
+                filteredProducts.sort((a, b) => Number(a.dataset.price) - Number(b.dataset.price));
             } else if (sortValue === "high") {
-                filteredProducts.sort((a, b) =>
-                    Number(b.dataset.price) - Number(a.dataset.price)
-                );
+                filteredProducts.sort((a, b) => Number(b.dataset.price) - Number(a.dataset.price));
             } else if (sortValue === "name") {
-                filteredProducts.sort((a, b) =>
-                    a.dataset.name.localeCompare(b.dataset.name)
-                );
+                filteredProducts.sort((a, b) => a.dataset.name.localeCompare(b.dataset.name));
             }
 
             productCards.forEach(function (card) {
@@ -1198,12 +1492,31 @@
             });
 
             resultsCount.textContent =
-                "Showing " + filteredProducts.length +
-                " of " + productCards.length + " products";
+                "Showing " + filteredProducts.length + " of " + productCards.length + " products";
 
-            emptyState.style.display =
-                filteredProducts.length === 0 ? "block" : "none";
+            if (productCards.length > 0) {
+                emptyTitle.textContent = "No products found";
+                emptyText.textContent = "Try changing your search or removing some filters.";
+            }
+
+            emptyState.style.display = filteredProducts.length === 0 && productCards.length > 0
+                ? "block"
+                : "none";
         }
+
+        // Category icon cards par click
+        categoryGrid.addEventListener("click", function (event) {
+            const card = event.target.closest(".category-card");
+            if (!card) return;
+            setCategory(card.dataset.category);
+            document.getElementById("productGrid").scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+
+        // Notes section ka "See all" button
+        seeAllNotes.addEventListener("click", function () {
+            setCategory("notes");
+            document.querySelector(".marketplace").scrollIntoView({ behavior: "smooth" });
+        });
 
         // Search form
         searchForm.addEventListener("submit", function (event) {
@@ -1213,15 +1526,13 @@
 
         searchInput.addEventListener("input", filterProducts);
 
-        document.querySelectorAll('input[name="category"]')
-            .forEach(function (input) {
-                input.addEventListener("change", filterProducts);
-            });
+        document.querySelectorAll('input[name="category"]').forEach(function (input) {
+            input.addEventListener("change", filterProducts);
+        });
 
-        document.querySelectorAll('input[name="condition"]')
-            .forEach(function (input) {
-                input.addEventListener("change", filterProducts);
-            });
+        document.querySelectorAll('input[name="condition"]').forEach(function (input) {
+            input.addEventListener("change", filterProducts);
+        });
 
         applyPriceButton.addEventListener("click", filterProducts);
 
@@ -1242,14 +1553,11 @@
             maxPriceInput.value = "";
             sortSelect.value = "default";
 
-            document.querySelector(
-                'input[name="category"][value="all"]'
-            ).checked = true;
+            document.querySelector('input[name="category"][value="all"]').checked = true;
 
-            document.querySelectorAll('input[name="condition"]')
-                .forEach(function (input) {
-                    input.checked = false;
-                });
+            document.querySelectorAll('input[name="condition"]').forEach(function (input) {
+                input.checked = false;
+            });
 
             filterProducts();
         });
