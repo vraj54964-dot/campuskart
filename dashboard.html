@@ -6,6 +6,8 @@
     <title>CampusKart | Dashboard</title>
 
     <style>
+        [hidden] { display: none !important; }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
@@ -18,7 +20,6 @@
             --text: #172033;
             --muted: #64748b;
             --danger: #b91c1c;
-            --warn: #b45309;
         }
 
         body {
@@ -42,7 +43,7 @@
             gap: 15px;
         }
 
-        .logo { font-size: 25px; font-weight: bold; }
+        .logo { font-size: 25px; font-weight: bold; color: white; text-decoration: none; }
         .logo span { color: var(--teal-light); }
 
         nav { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
@@ -96,8 +97,10 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: bold;
+            font-family: inherit;
         }
         .btn:hover { background: #115e59; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-outline {
             background: white;
             color: var(--navy);
@@ -119,6 +122,14 @@
         }
         .profile-card h2 { font-size: 18px; margin-bottom: 6px; }
         .profile-card p { font-size: 13px; color: #cbd5e1; }
+        .profile-card .btn-light {
+            margin-top: 12px;
+            background: white;
+            color: var(--navy);
+            font-size: 13px;
+            padding: 9px 14px;
+        }
+        .profile-card .btn-light:hover { background: #e6fffb; }
         .progress-track {
             background: rgba(255,255,255,0.15);
             height: 10px;
@@ -254,6 +265,9 @@
             background: white;
             color: var(--navy);
             cursor: pointer;
+            font-family: inherit;
+            text-decoration: none;
+            display: inline-block;
         }
         .small-btn:hover { border-color: var(--teal); color: var(--teal); }
         .small-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
@@ -315,6 +329,90 @@
 
         .saved-item .product-icon { background: #fef3c7; }
 
+        /* ---------- Edit profile modal ---------- */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(16, 27, 53, 0.55);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 50;
+        }
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 460px;
+            padding: 26px;
+            box-shadow: 0 20px 50px rgba(16, 27, 53, 0.25);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal h2 { font-size: 20px; margin-bottom: 4px; }
+        .modal .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+        .field { margin-bottom: 16px; }
+        .field label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .field label .optional { color: var(--muted); font-weight: normal; }
+        .field input {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid #dce4ee;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+        .field input:focus {
+            border-color: var(--teal-light);
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+        }
+        .field .hint { display: block; font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+        .form-error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: var(--danger);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        /* ---------- Toast ---------- */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; }
+
         footer {
             text-align: center;
             padding: 25px;
@@ -344,6 +442,7 @@
             header { padding: 16px 5%; }
             nav { gap: 13px; }
             .price { margin-left: 70px; }
+            .modal { padding: 20px; }
         }
     </style>
 </head>
@@ -351,7 +450,7 @@
 <body>
 
     <header>
-        <div class="logo">Campus<span>Kart</span></div>
+        <a href="index.html" class="logo">Campus<span>Kart</span></a>
 
         <nav>
             <a href="index.html">Home</a>
@@ -373,6 +472,7 @@
             </div>
 
             <div class="welcome-actions">
+                <button id="editProfileTop" class="btn btn-outline" type="button">✏️ Edit Profile</button>
                 <a href="sell.html" class="btn">+ Sell an Item</a>
                 <button id="logoutBtn" class="btn btn-outline" type="button">Logout</button>
             </div>
@@ -383,6 +483,7 @@
             <div>
                 <h2 id="profileTitle">Profile setup</h2>
                 <p id="profileText">Checking your profile...</p>
+                <button id="editProfileCard" class="btn btn-light" type="button">✏️ Edit Profile</button>
             </div>
             <div>
                 <div class="progress-track">
@@ -505,12 +606,48 @@
         <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
     </footer>
 
+    <!-- EDIT PROFILE MODAL -->
+    <div id="editModal" class="modal-backdrop" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+            <h2 id="editTitle">Edit Profile</h2>
+            <p class="modal-sub">Ye details buyers ko dikhengi aur navbar par aapka naam badlega.</p>
+
+            <div id="formError" class="form-error" hidden></div>
+
+            <form id="profileForm" novalidate>
+                <div class="field">
+                    <label for="editName">Full Name *</label>
+                    <input id="editName" type="text" maxlength="40" placeholder="e.g. Rahul Sharma" autocomplete="name">
+                </div>
+
+                <div class="field">
+                    <label for="editPhone">Phone Number <span class="optional">(optional)</span></label>
+                    <input id="editPhone" type="tel" maxlength="10" placeholder="e.g. 9876543210" inputmode="numeric">
+                    <span class="hint">10 digit mobile number, bina +91 ke.</span>
+                </div>
+
+                <div class="field">
+                    <label for="editCampus">College / Campus <span class="optional">(optional)</span></label>
+                    <input id="editCampus" type="text" maxlength="80" placeholder="e.g. ABC Engineering College">
+                </div>
+
+                <div class="modal-actions">
+                    <button id="cancelEdit" class="btn btn-outline" type="button">Cancel</button>
+                    <button id="saveProfile" class="btn" type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import {
         getAuth,
         onAuthStateChanged,
-        signOut
+        signOut,
+        updateProfile
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
     import {
         getFirestore,
@@ -519,9 +656,11 @@
         where,
         getDocs,
         getDoc,
+        setDoc,
         doc,
         updateDoc,
-        deleteDoc
+        deleteDoc,
+        serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -534,7 +673,7 @@
         measurementId: "G-NN86N2NE52"
     };
 
-    const app = initializeApp(firebaseConfig);
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
@@ -551,6 +690,7 @@
 
     let currentUser = null;
     let currentProfile = {};
+    let toastTimer = null;
 
     // ---------- Helpers ----------
     function el(tag, className, text) {
@@ -558,6 +698,14 @@
         if (className) node.className = className;
         if (text !== undefined) node.textContent = text;
         return node;
+    }
+
+    function showToast(text) {
+        const toast = $("toast");
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
     }
 
     const formatPrice = (value) => "₹" + (Number(value) || 0).toLocaleString("en-IN");
@@ -570,7 +718,9 @@
         Bags: "🎒",
         Clothing: "👕",
         Furniture: "🪑",
-        "Study Material": "📖"
+        "Study Material": "📖",
+        Notes: "📝",
+        "Hostel Essentials": "🛏️"
     }[category] || "📦");
 
     function timeAgo(date) {
@@ -821,8 +971,7 @@
             const actions = el("div", "row-actions");
 
             const viewLink = el("a", "small-btn", "Dekhein");
-            viewLink.href = `product.html?id=${encodeURIComponent(item.listingId || item.id)}`;
-            viewLink.style.textDecoration = "none";
+            viewLink.href = `product-details.html?id=${encodeURIComponent(item.listingId || item.id)}`;
 
             const removeBtn = el("button", "small-btn danger", "Remove");
             removeBtn.type = "button";
@@ -843,6 +992,94 @@
     function renderCampusTip() {
         const dayIndex = new Date().getDate() % CAMPUS_TIPS.length;
         $("campusTip").textContent = "💡 Campus tip: " + CAMPUS_TIPS[dayIndex];
+    }
+
+    // ---------- Edit profile ----------
+    const PHONE_REGEX = /^[6-9]\d{9}$/;
+
+    function openEditModal() {
+        $("editName").value = currentProfile.name || currentUser.displayName || "";
+        $("editPhone").value = currentProfile.phone || "";
+        $("editCampus").value = currentProfile.campus || "";
+        showFormError("");
+        $("editModal").hidden = false;
+        $("editName").focus();
+    }
+
+    function closeEditModal() {
+        $("editModal").hidden = true;
+    }
+
+    function showFormError(message) {
+        const box = $("formError");
+        box.textContent = message;
+        box.hidden = !message;
+    }
+
+    async function saveProfile(event) {
+        event.preventDefault();
+        if (!currentUser) return;
+
+        const name = $("editName").value.trim().replace(/\s+/g, " ");
+        const phone = $("editPhone").value.trim().replace(/[\s-]/g, "");
+        const campus = $("editCampus").value.trim();
+
+        if (!name) {
+            showFormError("Naam zaroori hai.");
+            $("editName").focus();
+            return;
+        }
+
+        if (name.length < 2) {
+            showFormError("Naam kam se kam 2 letters ka hona chahiye.");
+            $("editName").focus();
+            return;
+        }
+
+        if (phone && !PHONE_REGEX.test(phone)) {
+            showFormError("Sahi 10 digit mobile number likhein (jaise 9876543210).");
+            $("editPhone").focus();
+            return;
+        }
+
+        const saveBtn = $("saveProfile");
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
+        showFormError("");
+
+        try {
+            await setDoc(
+                doc(db, "users", currentUser.uid),
+                {
+                    name: name,
+                    phone: phone,
+                    campus: campus,
+                    email: currentUser.email || "",
+                    updatedAt: serverTimestamp()
+                },
+                { merge: true }
+            );
+
+            // Firebase Auth ka displayName bhi update karein (navbar fallback ke liye)
+            if (currentUser.displayName !== name) {
+                try {
+                    await updateProfile(currentUser, { displayName: name });
+                } catch (err) {
+                    console.warn("displayName update nahi hua:", err);
+                }
+            }
+
+            closeEditModal();
+            await refreshAll();
+            showToast("Profile update ho gayi ✓");
+
+        } catch (error) {
+            console.error("Profile save error:", error);
+            showFormError("Profile save nahi ho paayi. Internet aur Firestore rules check karein.");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.textContent = "Save Changes";
+        }
     }
 
     // ---------- Actions ----------
@@ -941,6 +1178,19 @@
             console.error("Logout error:", error);
             alert("Logout failed. Please try again.");
         }
+    });
+
+    $("editProfileTop").addEventListener("click", openEditModal);
+    $("editProfileCard").addEventListener("click", openEditModal);
+    $("cancelEdit").addEventListener("click", closeEditModal);
+    $("profileForm").addEventListener("submit", saveProfile);
+
+    // Modal ke bahar click ya Escape par band
+    $("editModal").addEventListener("click", (event) => {
+        if (event.target === $("editModal")) closeEditModal();
+    });
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !$("editModal").hidden) closeEditModal();
     });
 </script>
 
