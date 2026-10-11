@@ -119,7 +119,6 @@
             white-space: nowrap;
         }
 
-        /* Logged-in user chip */
         .user-menu {
             display: flex;
             align-items: center;
@@ -508,6 +507,7 @@
             box-shadow: 0 12px 25px rgba(16, 28, 53, 0.08);
         }
 
+        /* ----- Product image box + photo gallery ----- */
         .product-image {
             height: 175px;
             background: #e8eef5;
@@ -518,18 +518,122 @@
             font-size: 44px;
         }
 
-        .product-image img {
+        .gallery {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            touch-action: pan-y;
+            cursor: pointer;
+        }
+
+        .gallery-track {
+            display: flex;
+            height: 100%;
+            transition: transform 0.35s ease;
+            will-change: transform;
+        }
+
+        .gallery-slide {
+            flex: 0 0 100%;
+            height: 100%;
+            display: grid;
+            place-items: center;
+        }
+
+        .gallery-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
-            position: absolute;
-            inset: 0;
+            user-select: none;
+            -webkit-user-drag: none;
             transition: transform 0.3s;
         }
 
-        .product-card:hover .product-image img {
+        .product-card:hover .gallery-slide img {
             transform: scale(1.04);
+        }
+
+        .gallery-fallback {
+            font-size: 44px;
+        }
+
+        .gallery-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            color: var(--navy);
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 2px 8px rgba(16, 28, 53, 0.18);
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 2;
+        }
+
+        .gallery-prev {
+            left: 6px;
+        }
+
+        .gallery-next {
+            right: 6px;
+        }
+
+        .product-card:hover .gallery-nav,
+        .gallery-nav:focus-visible {
+            opacity: 1;
+        }
+
+        @media (hover: none) {
+            .gallery-nav {
+                opacity: 0.9;
+            }
+        }
+
+        .gallery-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 2;
+        }
+
+        .gallery-dot {
+            width: 6px;
+            height: 6px;
+            padding: 0;
+            border: none;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.6);
+            transition: width 0.2s, background 0.2s;
+        }
+
+        .gallery-dot.active {
+            width: 16px;
+            background: #ffffff;
+        }
+
+        .photo-counter {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(16, 28, 53, 0.75);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 7px;
+            border-radius: 5px;
+            z-index: 2;
         }
 
         .condition-tag {
@@ -542,6 +646,7 @@
             border-radius: 5px;
             font-size: 10px;
             font-weight: 800;
+            z-index: 3;
         }
 
         .product-details {
@@ -893,6 +998,17 @@
                 height: 145px;
             }
 
+            .gallery-nav {
+                width: 26px;
+                height: 26px;
+                font-size: 16px;
+            }
+
+            .photo-counter {
+                font-size: 9px;
+                padding: 2px 6px;
+            }
+
             .product-details {
                 padding: 11px;
             }
@@ -952,10 +1068,8 @@
             </nav>
 
             <div class="nav-right">
-                <!-- Logged out: login button -->
                 <a href="login.html" id="loginLink" class="sell-button" hidden>Log in</a>
 
-                <!-- Logged in: user name + logout -->
                 <div id="userMenu" class="user-menu" hidden>
                     <div id="userAvatar" class="user-avatar">?</div>
                     <span id="userName" class="user-name">Loading...</span>
@@ -1157,14 +1271,12 @@
                         </select>
                     </div>
 
-                    <!-- Skeleton loaders, Firebase data aane tak -->
                     <div class="product-grid" id="productGrid">
                         <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
                         <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
                         <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
                     </div>
 
-                    <!-- EMPTY STATE -->
                     <div class="empty-state" id="emptyState">
                         <div class="empty-icon">🔎</div>
                         <h3 id="emptyTitle">No products found</h3>
@@ -1205,10 +1317,8 @@
         </div>
     </footer>
 
-    <!-- TOAST -->
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-    <!-- JAVASCRIPT -->
     <script type="module">
         import {
             initializeApp,
@@ -1262,7 +1372,6 @@
         const categoryGrid = document.getElementById("categoryGrid");
         const toast = document.getElementById("toast");
 
-        // Auth UI elements
         const loginLink = document.getElementById("loginLink");
         const userMenu = document.getElementById("userMenu");
         const userAvatar = document.getElementById("userAvatar");
@@ -1276,7 +1385,6 @@
 
         // ---------- AUTH UI ----------
 
-        // Naam: users/{uid}.name -> displayName -> email se
         function getDisplayName(user, profile) {
             if (profile && profile.name) return String(profile.name).trim();
             if (user.displayName) return user.displayName.trim();
@@ -1321,8 +1429,6 @@
             welcomeLine.hidden = false;
         }
 
-        // Page load par ya login/logout ke baad state update hoti hai.
-        // Firebase login ko browser mein save rakhta hai, isliye refresh par bhi user logged in rahta hai.
         onAuthStateChanged(auth, function (user) {
             if (user) {
                 showLoggedInUI(user);
@@ -1346,7 +1452,6 @@
 
         // ---------- MARKETPLACE ----------
 
-        // Chhota message dikhane ke liye
         function showToast(text) {
             toast.textContent = text;
             toast.classList.add("show");
@@ -1356,7 +1461,6 @@
             }, 2800);
         }
 
-        // Category values ko filters ke saath match karna
         function normalizeCategory(category) {
             const value = String(category || "").toLowerCase().trim();
 
@@ -1372,7 +1476,6 @@
             return String(condition || "").toLowerCase().trim();
         }
 
-        // Category icon ke hisaab se emoji (image na ho to)
         function categoryEmoji(category) {
             const map = {
                 books: "📚",
@@ -1383,7 +1486,18 @@
             return map[normalizeCategory(category)] || "🛍️";
         }
 
-        // Seller ko email bhejna (mailto)
+        // Saari photos ki list.
+        // Naye listings: imageUrls array. Purane listings: sirf imageUrl.
+        function getProductImages(product) {
+            if (Array.isArray(product.imageUrls)) {
+                const list = product.imageUrls.filter(function (url) {
+                    return typeof url === "string" && url.trim() !== "";
+                });
+                if (list.length > 0) return list;
+            }
+            return product.imageUrl ? [String(product.imageUrl)] : [];
+        }
+
         function emailSeller(product) {
             if (!product.sellerEmail) {
                 showToast("Is listing mein seller ka email nahi hai.");
@@ -1405,7 +1519,148 @@
                 "&body=" + encodeURIComponent(body);
         }
 
-        // Product card banana
+        function goToDetails(product) {
+            window.location.href =
+                "product-details.html?id=" + encodeURIComponent(product.id);
+        }
+
+        // Amazon/Flipkart jaisa photo slider
+        function createGallery(product, name, category) {
+            const box = document.createElement("div");
+            box.className = "product-image";
+
+            const images = getProductImages(product);
+
+            if (images.length === 0) {
+                const icon = document.createElement("span");
+                icon.textContent = categoryEmoji(category);
+                box.appendChild(icon);
+                return box;
+            }
+
+            const viewport = document.createElement("div");
+            viewport.className = "gallery";
+
+            const track = document.createElement("div");
+            track.className = "gallery-track";
+
+            images.forEach(function (url, i) {
+                const slide = document.createElement("div");
+                slide.className = "gallery-slide";
+
+                const img = document.createElement("img");
+                img.src = url;
+                img.alt = name + " photo " + (i + 1);
+                img.loading = i === 0 ? "eager" : "lazy";
+                img.draggable = false;
+
+                img.addEventListener("error", function () {
+                    slide.replaceChildren();
+                    const fallback = document.createElement("span");
+                    fallback.className = "gallery-fallback";
+                    fallback.textContent = categoryEmoji(category);
+                    slide.appendChild(fallback);
+                });
+
+                slide.appendChild(img);
+                track.appendChild(slide);
+            });
+
+            viewport.appendChild(track);
+            box.appendChild(viewport);
+
+            // Click par details kholna
+            viewport.addEventListener("click", function () {
+                if (viewport.dataset.dragged === "1") {
+                    viewport.dataset.dragged = "0";
+                    return;
+                }
+                goToDetails(product);
+            });
+
+            if (images.length > 1) {
+                let index = 0;
+
+                const prevBtn = document.createElement("button");
+                prevBtn.type = "button";
+                prevBtn.className = "gallery-nav gallery-prev";
+                prevBtn.setAttribute("aria-label", "Previous photo");
+                prevBtn.textContent = "‹";
+
+                const nextBtn = document.createElement("button");
+                nextBtn.type = "button";
+                nextBtn.className = "gallery-nav gallery-next";
+                nextBtn.setAttribute("aria-label", "Next photo");
+                nextBtn.textContent = "›";
+
+                const dots = document.createElement("div");
+                dots.className = "gallery-dots";
+
+                const dotButtons = images.map(function (_, i) {
+                    const dot = document.createElement("button");
+                    dot.type = "button";
+                    dot.className = "gallery-dot";
+                    dot.setAttribute("aria-label", "Photo " + (i + 1));
+                    dot.addEventListener("click", function (event) {
+                        event.stopPropagation();
+                        goTo(i);
+                    });
+                    dots.appendChild(dot);
+                    return dot;
+                });
+
+                const counter = document.createElement("span");
+                counter.className = "photo-counter";
+
+                function goTo(i) {
+                    index = (i + images.length) % images.length;
+                    track.style.transform = "translateX(-" + (index * 100) + "%)";
+                    dotButtons.forEach(function (dot, d) {
+                        dot.classList.toggle("active", d === index);
+                    });
+                    counter.textContent = (index + 1) + "/" + images.length;
+                }
+
+                prevBtn.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    goTo(index - 1);
+                });
+
+                nextBtn.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    goTo(index + 1);
+                });
+
+                // Mobile swipe
+                let startX = null;
+
+                viewport.addEventListener("touchstart", function (event) {
+                    startX = event.touches[0].clientX;
+                    viewport.dataset.dragged = "0";
+                }, { passive: true });
+
+                viewport.addEventListener("touchmove", function (event) {
+                    if (startX !== null && Math.abs(event.touches[0].clientX - startX) > 8) {
+                        viewport.dataset.dragged = "1";
+                    }
+                }, { passive: true });
+
+                viewport.addEventListener("touchend", function (event) {
+                    if (startX === null) return;
+                    const dx = event.changedTouches[0].clientX - startX;
+                    if (Math.abs(dx) > 40) {
+                        goTo(index + (dx < 0 ? 1 : -1));
+                    }
+                    startX = null;
+                });
+
+                box.append(prevBtn, nextBtn, dots, counter);
+                goTo(0);
+            }
+
+            return box;
+        }
+
         function createProductCard(product) {
             const card = document.createElement("article");
             card.className = "product-card";
@@ -1415,7 +1670,6 @@
             const condition = String(product.condition || "Used");
             const description = String(product.description || "No description provided.");
             const campus = String(product.campus || "");
-            const imageUrl = String(product.imageUrl || "");
             const price = Number(product.price) || 0;
 
             card.dataset.name = name.toLowerCase();
@@ -1426,25 +1680,7 @@
                 name + " " + category + " " + description + " " + campus
             ).toLowerCase();
 
-            const imageBox = document.createElement("div");
-            imageBox.className = "product-image";
-
-            if (imageUrl) {
-                const img = document.createElement("img");
-                img.src = imageUrl;
-                img.alt = name;
-                img.loading = "lazy";
-
-                img.addEventListener("error", function () {
-                    img.remove();
-                });
-
-                imageBox.appendChild(img);
-            } else {
-                const icon = document.createElement("span");
-                icon.textContent = categoryEmoji(category);
-                imageBox.appendChild(icon);
-            }
+            const imageBox = createGallery(product, name, category);
 
             const conditionTag = document.createElement("span");
             conditionTag.className = "condition-tag";
@@ -1483,17 +1719,14 @@
             viewButton.className = "view-button";
             viewButton.type = "button";
             viewButton.textContent = "View Details";
-
             viewButton.addEventListener("click", function () {
-                window.location.href =
-                    "product-details.html?id=" + encodeURIComponent(product.id);
+                goToDetails(product);
             });
 
             const emailButton = document.createElement("button");
             emailButton.className = "email-button";
             emailButton.type = "button";
             emailButton.textContent = "Email Seller";
-
             emailButton.addEventListener("click", function () {
                 emailSeller(product);
             });
@@ -1501,20 +1734,13 @@
             buttonGroup.append(viewButton, emailButton);
             bottom.append(priceText, buttonGroup);
 
-            details.append(
-                categoryLabel,
-                title,
-                descriptionText,
-                conditionText,
-                bottom
-            );
+            details.append(categoryLabel, title, descriptionText, conditionText, bottom);
 
             card.append(imageBox, details);
 
             return card;
         }
 
-        // Category counts update karna
         function updateCategoryCounts(products) {
             const counts = { all: products.length, books: 0, electronics: 0, notes: 0, hostel: 0 };
 
@@ -1530,7 +1756,6 @@
             document.getElementById("countHostel").textContent = counts.hostel + " items";
         }
 
-        // Notes section mein latest 3 notes dikhana
         function renderNotesPreview(products) {
             notesGrid.replaceChildren();
 
@@ -1554,7 +1779,6 @@
             });
         }
 
-        // Firebase se products load karna
         async function loadProducts() {
             resultsCount.textContent = "Loading products...";
 
@@ -1610,7 +1834,6 @@
             });
         }
 
-        // Category icon cards ko sidebar radio ke saath sync karna
         function setCategory(value) {
             document.querySelector('input[name="category"][value="' + value + '"]').checked = true;
 
@@ -1621,7 +1844,6 @@
             filterProducts();
         }
 
-        // Search, filters aur sorting
         function filterProducts() {
             const searchText = searchInput.value.toLowerCase().trim();
             const category = getSelectedCategory();
@@ -1635,7 +1857,6 @@
                 return;
             }
 
-            // Category cards ka active state sync rakhna
             document.querySelectorAll(".category-card").forEach(function (card) {
                 card.classList.toggle("active", card.dataset.category === category);
             });
@@ -1694,7 +1915,6 @@
                 : "none";
         }
 
-        // Category icon cards par click
         categoryGrid.addEventListener("click", function (event) {
             const card = event.target.closest(".category-card");
             if (!card) return;
@@ -1702,13 +1922,11 @@
             document.getElementById("productGrid").scrollIntoView({ behavior: "smooth", block: "start" });
         });
 
-        // Notes section ka "See all" button
         seeAllNotes.addEventListener("click", function () {
             setCategory("notes");
             document.querySelector(".marketplace").scrollIntoView({ behavior: "smooth" });
         });
 
-        // Search form
         searchForm.addEventListener("submit", function (event) {
             event.preventDefault();
             filterProducts();
@@ -1752,7 +1970,6 @@
             filterProducts();
         });
 
-        // Start
         loadProducts();
     </script>
 
