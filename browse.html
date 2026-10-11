@@ -1173,15 +1173,10 @@
         viewButton.textContent = "View Details";
 
         viewButton.addEventListener("click", function () {
-            alert(
-                "Product: " + name +
-                "\nCategory: " + category +
-                "\nPrice: ₹" + price.toLocaleString("en-IN") +
-                "\nCondition: " + condition +
-                "\nDescription: " + description +
-                (campus ? "\nCampus: " + campus : "")
-            );
-        });
+    window.location.href =
+        "product-details.html?id=" +
+        encodeURIComponent(product.id);
+});
 
         bottom.append(priceText, viewButton);
         details.append(
