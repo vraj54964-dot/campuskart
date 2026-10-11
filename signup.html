@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -127,6 +126,10 @@
             margin-bottom: 8px;
         }
 
+        .required {
+            color: #dc2626;
+        }
+
         .form-group input,
         .form-group select {
             width: 100%;
@@ -163,6 +166,14 @@
             font-weight: bold;
             cursor: pointer;
             font-size: 12px;
+        }
+
+        .hostel-fields {
+            display: none;
+        }
+
+        .hostel-fields.show {
+            display: block;
         }
 
         .terms {
@@ -313,7 +324,7 @@
                     <div class="form-row">
 
                         <div class="form-group">
-                            <label for="fullName">Full Name</label>
+                            <label for="fullName">Full Name <span class="required">*</span></label>
 
                             <input
                                 type="text"
@@ -326,7 +337,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="college">College Name</label>
+                            <label for="college">College Name <span class="required">*</span></label>
 
                             <input
                                 type="text"
@@ -340,7 +351,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Enter your Email Address</label>
+                        <label for="email">Enter your Email Address <span class="required">*</span></label>
 
                         <input
                             type="email"
@@ -351,10 +362,8 @@
                             required>
                     </div>
 
-                    <!-- Phone number: exactly 10 digits -->
-
                     <div class="form-group">
-                        <label for="phone">Enter Your Phone Number</label>
+                        <label for="phone">Enter Your Phone Number <span class="required">*</span></label>
 
                         <input
                             type="tel"
@@ -371,17 +380,53 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="studentId">Student ID (Optional)</label>
+                        <label for="studentId">College ID <span class="required">*</span></label>
 
                         <input
                             type="text"
                             id="studentId"
                             name="studentId"
-                            placeholder="Enter your student ID">
+                            placeholder="Apni college ID daalo"
+                            required>
                     </div>
 
                     <div class="form-group">
-                        <label for="password">Create Password</label>
+                        <label for="staysInHostel">Kya aap hostel mein rehte ho? <span class="required">*</span></label>
+
+                        <select id="staysInHostel" name="staysInHostel" required>
+                            <option value="">Select karein</option>
+                            <option value="yes">Haan, hostel mein</option>
+                            <option value="no">Nahi, day scholar / ghar se</option>
+                        </select>
+                    </div>
+
+                    <div id="hostelFields" class="hostel-fields">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="hostelName">Hostel Name <span class="required">*</span></label>
+
+                                <input
+                                    type="text"
+                                    id="hostelName"
+                                    name="hostelName"
+                                    placeholder="e.g. Boys Hostel A">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="roomNo">Room Number <span class="required">*</span></label>
+
+                                <input
+                                    type="text"
+                                    id="roomNo"
+                                    name="roomNo"
+                                    placeholder="e.g. 204"
+                                    maxlength="10">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Create Password <span class="required">*</span></label>
 
                         <div class="password-wrapper">
                             <input
@@ -403,7 +448,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
+                        <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
 
                         <div class="password-wrapper">
                             <input
@@ -444,8 +489,6 @@
                     <a href="login.html">Login here</a>
                 </p>
 
-                
-
             </div>
         </div>
     </main>
@@ -483,180 +526,153 @@
         const signupForm = document.getElementById("signupForm");
         const message = document.getElementById("message");
         const phoneInput = document.getElementById("phone");
+        const staysInHostel = document.getElementById("staysInHostel");
+        const hostelFields = document.getElementById("hostelFields");
+        const hostelName = document.getElementById("hostelName");
+        const roomNo = document.getElementById("roomNo");
 
-        // Display success and error messages
         function showMessage(text, type) {
             message.textContent = text;
             message.className = "message " + type;
         }
 
-        // Allow only digits and a maximum of 10 digits
+        // Phone: only digits, max 10
         phoneInput.addEventListener("input", function () {
-            this.value = this.value
-                .replace(/\D/g, "")
-                .slice(0, 10);
+            this.value = this.value.replace(/\D/g, "").slice(0, 10);
+        });
+
+        // Show hostel fields only when student lives in hostel
+        staysInHostel.addEventListener("change", function () {
+            const isHostel = this.value === "yes";
+            hostelFields.classList.toggle("show", isHostel);
+            hostelName.required = isHostel;
+            roomNo.required = isHostel;
+
+            if (!isHostel) {
+                hostelName.value = "";
+                roomNo.value = "";
+            }
         });
 
         // Show / Hide password buttons
-        document.querySelectorAll(".show-password").forEach(
-            function (button) {
-                button.addEventListener("click", function () {
-                    const input = document.getElementById(
-                        button.dataset.target
-                    );
+        document.querySelectorAll(".show-password").forEach(function (button) {
+            button.addEventListener("click", function () {
+                const input = document.getElementById(button.dataset.target);
 
-                    if (input.type === "password") {
-                        input.type = "text";
-                        button.textContent = "Hide";
-                    } else {
-                        input.type = "password";
-                        button.textContent = "Show";
-                    }
-                });
-            }
-        );
+                if (input.type === "password") {
+                    input.type = "text";
+                    button.textContent = "Hide";
+                } else {
+                    input.type = "password";
+                    button.textContent = "Show";
+                }
+            });
+        });
 
-        // Signup form submission
         signupForm.addEventListener("submit", async function (event) {
             event.preventDefault();
 
-            const fullName = document
-                .getElementById("fullName")
-                .value.trim();
-
-            const college = document
-                .getElementById("college")
-                .value.trim();
-
-            const email = document
-                .getElementById("email")
-                .value.trim();
-
+            const fullName = document.getElementById("fullName").value.trim();
+            const college = document.getElementById("college").value.trim();
+            const email = document.getElementById("email").value.trim();
             const phone = phoneInput.value;
+            const studentId = document.getElementById("studentId").value.trim();
+            const livesInHostel = staysInHostel.value === "yes";
+            const hostel = hostelName.value.trim();
+            const room = roomNo.value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
 
-            const studentId = document
-                .getElementById("studentId")
-                .value.trim();
-
-            const password = document
-                .getElementById("password")
-                .value;
-
-            const confirmPassword = document
-                .getElementById("confirmPassword")
-                .value;
-
-            // Validate full name
             if (fullName.length < 2) {
-                showMessage(
-                    "Please enter your full name.",
-                    "error"
-                );
+                showMessage("Please enter your full name.", "error");
                 return;
             }
 
-            // Validate college name
             if (college.length < 2) {
-                showMessage(
-                    "Please enter your college name.",
-                    "error"
-                );
+                showMessage("Please enter your college name.", "error");
                 return;
             }
 
-            // Validate phone number
             if (!/^[0-9]{10}$/.test(phone)) {
-                showMessage(
-                    "Please enter exactly 10 digits for your phone number.",
-                    "error"
-                );
+                showMessage("Please enter exactly 10 digits for your phone number.", "error");
                 phoneInput.focus();
                 return;
             }
 
-            // Validate password
+            if (studentId.length < 1) {
+                showMessage("Please enter your college ID.", "error");
+                return;
+            }
+
+            if (!staysInHostel.value) {
+                showMessage("Please select whether you stay in a hostel.", "error");
+                return;
+            }
+
+            if (livesInHostel && (hostel.length < 2 || room.length < 1)) {
+                showMessage("Please enter your hostel name and room number.", "error");
+                return;
+            }
+
             if (password.length < 8) {
-                showMessage(
-                    "Password must contain at least 8 characters.",
-                    "error"
-                );
+                showMessage("Password must contain at least 8 characters.", "error");
                 return;
             }
 
-            // Confirm passwords match
             if (password !== confirmPassword) {
-                showMessage(
-                    "Passwords do not match.",
-                    "error"
-                );
+                showMessage("Passwords do not match.", "error");
                 return;
             }
 
-            // Check terms and conditions
             if (!document.getElementById("terms").checked) {
-                showMessage(
-                    "Please agree to the terms first.",
-                    "error"
-                );
+                showMessage("Please agree to the terms first.", "error");
                 return;
             }
 
-            const submitButton = signupForm.querySelector(
-                'button[type="submit"]'
-            );
-
+            const submitButton = signupForm.querySelector('button[type="submit"]');
             submitButton.disabled = true;
             submitButton.textContent = "Creating account...";
 
             try {
-                // Create Firebase account
-                const userCredential =
-                    await createUserWithEmailAndPassword(
-                        auth,
-                        email,
-                        password
-                    );
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                // Save the user's display name in Firebase Auth
                 await updateProfile(userCredential.user, {
                     displayName: fullName
                 });
 
-                showMessage(
-                    "Account created successfully! Opening login page...",
-                    "success"
-                );
+                // TODO: Save college, studentId, hostel and room details to
+                // Firestore/Realtime Database here. These are needed for the
+                // hostel chat feature.
+                // Example data:
+                // {
+                //   uid: userCredential.user.uid,
+                //   fullName, college, email, phone, studentId,
+                //   livesInHostel, hostel: livesInHostel ? hostel : null,
+                //   roomNo: livesInHostel ? room : null
+                // }
+
+                showMessage("Account created successfully! Opening login page...", "success");
 
                 signupForm.reset();
+                hostelFields.classList.remove("show");
 
-                // Redirect to login page
                 setTimeout(function () {
                     window.location.href = "login.html";
                 }, 1500);
 
             } catch (error) {
-                let errorMessage =
-                    "Signup failed. Please try again.";
+                let errorMessage = "Signup failed. Please try again.";
 
                 if (error.code === "auth/email-already-in-use") {
-                    errorMessage =
-                        "This email already has an account. Please log in.";
+                    errorMessage = "This email already has an account. Please log in.";
                 } else if (error.code === "auth/invalid-email") {
-                    errorMessage =
-                        "Please enter a valid email address.";
+                    errorMessage = "Please enter a valid email address.";
                 } else if (error.code === "auth/weak-password") {
-                    errorMessage =
-                        "Please choose a stronger password.";
-                } else if (
-                    error.code === "auth/network-request-failed"
-                ) {
-                    errorMessage =
-                        "Network error. Check your internet connection.";
-                } else if (
-                    error.code === "auth/operation-not-allowed"
-                ) {
-                    errorMessage =
-                        "Email/password signup is not enabled in Firebase.";
+                    errorMessage = "Please choose a stronger password.";
+                } else if (error.code === "auth/network-request-failed") {
+                    errorMessage = "Network error. Check your internet connection.";
+                } else if (error.code === "auth/operation-not-allowed") {
+                    errorMessage = "Email/password signup is not enabled in Firebase.";
                 }
 
                 showMessage(errorMessage, "error");

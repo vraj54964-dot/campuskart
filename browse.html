@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -384,6 +383,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .product-price {
@@ -392,9 +392,14 @@
             font-weight: 800;
         }
 
-        .view-button {
-            background: var(--navy);
-            color: white;
+        .button-group {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .view-button,
+        .chat-button {
             border: none;
             border-radius: 7px;
             padding: 8px 10px;
@@ -402,8 +407,22 @@
             font-weight: 700;
         }
 
+        .view-button {
+            background: var(--navy);
+            color: white;
+        }
+
         .view-button:hover {
             background: #203657;
+        }
+
+        .chat-button {
+            background: var(--teal);
+            color: var(--navy);
+        }
+
+        .chat-button:hover {
+            background: #0ba996;
         }
 
         /* ===== 9. EMPTY RESULTS ===== */
@@ -432,7 +451,30 @@
             font-size: 14px;
         }
 
-        /* ===== 10. FOOTER ===== */
+        /* ===== 10. TOAST MESSAGE ===== */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* ===== 11. FOOTER ===== */
         .footer {
             background: var(--navy);
             color: white;
@@ -482,7 +524,7 @@
             color: #aebbd0;
         }
 
-        /* ===== 11. RESPONSIVE DESIGN ===== */
+        /* ===== 12. RESPONSIVE DESIGN ===== */
         @media (max-width: 1050px) {
             .marketplace-layout {
                 grid-template-columns: 210px 1fr;
@@ -587,7 +629,8 @@
                 font-size: 17px;
             }
 
-            .view-button {
+            .view-button,
+            .chat-button {
                 padding: 7px;
                 font-size: 10px;
             }
@@ -769,7 +812,7 @@
                             <h2>Explore Items</h2>
                             <p class="results-count" id="resultsCount"
                                aria-live="polite">
-                                Showing products
+                                Loading products...
                             </p>
                         </div>
 
@@ -782,219 +825,8 @@
                         </select>
                     </div>
 
-                    <div class="product-grid" id="productGrid">
-
-                        <!-- PRODUCT 1 -->
-                        <article class="product-card"
-                            data-category="books"
-                            data-price="250"
-                            data-condition="good"
-                            data-name="Engineering Mathematics"
-                            data-search="engineering mathematics textbook semester book">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80"
-                                    alt="Engineering study book"
-                                    loading="lazy">
-                                <span class="condition-tag">Good</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Books</span>
-                                <h3>Engineering Mathematics</h3>
-                                <p class="product-description">
-                                    Semester study textbook.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Good
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹250</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- PRODUCT 2 -->
-                        <article class="product-card"
-                            data-category="electronics"
-                            data-price="400"
-                            data-condition="like new"
-                            data-name="Scientific Calculator"
-                            data-search="scientific calculator electronics casio">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&w=600&q=80"
-                                    alt="Scientific calculator"
-                                    loading="lazy">
-                                <span class="condition-tag">Like New</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Electronics</span>
-                                <h3>Scientific Calculator</h3>
-                                <p class="product-description">
-                                    A useful exam companion.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Like New
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹400</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- PRODUCT 3 -->
-                        <article class="product-card"
-                            data-category="notes"
-                            data-price="100"
-                            data-condition="well maintained"
-                            data-name="Physics Study Notes"
-                            data-search="physics notes handwritten study material">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=600&q=80"
-                                    alt="Physics study notes"
-                                    loading="lazy">
-                                <span class="condition-tag">Well Maintained</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Notes</span>
-                                <h3>Physics Study Notes</h3>
-                                <p class="product-description">
-                                    Revision and exam preparation notes.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Well Maintained
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹100</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- PRODUCT 4 -->
-                        <article class="product-card"
-                            data-category="hostel"
-                            data-price="350"
-                            data-condition="good"
-                            data-name="College Backpack"
-                            data-search="college backpack bag hostel">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=600&q=80"
-                                    alt="College backpack"
-                                    loading="lazy">
-                                <span class="condition-tag">Good</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Hostel Essentials</span>
-                                <h3>College Backpack</h3>
-                                <p class="product-description">
-                                    An everyday campus bag.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Good
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹350</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- PRODUCT 5 -->
-                        <article class="product-card"
-                            data-category="books"
-                            data-price="180"
-                            data-condition="like new"
-                            data-name="C++ Programming Book"
-                            data-search="c++ programming coding book computer science">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80"
-                                    alt="Programming book"
-                                    loading="lazy">
-                                <span class="condition-tag">Like New</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Books</span>
-                                <h3>C++ Programming Book</h3>
-                                <p class="product-description">
-                                    Programming basics and practice.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Like New
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹180</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                        <!-- PRODUCT 6 -->
-                        <article class="product-card"
-                            data-category="electronics"
-                            data-price="700"
-                            data-condition="good"
-                            data-name="Wireless Headphones"
-                            data-search="wireless headphones audio electronics music">
-                            <div class="product-image">
-                                <img
-                                    src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80"
-                                    alt="Headphones"
-                                    loading="lazy">
-                                <span class="condition-tag">Good</span>
-                            </div>
-
-                            <div class="product-details">
-                                <span class="product-category">Electronics</span>
-                                <h3>Wireless Headphones</h3>
-                                <p class="product-description">
-                                    For music and online classes.
-                                </p>
-                                <p class="product-condition">
-                                    Condition: Good
-                                </p>
-
-                                <div class="product-bottom">
-                                    <span class="product-price">₹700</span>
-                                    <button class="view-button"
-                                            type="button">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        </article>
-
-                    </div>
+                    <!-- Products are loaded from Firebase by JavaScript -->
+                    <div class="product-grid" id="productGrid"></div>
 
                     <!-- NO RESULTS MESSAGE -->
                     <div class="empty-state" id="emptyState">
@@ -1038,361 +870,393 @@
         </div>
     </footer>
 
+    <!-- TOAST -->
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
     <!-- JAVASCRIPT -->
-    
-        
-<script type="module">
-    import {
-        initializeApp,
-        getApp,
-        getApps
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    <script type="module">
+        import {
+            initializeApp,
+            getApp,
+            getApps
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-    import {
-        getFirestore,
-        collection,
-        getDocs
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import {
+            getFirestore,
+            collection,
+            getDocs
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
-        authDomain: "campus-cart-62492.firebaseapp.com",
-        projectId: "campus-cart-62492",
-        storageBucket: "campus-cart-62492.firebasestorage.app",
-        messagingSenderId: "182996728543",
-        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
-        measurementId: "G-NN86N2NE52"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+            authDomain: "campus-cart-62492.firebaseapp.com",
+            projectId: "campus-cart-62492",
+            storageBucket: "campus-cart-62492.firebasestorage.app",
+            messagingSenderId: "182996728543",
+            appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+            measurementId: "G-NN86N2NE52"
+        };
 
-    const app = getApps().length
-        ? getApp()
-        : initializeApp(firebaseConfig);
+        const app = getApps().length
+            ? getApp()
+            : initializeApp(firebaseConfig);
 
-    const db = getFirestore(app);
+        const db = getFirestore(app);
 
-    // HTML elements
-    const searchForm = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
-    const productGrid = document.getElementById("productGrid");
-    const resultsCount = document.getElementById("resultsCount");
-    const emptyState = document.getElementById("emptyState");
-    const minPriceInput = document.getElementById("minPrice");
-    const maxPriceInput = document.getElementById("maxPrice");
-    const sortSelect = document.getElementById("sortSelect");
-    const resetButton = document.getElementById("resetButton");
-    const applyPriceButton = document.getElementById("applyPrice");
+        // HTML elements
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const productGrid = document.getElementById("productGrid");
+        const resultsCount = document.getElementById("resultsCount");
+        const emptyState = document.getElementById("emptyState");
+        const minPriceInput = document.getElementById("minPrice");
+        const maxPriceInput = document.getElementById("maxPrice");
+        const sortSelect = document.getElementById("sortSelect");
+        const resetButton = document.getElementById("resetButton");
+        const applyPriceButton = document.getElementById("applyPrice");
+        const toast = document.getElementById("toast");
 
-    let productCards = [];
+        let productCards = [];
+        let toastTimer = null;
 
-    // Category values ko filters ke saath match karna
-    function normalizeCategory(category) {
-        const value = String(category || "").toLowerCase().trim();
-
-        if (value === "hostel essentials") return "hostel";
-        if (value === "books") return "books";
-        if (value === "electronics") return "electronics";
-        if (value === "notes") return "notes";
-
-        return value;
-    }
-
-    function normalizeCondition(condition) {
-        return String(condition || "").toLowerCase().trim();
-    }
-
-    // Product card banana
-    function createProductCard(product) {
-        const card = document.createElement("article");
-        card.className = "product-card";
-
-        const name = String(product.name || "Untitled Product");
-        const category = String(product.category || "Other");
-        const condition = String(product.condition || "Used");
-        const description = String(product.description || "No description provided.");
-        const campus = String(product.campus || "");
-        const imageUrl = String(product.imageUrl || "");
-        const price = Number(product.price) || 0;
-
-        card.dataset.name = name.toLowerCase();
-        card.dataset.category = normalizeCategory(category);
-        card.dataset.condition = normalizeCondition(condition);
-        card.dataset.price = String(price);
-        card.dataset.search = (
-            name + " " + category + " " + description + " " + campus
-        ).toLowerCase();
-
-        const imageBox = document.createElement("div");
-        imageBox.className = "product-image";
-
-        if (imageUrl) {
-            const img = document.createElement("img");
-            img.src = imageUrl;
-            img.alt = name;
-            img.loading = "lazy";
-
-            img.addEventListener("error", function () {
-                img.style.display = "none";
-            });
-
-            imageBox.appendChild(img);
+        // Chhota message dikhane ke liye
+        function showToast(text) {
+            toast.textContent = text;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.classList.remove("show");
+            }, 2800);
         }
 
-        const conditionTag = document.createElement("span");
-        conditionTag.className = "condition-tag";
-        conditionTag.textContent = condition;
-        imageBox.appendChild(conditionTag);
+        // Category values ko filters ke saath match karna
+        function normalizeCategory(category) {
+            const value = String(category || "").toLowerCase().trim();
 
-        const details = document.createElement("div");
-        details.className = "product-details";
+            if (value === "hostel essentials") return "hostel";
+            if (value === "books") return "books";
+            if (value === "electronics") return "electronics";
+            if (value === "notes") return "notes";
 
-        const categoryLabel = document.createElement("span");
-        categoryLabel.className = "product-category";
-        categoryLabel.textContent = category;
+            return value;
+        }
 
-        const title = document.createElement("h3");
-        title.textContent = name;
+        function normalizeCondition(condition) {
+            return String(condition || "").toLowerCase().trim();
+        }
 
-        const descriptionText = document.createElement("p");
-        descriptionText.className = "product-description";
-        descriptionText.textContent = description;
+        // Seller ko email bhejna (mailto)
+        function emailSeller(product, name, price) {
+            if (!product.sellerEmail) {
+                showToast("Is listing mein seller ka email nahi hai.");
+                return;
+            }
 
-        const conditionText = document.createElement("p");
-        conditionText.className = "product-condition";
-        conditionText.textContent = "Condition: " + condition;
+            const subject = "CampusKart: " + name;
+            const body =
+                "Hi " + (product.sellerName || "") + ",\n\n" +
+                "Mujhe aapki listing \"" + name + "\" (₹" + price + ") ke baare mein baat karni hai. " +
+                "Kya yeh abhi available hai?\n\nThanks";
 
-        const bottom = document.createElement("div");
-        bottom.className = "product-bottom";
+            window.location.href =
+                "mailto:" + product.sellerEmail +
+                "?subject=" + encodeURIComponent(subject) +
+                "&body=" + encodeURIComponent(body);
+        }
 
-        const priceText = document.createElement("span");
-        priceText.className = "product-price";
-        priceText.textContent = "₹" + price.toLocaleString("en-IN");
+        // Product card banana
+        function createProductCard(product) {
+            const card = document.createElement("article");
+            card.className = "product-card";
 
-        const viewButton = document.createElement("button");
-        viewButton.className = "view-button";
-        viewButton.type = "button";
-        viewButton.textContent = "View Details";
+            const name = String(product.name || "Untitled Product");
+            const category = String(product.category || "Other");
+            const condition = String(product.condition || "Used");
+            const description = String(product.description || "No description provided.");
+            const campus = String(product.campus || "");
+            const imageUrl = String(product.imageUrl || "");
+            const price = Number(product.price) || 0;
 
-        viewButton.addEventListener("click", function () {
-    window.location.href =
-        "product-details.html?id=" +
-        encodeURIComponent(product.id);
-});
+            card.dataset.name = name.toLowerCase();
+            card.dataset.category = normalizeCategory(category);
+            card.dataset.condition = normalizeCondition(condition);
+            card.dataset.price = String(price);
+            card.dataset.search = (
+                name + " " + category + " " + description + " " + campus
+            ).toLowerCase();
 
-        bottom.append(priceText, viewButton);
-        details.append(
-            categoryLabel,
-            title,
-            descriptionText,
-            conditionText,
-            bottom
-        );
+            const imageBox = document.createElement("div");
+            imageBox.className = "product-image";
 
-        card.append(imageBox, details);
+            if (imageUrl) {
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.alt = name;
+                img.loading = "lazy";
 
-        return card;
-    }
-
-    // Firebase se products load karna
-    async function loadProducts() {
-        resultsCount.textContent = "Loading products...";
-        productGrid.replaceChildren();
-
-        try {
-            const snapshot = await getDocs(collection(db, "listings"));
-
-            const products = snapshot.docs
-                .map(function (doc) {
-                    return { id: doc.id, ...doc.data() };
-                })
-                .filter(function (product) {
-                    return String(product.status || "")
-                        .toLowerCase() === "active";
+                img.addEventListener("error", function () {
+                    img.style.display = "none";
                 });
 
-            productGrid.replaceChildren();
+                imageBox.appendChild(img);
+            }
 
-            products.forEach(function (product) {
-                productGrid.appendChild(createProductCard(product));
+            const conditionTag = document.createElement("span");
+            conditionTag.className = "condition-tag";
+            conditionTag.textContent = condition;
+            imageBox.appendChild(conditionTag);
+
+            const details = document.createElement("div");
+            details.className = "product-details";
+
+            const categoryLabel = document.createElement("span");
+            categoryLabel.className = "product-category";
+            categoryLabel.textContent = category;
+
+            const title = document.createElement("h3");
+            title.textContent = name;
+
+            const descriptionText = document.createElement("p");
+            descriptionText.className = "product-description";
+            descriptionText.textContent = description;
+
+            const conditionText = document.createElement("p");
+            conditionText.className = "product-condition";
+            conditionText.textContent = "Condition: " + condition;
+
+            const bottom = document.createElement("div");
+            bottom.className = "product-bottom";
+
+            const priceText = document.createElement("span");
+            priceText.className = "product-price";
+            priceText.textContent = "₹" + price.toLocaleString("en-IN");
+
+            const buttonGroup = document.createElement("div");
+            buttonGroup.className = "button-group";
+
+            const viewButton = document.createElement("button");
+            viewButton.className = "view-button";
+            viewButton.type = "button";
+            viewButton.textContent = "View Details";
+
+            viewButton.addEventListener("click", function () {
+                window.location.href =
+                    "product-details.html?id=" +
+                    encodeURIComponent(product.id);
             });
 
-            productCards = Array.from(
-                productGrid.querySelectorAll(".product-card")
+            const emailButton = document.createElement("button");
+            emailButton.className = "chat-button";
+            emailButton.type = "button";
+            emailButton.textContent = "Email Seller";
+
+            emailButton.addEventListener("click", function () {
+                emailSeller(product, name, price);
+            });
+
+            buttonGroup.append(viewButton, emailButton);
+            bottom.append(priceText, buttonGroup);
+
+            details.append(
+                categoryLabel,
+                title,
+                descriptionText,
+                conditionText,
+                bottom
             );
 
-            filterProducts();
+            card.append(imageBox, details);
 
-            if (productCards.length === 0) {
-                resultsCount.textContent =
-                    "No active listings yet. Add a product from Sell.";
-            }
-        } catch (error) {
-            console.error("Firebase product loading error:", error);
-            resultsCount.textContent =
-                "Products could not be loaded. Please check your connection and Firebase permissions.";
-            emptyState.style.display = "block";
-        }
-    }
-
-    // Selected category
-    function getSelectedCategory() {
-        return document.querySelector(
-            'input[name="category"]:checked'
-        ).value;
-    }
-
-    // Selected conditions
-    function getSelectedConditions() {
-        return Array.from(
-            document.querySelectorAll('input[name="condition"]:checked')
-        ).map(function (input) {
-            return input.value;
-        });
-    }
-
-    // Search, filters aur sorting
-    function filterProducts() {
-        const searchText = searchInput.value.toLowerCase().trim();
-        const category = getSelectedCategory();
-        const conditions = getSelectedConditions();
-
-        const minPrice = minPriceInput.value === ""
-            ? 0
-            : Number(minPriceInput.value);
-
-        const maxPrice = maxPriceInput.value === ""
-            ? Infinity
-            : Number(maxPriceInput.value);
-
-        if (
-            minPrice < 0 ||
-            maxPrice < 0 ||
-            minPrice > maxPrice
-        ) {
-            resultsCount.textContent = "Please enter a valid price range.";
-            return;
+            return card;
         }
 
-        const filteredProducts = productCards.filter(function (card) {
-            const name = card.dataset.name || "";
-            const keywords = card.dataset.search || "";
-            const productCategory = card.dataset.category || "";
-            const price = Number(card.dataset.price);
-            const condition = card.dataset.condition || "";
+        // Firebase se products load karna
+        async function loadProducts() {
+            resultsCount.textContent = "Loading products...";
+            productGrid.replaceChildren();
 
-            const matchesSearch =
-                name.includes(searchText) ||
-                keywords.includes(searchText);
+            try {
+                const snapshot = await getDocs(collection(db, "listings"));
 
-            const matchesCategory =
-                category === "all" ||
-                productCategory === category;
+                const products = snapshot.docs
+                    .map(function (docSnap) {
+                        return { id: docSnap.id, ...docSnap.data() };
+                    })
+                    .filter(function (product) {
+                        return String(product.status || "")
+                            .toLowerCase() === "active";
+                    });
 
-            const matchesPrice =
-                price >= minPrice && price <= maxPrice;
+                products.forEach(function (product) {
+                    productGrid.appendChild(createProductCard(product));
+                });
 
-            const matchesCondition =
-                conditions.length === 0 ||
-                conditions.includes(condition);
+                productCards = Array.from(
+                    productGrid.querySelectorAll(".product-card")
+                );
 
-            return (
-                matchesSearch &&
-                matchesCategory &&
-                matchesPrice &&
-                matchesCondition
-            );
-        });
-
-        const sortValue = sortSelect.value;
-
-        if (sortValue === "low") {
-            filteredProducts.sort((a, b) =>
-                Number(a.dataset.price) - Number(b.dataset.price)
-            );
-        } else if (sortValue === "high") {
-            filteredProducts.sort((a, b) =>
-                Number(b.dataset.price) - Number(a.dataset.price)
-            );
-        } else if (sortValue === "name") {
-            filteredProducts.sort((a, b) =>
-                a.dataset.name.localeCompare(b.dataset.name)
-            );
-        }
-
-        productCards.forEach(function (card) {
-            card.style.display = "none";
-        });
-
-        filteredProducts.forEach(function (card) {
-            card.style.display = "";
-            productGrid.appendChild(card);
-        });
-
-        resultsCount.textContent =
-            "Showing " + filteredProducts.length +
-            " of " + productCards.length + " products";
-
-        emptyState.style.display =
-            filteredProducts.length === 0 ? "block" : "none";
-    }
-
-    // Search form
-    searchForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        filterProducts();
-    });
-
-    // Typing ke saath search
-    searchInput.addEventListener("input", filterProducts);
-
-    // Category filter
-    document.querySelectorAll('input[name="category"]')
-        .forEach(function (input) {
-            input.addEventListener("change", filterProducts);
-        });
-
-    // Condition filter
-    document.querySelectorAll('input[name="condition"]')
-        .forEach(function (input) {
-            input.addEventListener("change", filterProducts);
-        });
-
-    // Price filter
-    applyPriceButton.addEventListener("click", filterProducts);
-
-    [minPriceInput, maxPriceInput].forEach(function (input) {
-        input.addEventListener("keydown", function (event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
                 filterProducts();
+
+                if (productCards.length === 0) {
+                    resultsCount.textContent =
+                        "No active listings yet. Add a product from Sell.";
+                }
+            } catch (error) {
+                console.error("Firebase product loading error:", error);
+                resultsCount.textContent =
+                    "Products could not be loaded. Please check your connection and Firebase permissions.";
+                emptyState.style.display = "block";
             }
+        }
+
+        function getSelectedCategory() {
+            return document.querySelector(
+                'input[name="category"]:checked'
+            ).value;
+        }
+
+        function getSelectedConditions() {
+            return Array.from(
+                document.querySelectorAll('input[name="condition"]:checked')
+            ).map(function (input) {
+                return input.value;
+            });
+        }
+
+        // Search, filters aur sorting
+        function filterProducts() {
+            const searchText = searchInput.value.toLowerCase().trim();
+            const category = getSelectedCategory();
+            const conditions = getSelectedConditions();
+
+            const minPrice = minPriceInput.value === ""
+                ? 0
+                : Number(minPriceInput.value);
+
+            const maxPrice = maxPriceInput.value === ""
+                ? Infinity
+                : Number(maxPriceInput.value);
+
+            if (minPrice < 0 || maxPrice < 0 || minPrice > maxPrice) {
+                resultsCount.textContent = "Please enter a valid price range.";
+                return;
+            }
+
+            const filteredProducts = productCards.filter(function (card) {
+                const name = card.dataset.name || "";
+                const keywords = card.dataset.search || "";
+                const productCategory = card.dataset.category || "";
+                const price = Number(card.dataset.price);
+                const condition = card.dataset.condition || "";
+
+                const matchesSearch =
+                    name.includes(searchText) ||
+                    keywords.includes(searchText);
+
+                const matchesCategory =
+                    category === "all" ||
+                    productCategory === category;
+
+                const matchesPrice =
+                    price >= minPrice && price <= maxPrice;
+
+                const matchesCondition =
+                    conditions.length === 0 ||
+                    conditions.includes(condition);
+
+                return (
+                    matchesSearch &&
+                    matchesCategory &&
+                    matchesPrice &&
+                    matchesCondition
+                );
+            });
+
+            const sortValue = sortSelect.value;
+
+            if (sortValue === "low") {
+                filteredProducts.sort((a, b) =>
+                    Number(a.dataset.price) - Number(b.dataset.price)
+                );
+            } else if (sortValue === "high") {
+                filteredProducts.sort((a, b) =>
+                    Number(b.dataset.price) - Number(a.dataset.price)
+                );
+            } else if (sortValue === "name") {
+                filteredProducts.sort((a, b) =>
+                    a.dataset.name.localeCompare(b.dataset.name)
+                );
+            }
+
+            productCards.forEach(function (card) {
+                card.style.display = "none";
+            });
+
+            filteredProducts.forEach(function (card) {
+                card.style.display = "";
+                productGrid.appendChild(card);
+            });
+
+            resultsCount.textContent =
+                "Showing " + filteredProducts.length +
+                " of " + productCards.length + " products";
+
+            emptyState.style.display =
+                filteredProducts.length === 0 ? "block" : "none";
+        }
+
+        // Search form
+        searchForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            filterProducts();
         });
-    });
 
-    // Sorting
-    sortSelect.addEventListener("change", filterProducts);
+        searchInput.addEventListener("input", filterProducts);
 
-    // Reset filters
-    resetButton.addEventListener("click", function () {
-        searchInput.value = "";
-        minPriceInput.value = "";
-        maxPriceInput.value = "";
-        sortSelect.value = "default";
-
-        document.querySelector(
-            'input[name="category"][value="all"]'
-        ).checked = true;
+        document.querySelectorAll('input[name="category"]')
+            .forEach(function (input) {
+                input.addEventListener("change", filterProducts);
+            });
 
         document.querySelectorAll('input[name="condition"]')
             .forEach(function (input) {
-                input.checked = false;
+                input.addEventListener("change", filterProducts);
             });
 
-        filterProducts();
-    });
+        applyPriceButton.addEventListener("click", filterProducts);
 
-    // Start
-    loadProducts();
-</script>
+        [minPriceInput, maxPriceInput].forEach(function (input) {
+            input.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    filterProducts();
+                }
+            });
+        });
+
+        sortSelect.addEventListener("change", filterProducts);
+
+        resetButton.addEventListener("click", function () {
+            searchInput.value = "";
+            minPriceInput.value = "";
+            maxPriceInput.value = "";
+            sortSelect.value = "default";
+
+            document.querySelector(
+                'input[name="category"][value="all"]'
+            ).checked = true;
+
+            document.querySelectorAll('input[name="condition"]')
+                .forEach(function (input) {
+                    input.checked = false;
+                });
+
+            filterProducts();
+        });
+
+        // Start
+        loadProducts();
+    </script>
 
 </body>
 </html>
