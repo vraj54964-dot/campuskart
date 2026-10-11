@@ -270,7 +270,7 @@
 
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 14px;
         }
 
@@ -766,7 +766,8 @@
 
         .view-button,
         .email-button,
-        .whatsapp-btn {
+        .whatsapp-btn,
+        .chat-btn {
             border: none;
             border-radius: 7px;
             padding: 8px 10px;
@@ -783,22 +784,190 @@
             background: #203657;
         }
 
-        .email-button {
+        .email-button,
+        .chat-btn {
             background: var(--teal);
             color: var(--navy);
         }
 
-        .email-button:hover {
+        .email-button:hover,
+        .chat-btn:hover {
             background: #0ba996;
         }
 
         .whatsapp-btn {
-            background: #dcfce7;
-            color: #166534;
+            background: #25d366;
+            color: #052e16;
         }
 
         .whatsapp-btn:hover {
-            background: #bbf7d0;
+            background: #1ebe5b;
+        }
+
+        /* ===== CHAT MODAL ===== */
+        .chat-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            z-index: 200;
+        }
+
+        .chat-modal-backdrop[hidden] {
+            display: none;
+        }
+
+        .chat-modal {
+            width: 100%;
+            max-width: 440px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 55px rgba(15, 23, 42, 0.35);
+            display: flex;
+            flex-direction: column;
+            max-height: 86vh;
+        }
+
+        .chat-modal-header {
+            background: var(--navy);
+            color: white;
+            padding: 15px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-modal-header h3 {
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .chat-modal-header p {
+            font-size: 12px;
+            color: #9ee7dc;
+        }
+
+        .chat-close-btn {
+            background: rgba(255, 255, 255, 0.14);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .chat-messages {
+            padding: 14px;
+            background: #f4f7fb;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            min-height: 210px;
+            max-height: 310px;
+        }
+
+        .chat-bubble {
+            max-width: 84%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.seller {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .chat-bubble.buyer {
+            align-self: flex-end;
+            background: var(--navy);
+            color: white;
+        }
+
+        .chat-bubble small {
+            display: block;
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .chat-quick-chips {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #eef2f7;
+            overflow-x: auto;
+        }
+
+        .chat-chip {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .chat-chip:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px;
+            outline-color: var(--teal);
+        }
+
+        .chat-send-btn {
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .chat-footer-bar {
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .chat-footer-bar button {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-weight: 800;
         }
 
         /* ===== 11. SKELETON LOADER ===== */
@@ -1224,6 +1393,12 @@
                         <h3>Hostel Essentials</h3>
                         <span id="countHostel">0 items</span>
                     </button>
+
+                    <button class="category-card" type="button" data-category="saved">
+                        <div class="category-icon">❤️</div>
+                        <h3>Saved Wishlist</h3>
+                        <span id="countSaved">0 items</span>
+                    </button>
                 </div>
             </div>
         </section>
@@ -1286,6 +1461,11 @@
                         <label class="filter-option">
                             <input type="radio" name="category" value="hostel">
                             Hostel Essentials
+                        </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category" value="saved">
+                            ❤️ Saved Wishlist
                         </label>
                     </div>
 
@@ -1388,6 +1568,33 @@
         </div>
     </footer>
 
+    <!-- IN-APP SELLER CHAT MODAL -->
+    <div id="chatModal" class="chat-modal-backdrop" hidden>
+        <div class="chat-modal" role="dialog" aria-modal="true" aria-labelledby="chatModalTitle">
+            <div class="chat-modal-header">
+                <div>
+                    <h3 id="chatModalTitle">Chat with Seller</h3>
+                    <p id="chatModalSubtitle">Item details</p>
+                </div>
+                <button id="closeChatModalBtn" class="chat-close-btn" type="button" aria-label="Close chat">✕</button>
+            </div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-quick-chips">
+                <button type="button" class="chat-chip" data-msg="Hi! Is this item still available?">Is this available?</button>
+                <button type="button" class="chat-chip" data-msg="Can we meet near the campus library today?">Meet at library?</button>
+                <button type="button" class="chat-chip" data-msg="What is your best price for this?">Best price?</button>
+            </div>
+            <form id="chatForm" class="chat-input-row">
+                <input id="chatInput" type="text" placeholder="Type a message to the seller..." autocomplete="off">
+                <button type="submit" class="chat-send-btn">Send</button>
+            </form>
+            <div class="chat-footer-bar">
+                <button type="button" id="chatToWhatsappBtn" class="whatsapp-btn">💬 Continue on WhatsApp</button>
+                <button type="button" id="chatToEmailBtn" class="email-button">✉️ Send via Email</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script type="module">
@@ -1401,6 +1608,7 @@
             getFirestore,
             collection,
             getDocs,
+            addDoc,
             doc,
             getDoc,
             setDoc,
@@ -1453,11 +1661,49 @@
         const logoutButton = document.getElementById("logoutButton");
         const welcomeLine = document.getElementById("welcomeLine");
 
+        // Chat modal elements
+        const chatModal = document.getElementById("chatModal");
+        const chatModalTitle = document.getElementById("chatModalTitle");
+        const chatModalSubtitle = document.getElementById("chatModalSubtitle");
+        const closeChatModalBtn = document.getElementById("closeChatModalBtn");
+        const chatMessages = document.getElementById("chatMessages");
+        const chatForm = document.getElementById("chatForm");
+        const chatInput = document.getElementById("chatInput");
+        const chatToWhatsappBtn = document.getElementById("chatToWhatsappBtn");
+        const chatToEmailBtn = document.getElementById("chatToEmailBtn");
+
+        const SAVED_STORAGE_KEY = "campuskart_saved_items";
+        const INTERESTS_STORAGE_KEY = "campuskart_interests";
+
         let productCards = [];
         let allProducts = [];
         let toastTimer = null;
         let currentUser = null;
         let savedIds = new Set();
+        let activeChatProduct = null;
+
+        // ---------- SAVED / WISHLIST STORAGE ----------
+        function getLocalSavedMap() {
+            try {
+                const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function setLocalSavedMap(map) {
+            try {
+                localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+            } catch (_) {}
+        }
+
+        function updateSavedCountBadge() {
+            const countEl = document.getElementById("countSaved");
+            if (countEl) {
+                countEl.textContent = savedIds.size + " items";
+            }
+        }
 
         // ---------- AUTH UI ----------
 
@@ -1486,8 +1732,12 @@
         async function showLoggedInUI(user) {
             let profile = {};
             try {
+                const localProf = localStorage.getItem("campuskart_profile_" + user.uid);
+                if (localProf) profile = JSON.parse(localProf);
+            } catch (_) {}
+            try {
                 const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) profile = snap.data();
+                if (snap.exists()) profile = { ...profile, ...snap.data() };
             } catch (error) {
                 console.warn("User profile load nahi hua, fallback naam use hoga:", error);
             }
@@ -1506,17 +1756,25 @@
         }
 
         async function loadSavedIds(user) {
-            if (!user) {
-                savedIds.clear();
-                refreshHeartButtons();
-                return;
-            }
+            const localMap = getLocalSavedMap();
+            savedIds = new Set(Object.keys(localMap));
+            refreshHeartButtons();
+            updateSavedCountBadge();
+
+            if (!user) return;
             try {
                 const snap = await getDocs(collection(db, "users", user.uid, "saved"));
-                savedIds = new Set(snap.docs.map(function (d) { return d.id; }));
+                snap.docs.forEach(function (d) {
+                    savedIds.add(d.id);
+                    if (!localMap[d.id]) {
+                        localMap[d.id] = { id: d.id, listingId: d.id, ...d.data() };
+                    }
+                });
+                setLocalSavedMap(localMap);
                 refreshHeartButtons();
-            } catch (err) {
-                console.warn("Could not load saved items:", err);
+                updateSavedCountBadge();
+            } catch (_) {
+                // localStorage wishlist already loaded
             }
         }
 
@@ -1531,40 +1789,63 @@
         }
 
         async function toggleSaveProduct(product, btn) {
-            if (!currentUser) {
-                showToast("Please log in to save items ❤️");
-                return;
-            }
             const pid = product.id;
             if (!pid) return;
 
-            btn.disabled = true;
-            try {
-                const savedRef = doc(db, "users", currentUser.uid, "saved", pid);
-                if (savedIds.has(pid)) {
-                    await deleteDoc(savedRef);
-                    savedIds.delete(pid);
-                    showToast("Removed from saved items.");
-                } else {
-                    const images = getProductImages(product);
-                    await setDoc(savedRef, {
-                        listingId: pid,
-                        name: product.name || "Untitled Product",
-                        category: product.category || "Other",
-                        condition: product.condition || "Used",
-                        price: Number(product.price) || 0,
-                        imageUrl: images[0] || "",
-                        savedAt: serverTimestamp()
-                    });
-                    savedIds.add(pid);
-                    showToast("Saved to wishlist ❤️ (View in Dashboard)");
+            const localMap = getLocalSavedMap();
+            const currentlySaved = savedIds.has(pid);
+
+            if (currentlySaved) {
+                savedIds.delete(pid);
+                delete localMap[pid];
+                setLocalSavedMap(localMap);
+                showToast("Removed from saved wishlist.");
+            } else {
+                const images = getProductImages(product);
+                const itemPayload = {
+                    id: pid,
+                    listingId: pid,
+                    name: product.name || "Untitled Product",
+                    category: product.category || "Other",
+                    condition: product.condition || "Used",
+                    price: Number(product.price) || 0,
+                    imageUrl: images[0] || "",
+                    campus: product.campus || "",
+                    sellerPhone: product.sellerPhone || "",
+                    savedAt: Date.now()
+                };
+                savedIds.add(pid);
+                localMap[pid] = itemPayload;
+                setLocalSavedMap(localMap);
+                showToast("Saved to wishlist ❤️ (View in Saved Wishlist or Dashboard)");
+            }
+
+            refreshHeartButtons();
+            updateSavedCountBadge();
+            if (getSelectedCategory() === "saved") {
+                filterProducts();
+            }
+
+            if (currentUser) {
+                try {
+                    const savedRef = doc(db, "users", currentUser.uid, "saved", pid);
+                    if (currentlySaved) {
+                        await deleteDoc(savedRef);
+                    } else {
+                        const images = getProductImages(product);
+                        await setDoc(savedRef, {
+                            listingId: pid,
+                            name: product.name || "Untitled Product",
+                            category: product.category || "Other",
+                            condition: product.condition || "Used",
+                            price: Number(product.price) || 0,
+                            imageUrl: images[0] || "",
+                            savedAt: serverTimestamp()
+                        });
+                    }
+                } catch (_) {
+                    // Saved in localStorage; ignore Firestore rule blocks
                 }
-                refreshHeartButtons();
-            } catch (err) {
-                console.error("Save error:", err);
-                showToast("Could not update saved items.");
-            } finally {
-                btn.disabled = false;
             }
         }
 
@@ -1577,6 +1858,9 @@
             }
             loadSavedIds(user);
         });
+
+        // Initialize saved IDs immediately from localStorage
+        loadSavedIds(null);
 
         logoutButton.addEventListener("click", async function () {
             logoutButton.disabled = true;
@@ -1609,6 +1893,7 @@
             if (value === "books") return "books";
             if (value === "electronics") return "electronics";
             if (value === "notes" || value === "notes & study material") return "notes";
+            if (value === "saved" || value === "wishlist") return "saved";
 
             return value;
         }
@@ -1639,6 +1924,35 @@
             return product.imageUrl ? [String(product.imageUrl)] : [];
         }
 
+        function resolveSellerPhone(product) {
+            const direct = String(product.sellerPhone || product.phone || "").replace(/\D/g, "").slice(-10);
+            if (direct.length === 10) return direct;
+
+            const descMatch = String(product.description || "").match(/\b([6-9]\d{9})\b/);
+            if (descMatch) return descMatch[1];
+
+            try {
+                if (product.sellerId) {
+                    const profRaw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (profRaw) {
+                        const prof = JSON.parse(profRaw);
+                        const pPhone = String(prof.phone || "").replace(/\D/g, "").slice(-10);
+                        if (pPhone.length === 10) return pPhone;
+                    }
+                }
+                const lastRaw = localStorage.getItem("campuskart_last_profile");
+                if (lastRaw) {
+                    const lastProf = JSON.parse(lastRaw);
+                    if (!product.sellerId || lastProf.uid === product.sellerId) {
+                        const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
+                        if (lPhone.length === 10) return lPhone;
+                    }
+                }
+            } catch (_) {}
+
+            return "";
+        }
+
         function emailSeller(product) {
             if (!product.sellerEmail) {
                 showToast("Is listing mein seller ka email nahi hai.");
@@ -1660,21 +1974,165 @@
                 "&body=" + encodeURIComponent(body);
         }
 
-        function whatsappSeller(product) {
-            const cleanPhone = String(product.sellerPhone || "").replace(/\D/g, "").slice(-10);
-            if (cleanPhone.length !== 10) return;
+        function whatsappSeller(product, customMessage) {
+            const cleanPhone = resolveSellerPhone(product);
             const name = product.name || "Listing";
             const price = Number(product.price) || 0;
-            const msg =
+            const itemUrl = new URL("product-details.html?id=" + encodeURIComponent(product.id), window.location.href).href;
+            const msg = customMessage || (
                 "Hi" + (product.sellerName ? " " + product.sellerName : "") +
                 "! 👋 I saw your listing \"" + name + "\" (₹" + price.toLocaleString("en-IN") +
-                ") on CampusKart. Is it still available?";
-            window.open(
-                "https://wa.me/91" + cleanPhone + "?text=" + encodeURIComponent(msg),
-                "_blank",
-                "noopener"
+                ") on CampusKart. Is it still available?\n" + itemUrl
             );
+            const waUrl = cleanPhone.length === 10
+                ? "https://wa.me/91" + cleanPhone + "?text=" + encodeURIComponent(msg)
+                : "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
+            window.open(waUrl, "_blank", "noopener");
         }
+
+        // ---------- IN-APP CHAT MODAL ----------
+        function getChatHistory(productId) {
+            try {
+                const raw = localStorage.getItem("campuskart_chats_" + productId);
+                return raw ? JSON.parse(raw) : [];
+            } catch (_) {
+                return [];
+            }
+        }
+
+        function saveChatHistory(productId, list) {
+            try {
+                localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
+            } catch (_) {}
+        }
+
+        function recordLocalInterest(product, textMsg) {
+            try {
+                const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+                const list = raw ? JSON.parse(raw) : [];
+                const buyerName = currentUser
+                    ? (currentUser.displayName || (currentUser.email || "Student").split("@")[0])
+                    : "Campus Buyer";
+                const buyerEmail = currentUser ? (currentUser.email || "") : "";
+                list.unshift({
+                    id: "chat_" + Date.now(),
+                    productId: product.id,
+                    productName: product.name || "Product",
+                    price: Number(product.price) || 0,
+                    sellerId: product.sellerId || "",
+                    sellerEmail: product.sellerEmail || "",
+                    buyerId: currentUser ? currentUser.uid : "guest",
+                    buyerEmail: buyerEmail,
+                    buyerInfo: buyerName + (buyerEmail ? " (" + buyerEmail + ")" : "") + " — \"" + textMsg + "\"",
+                    status: "new",
+                    createdAtMs: Date.now()
+                });
+                localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+            } catch (_) {}
+        }
+
+        function renderChatMessages(product) {
+            chatMessages.replaceChildren();
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
+            const welcomeBubble = document.createElement("div");
+            welcomeBubble.className = "chat-bubble seller";
+            welcomeBubble.textContent =
+                "Hi! 👋 I'm " + sellerLabel + ". Ask me anything about \"" + (product.name || "this item") +
+                "\" (₹" + (Number(product.price) || 0).toLocaleString("en-IN") + ") or schedule a campus meetup.";
+            chatMessages.appendChild(welcomeBubble);
+
+            const history = getChatHistory(product.id);
+            history.forEach(function (entry) {
+                const bubble = document.createElement("div");
+                bubble.className = "chat-bubble " + (entry.sender === "buyer" ? "buyer" : "seller");
+                bubble.textContent = entry.text;
+                if (entry.time) {
+                    const small = document.createElement("small");
+                    small.textContent = entry.time;
+                    bubble.appendChild(small);
+                }
+                chatMessages.appendChild(bubble);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function openChatModal(product) {
+            activeChatProduct = product;
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Campus Seller");
+            chatModalTitle.textContent = "💬 Chat with " + sellerLabel;
+            chatModalSubtitle.textContent = (product.name || "Item") + " · ₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+            renderChatMessages(product);
+            chatModal.hidden = false;
+            chatInput.focus();
+        }
+
+        function closeChatModal() {
+            chatModal.hidden = true;
+            activeChatProduct = null;
+        }
+
+        async function sendChatMessage(text) {
+            const cleanText = String(text || "").trim();
+            if (!cleanText || !activeChatProduct) return;
+
+            const product = activeChatProduct;
+            const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const history = getChatHistory(product.id);
+            history.push({ sender: "buyer", text: cleanText, time: nowStr });
+            history.push({
+                sender: "seller",
+                text: "✓ Message sent to seller's CampusKart Dashboard! You can also click 'Continue on WhatsApp' below for instant reply.",
+                time: nowStr
+            });
+            saveChatHistory(product.id, history);
+            renderChatMessages(product);
+            chatInput.value = "";
+
+            recordLocalInterest(product, cleanText);
+
+            if (currentUser) {
+                try {
+                    await addDoc(collection(db, "orders"), {
+                        productId: product.id,
+                        productName: product.name || "Product",
+                        price: Number(product.price) || 0,
+                        sellerId: product.sellerId || "",
+                        sellerEmail: product.sellerEmail || "",
+                        buyerId: currentUser.uid,
+                        buyerEmail: currentUser.email || "",
+                        buyerInfo: (currentUser.displayName || currentUser.email || "Student") + " — \"" + cleanText + "\"",
+                        status: "new",
+                        createdAt: serverTimestamp()
+                    });
+                } catch (_) {}
+            }
+
+            showToast("Message sent to seller! 💬");
+        }
+
+        closeChatModalBtn.addEventListener("click", closeChatModal);
+        chatModal.addEventListener("click", function (event) {
+            if (event.target === chatModal) closeChatModal();
+        });
+        chatForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            sendChatMessage(chatInput.value);
+        });
+        document.querySelectorAll(".chat-chip").forEach(function (chip) {
+            chip.addEventListener("click", function () {
+                sendChatMessage(chip.dataset.msg);
+            });
+        });
+        chatToWhatsappBtn.addEventListener("click", function () {
+            if (!activeChatProduct) return;
+            const history = getChatHistory(activeChatProduct.id);
+            const lastBuyerMsg = [...history].reverse().find(function (m) { return m.sender === "buyer"; });
+            whatsappSeller(activeChatProduct, lastBuyerMsg ? lastBuyerMsg.text : undefined);
+        });
+        chatToEmailBtn.addEventListener("click", function () {
+            if (!activeChatProduct) return;
+            emailSeller(activeChatProduct);
+        });
 
         function goToDetails(product) {
             window.location.href =
@@ -1831,6 +2289,7 @@
             const price = Number(product.price) || 0;
             const originalPrice = Number(product.originalPrice) || 0;
 
+            card.dataset.productId = product.id;
             card.dataset.name = name.toLowerCase();
             card.dataset.category = normalizeCategory(category);
             card.dataset.condition = normalizeCondition(condition);
@@ -1920,27 +2379,23 @@
                 goToDetails(product);
             });
 
-            const emailButton = document.createElement("button");
-            emailButton.className = "email-button";
-            emailButton.type = "button";
-            emailButton.textContent = "Email Seller";
-            emailButton.addEventListener("click", function () {
-                emailSeller(product);
+            const chatBtn = document.createElement("button");
+            chatBtn.className = "chat-btn";
+            chatBtn.type = "button";
+            chatBtn.textContent = "💬 Chat";
+            chatBtn.addEventListener("click", function () {
+                openChatModal(product);
             });
 
-            buttonGroup.append(viewButton, emailButton);
+            const waBtn = document.createElement("button");
+            waBtn.className = "whatsapp-btn";
+            waBtn.type = "button";
+            waBtn.textContent = "💬 WhatsApp";
+            waBtn.addEventListener("click", function () {
+                whatsappSeller(product);
+            });
 
-            const cleanPhone = String(product.sellerPhone || "").replace(/\D/g, "").slice(-10);
-            if (cleanPhone.length === 10) {
-                const waBtn = document.createElement("button");
-                waBtn.className = "whatsapp-btn";
-                waBtn.type = "button";
-                waBtn.textContent = "💬 WhatsApp";
-                waBtn.addEventListener("click", function () {
-                    whatsappSeller(product);
-                });
-                buttonGroup.appendChild(waBtn);
-            }
+            buttonGroup.append(viewButton, chatBtn, waBtn);
 
             bottom.append(priceStack, buttonGroup);
 
@@ -1966,6 +2421,7 @@
             document.getElementById("countElectronics").textContent = counts.electronics + " items";
             document.getElementById("countNotes").textContent = counts.notes + " items";
             document.getElementById("countHostel").textContent = counts.hostel + " items";
+            updateSavedCountBadge();
         }
 
         function renderNotesPreview(products) {
@@ -2092,6 +2548,7 @@
             });
 
             const filteredProducts = productCards.filter(function (card) {
+                const pid = card.dataset.productId || "";
                 const name = card.dataset.name || "";
                 const keywords = card.dataset.search || "";
                 const productCategory = card.dataset.category || "";
@@ -2102,7 +2559,11 @@
                     name.includes(searchText) || keywords.includes(searchText);
 
                 const matchesCategory =
-                    category === "all" || productCategory === category;
+                    category === "all"
+                        ? true
+                        : category === "saved"
+                            ? savedIds.has(pid)
+                            : productCategory === category;
 
                 const matchesPrice =
                     price >= minPrice && price <= maxPrice;
@@ -2136,8 +2597,13 @@
                 "Showing " + filteredProducts.length + " of " + productCards.length + " products";
 
             if (productCards.length > 0) {
-                emptyTitle.textContent = "No products found";
-                emptyText.textContent = "Try changing your search or removing some filters.";
+                if (category === "saved" && filteredProducts.length === 0) {
+                    emptyTitle.textContent = "No saved items in your wishlist yet";
+                    emptyText.textContent = "Click the 🤍 heart button on any product card to save it here!";
+                } else {
+                    emptyTitle.textContent = "No products found";
+                    emptyText.textContent = "Try changing your search or removing some filters.";
+                }
             }
 
             emptyState.style.display = filteredProducts.length === 0 && productCards.length > 0

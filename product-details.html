@@ -391,6 +391,130 @@
             text-align: center;
         }
 
+        /* Embedded Seller Chat Box */
+        .seller-chat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .seller-chat-header {
+            background: var(--navy);
+            color: white;
+            padding: 13px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .seller-chat-header h3 {
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .seller-chat-header span {
+            font-size: 11px;
+            background: rgba(19, 198, 179, 0.2);
+            color: #7ef3e5;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .seller-chat-messages {
+            padding: 14px;
+            background: #f4f7fb;
+            max-height: 240px;
+            min-height: 150px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 9px 12px;
+            border-radius: 11px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-msg.seller {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .chat-msg.buyer {
+            align-self: flex-end;
+            background: var(--navy);
+            color: white;
+        }
+
+        .chat-msg small {
+            display: block;
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .chat-chips-row {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #eef2f7;
+            overflow-x: auto;
+        }
+
+        .chat-quick-btn {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .chat-quick-btn:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            padding: 11px 12px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline-color: var(--teal);
+        }
+
+        .chat-input-bar button {
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
         .note {
             background: #eefbf8;
             border: 1px solid #c8f1e9;
@@ -553,17 +677,18 @@
                 <article class="seller-box">
                     <h3>Seller Information</h3>
                     <p id="sellerNameText" hidden></p>
+                    <p id="sellerPhoneText" hidden></p>
                     <p id="sellerEmail"></p>
                     <p id="sellerHostelText" hidden></p>
                     <p id="sellerId"></p>
                 </article>
 
                 <div class="action-stack">
-                    <button id="buyButton" class="buy-button" type="button" disabled>
+                    <button id="buyButton" class="buy-button" type="button">
                         ✋ I'm Interested / Buy Now
                     </button>
 
-                    <button id="whatsappButton" class="whatsapp-button" type="button" hidden>
+                    <button id="whatsappButton" class="whatsapp-button" type="button">
                         💬 Chat on WhatsApp
                     </button>
 
@@ -571,7 +696,27 @@
                         ✉️ Email Seller
                     </button>
                 </div>
-                <p id="buyNote" class="buy-note"></p>
+                <p id="buyNote" class="buy-note">
+                    Click to notify the seller in their Dashboard or chat directly below!
+                </p>
+
+                <!-- EMBEDDED SELLER CHAT BOX -->
+                <section class="seller-chat-card" id="sellerChatCard">
+                    <div class="seller-chat-header">
+                        <h3 id="chatHeaderTitle">💬 Chat with Seller</h3>
+                        <span>Direct Campus Chat</span>
+                    </div>
+                    <div class="seller-chat-messages" id="chatMessagesBox"></div>
+                    <div class="chat-chips-row">
+                        <button type="button" class="chat-quick-btn" data-msg="Hi! Is this item still available?">Is this available?</button>
+                        <button type="button" class="chat-quick-btn" data-msg="Can we meet near the campus library today?">Meet at library?</button>
+                        <button type="button" class="chat-quick-btn" data-msg="What is your final price for this?">Final price?</button>
+                    </div>
+                    <form id="sellerChatForm" class="chat-input-bar">
+                        <input id="sellerChatInput" type="text" placeholder="Write a message to the seller..." autocomplete="off">
+                        <button type="submit">Send</button>
+                    </form>
+                </section>
 
                 <div class="note">
                     For your safety, verify the item and seller before
@@ -642,10 +787,19 @@
     const shareButton = document.getElementById("shareButton");
     const toast = document.getElementById("toast");
 
+    const chatHeaderTitle = document.getElementById("chatHeaderTitle");
+    const chatMessagesBox = document.getElementById("chatMessagesBox");
+    const sellerChatForm = document.getElementById("sellerChatForm");
+    const sellerChatInput = document.getElementById("sellerChatInput");
+
+    const SAVED_STORAGE_KEY = "campuskart_saved_items";
+    const INTERESTS_STORAGE_KEY = "campuskart_interests";
+
     let currentUser = null;
     let currentUserProfile = {};
     let loadedProduct = null;
     let loadedProductId = "";
+    let resolvedSellerPhone = "";
     let isSaved = false;
     let toastTimer = null;
 
@@ -665,6 +819,21 @@
         errorMessage.textContent = message;
     }
 
+    function getLocalSavedMap() {
+        try {
+            const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (_) {
+            return {};
+        }
+    }
+
+    function setLocalSavedMap(map) {
+        try {
+            localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+        } catch (_) {}
+    }
+
     function getProductImages(product) {
         if (Array.isArray(product.imageUrls)) {
             const list = product.imageUrls.filter(function (u) {
@@ -673,6 +842,40 @@
             if (list.length > 0) return list;
         }
         return product.imageUrl ? [String(product.imageUrl)] : [];
+    }
+
+    function resolveSellerPhone(product, sellerProfile) {
+        const direct = String(
+            product.sellerPhone ||
+            product.phone ||
+            (sellerProfile && sellerProfile.phone) ||
+            ""
+        ).replace(/\D/g, "").slice(-10);
+        if (direct.length === 10) return direct;
+
+        const descMatch = String(product.description || "").match(/\b([6-9]\d{9})\b/);
+        if (descMatch) return descMatch[1];
+
+        try {
+            if (product.sellerId) {
+                const profRaw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                if (profRaw) {
+                    const prof = JSON.parse(profRaw);
+                    const pPhone = String(prof.phone || "").replace(/\D/g, "").slice(-10);
+                    if (pPhone.length === 10) return pPhone;
+                }
+            }
+            const lastRaw = localStorage.getItem("campuskart_last_profile");
+            if (lastRaw) {
+                const lastProf = JSON.parse(lastRaw);
+                if (!product.sellerId || lastProf.uid === product.sellerId) {
+                    const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
+                    if (lPhone.length === 10) return lPhone;
+                }
+            }
+        } catch (_) {}
+
+        return "";
     }
 
     function setupGallery(product, productName) {
@@ -749,17 +952,24 @@
     }
 
     async function checkSavedStatus() {
-        if (!currentUser || !loadedProductId) {
-            isSaved = false;
-            updateSaveButtonUI();
-            return;
-        }
+        if (!loadedProductId) return;
+        const localMap = getLocalSavedMap();
+        isSaved = Boolean(localMap[loadedProductId]);
+        updateSaveButtonUI();
+
+        if (!currentUser) return;
         try {
             const snap = await getDoc(doc(db, "users", currentUser.uid, "saved", loadedProductId));
-            isSaved = snap.exists();
-            updateSaveButtonUI();
-        } catch (err) {
-            console.warn("Could not check saved status:", err);
+            if (snap.exists()) {
+                isSaved = true;
+                if (!localMap[loadedProductId]) {
+                    localMap[loadedProductId] = { id: loadedProductId, listingId: loadedProductId, ...snap.data() };
+                    setLocalSavedMap(localMap);
+                }
+                updateSaveButtonUI();
+            }
+        } catch (_) {
+            // localStorage status is already applied
         }
     }
 
@@ -769,39 +979,56 @@
     }
 
     saveButton.addEventListener("click", async function () {
-        if (!currentUser) {
-            showToast("Please log in to save items to your wishlist.");
-            return;
-        }
         if (!loadedProduct || !loadedProductId) return;
 
-        saveButton.disabled = true;
-        try {
-            const savedRef = doc(db, "users", currentUser.uid, "saved", loadedProductId);
-            if (isSaved) {
-                await deleteDoc(savedRef);
-                isSaved = false;
-                showToast("Removed from your saved items.");
-            } else {
-                const images = getProductImages(loadedProduct);
-                await setDoc(savedRef, {
-                    listingId: loadedProductId,
-                    name: loadedProduct.name || "Untitled Product",
-                    category: loadedProduct.category || "Other",
-                    condition: loadedProduct.condition || "Used",
-                    price: Number(loadedProduct.price) || 0,
-                    imageUrl: images[0] || "",
-                    savedAt: serverTimestamp()
-                });
-                isSaved = true;
-                showToast("Saved to your wishlist ❤️ (View in Dashboard)");
+        const localMap = getLocalSavedMap();
+        const wasSaved = isSaved;
+
+        if (wasSaved) {
+            isSaved = false;
+            delete localMap[loadedProductId];
+            setLocalSavedMap(localMap);
+            showToast("Removed from your saved wishlist.");
+        } else {
+            const images = getProductImages(loadedProduct);
+            isSaved = true;
+            localMap[loadedProductId] = {
+                id: loadedProductId,
+                listingId: loadedProductId,
+                name: loadedProduct.name || "Untitled Product",
+                category: loadedProduct.category || "Other",
+                condition: loadedProduct.condition || "Used",
+                price: Number(loadedProduct.price) || 0,
+                imageUrl: images[0] || "",
+                campus: loadedProduct.campus || "",
+                sellerPhone: resolvedSellerPhone || loadedProduct.sellerPhone || "",
+                savedAt: Date.now()
+            };
+            setLocalSavedMap(localMap);
+            showToast("Saved to your wishlist ❤️ (View in Browse or Dashboard)");
+        }
+        updateSaveButtonUI();
+
+        if (currentUser) {
+            try {
+                const savedRef = doc(db, "users", currentUser.uid, "saved", loadedProductId);
+                if (wasSaved) {
+                    await deleteDoc(savedRef);
+                } else {
+                    const images = getProductImages(loadedProduct);
+                    await setDoc(savedRef, {
+                        listingId: loadedProductId,
+                        name: loadedProduct.name || "Untitled Product",
+                        category: loadedProduct.category || "Other",
+                        condition: loadedProduct.condition || "Used",
+                        price: Number(loadedProduct.price) || 0,
+                        imageUrl: images[0] || "",
+                        savedAt: serverTimestamp()
+                    });
+                }
+            } catch (_) {
+                // Saved in localStorage; ignore Firestore rule blocks
             }
-            updateSaveButtonUI();
-        } catch (err) {
-            console.error("Save toggle error:", err);
-            showToast("Could not update saved item. Check connection.");
-        } finally {
-            saveButton.disabled = false;
         }
     });
 
@@ -843,25 +1070,156 @@
             "&body=" + encodeURIComponent(body);
     }
 
+    function openWhatsAppChat(product, productName, productPrice, customMsg) {
+        const msg = customMsg || (
+            "Hi" + (product.sellerName ? " " + product.sellerName : "") +
+            "! 👋 I saw your listing \"" + productName + "\" (" + productPrice +
+            ") on CampusKart. Is it still available for a campus meetup?\n" + window.location.href
+        );
+        const waUrl = resolvedSellerPhone.length === 10
+            ? "https://wa.me/91" + resolvedSellerPhone + "?text=" + encodeURIComponent(msg)
+            : "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
+        window.open(waUrl, "_blank", "noopener");
+    }
+
+    // ---------- EMBEDDED CHAT LOGIC ----------
+    function getChatHistory(productId) {
+        try {
+            const raw = localStorage.getItem("campuskart_chats_" + productId);
+            return raw ? JSON.parse(raw) : [];
+        } catch (_) {
+            return [];
+        }
+    }
+
+    function saveChatHistory(productId, list) {
+        try {
+            localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
+        } catch (_) {}
+    }
+
+    function recordInterestAndMessage(product, productId, productName, textMsg) {
+        const buyerName =
+            currentUserProfile.name ||
+            (currentUser && currentUser.displayName) ||
+            (currentUser && currentUser.email ? currentUser.email.split("@")[0] : "Campus Buyer");
+        const buyerEmail = currentUser ? (currentUser.email || "") : "";
+        const buyerPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
+        const buyerSummary = buyerName + (buyerEmail ? " (" + buyerEmail + buyerPhone + ")" : "") +
+            (textMsg ? " — \"" + textMsg + "\"" : "");
+
+        try {
+            const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+            const list = raw ? JSON.parse(raw) : [];
+            list.unshift({
+                id: "interest_" + Date.now(),
+                productId: productId,
+                productName: productName,
+                price: Number(product.price) || 0,
+                sellerId: product.sellerId || "",
+                sellerEmail: product.sellerEmail || "",
+                buyerId: currentUser ? currentUser.uid : "guest",
+                buyerEmail: buyerEmail,
+                buyerInfo: buyerSummary,
+                status: "new",
+                createdAtMs: Date.now()
+            });
+            localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+        } catch (_) {}
+
+        if (currentUser) {
+            addDoc(collection(db, "orders"), {
+                productId: productId,
+                productName: productName,
+                price: Number(product.price) || 0,
+                sellerId: product.sellerId || "",
+                sellerEmail: product.sellerEmail || "",
+                buyerId: currentUser.uid,
+                buyerEmail: buyerEmail,
+                buyerInfo: buyerSummary,
+                status: "new",
+                createdAt: serverTimestamp()
+            }).catch(function () {});
+        }
+    }
+
+    function renderChatBox(product, productId, productName, productPrice) {
+        chatMessagesBox.replaceChildren();
+        const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
+        chatHeaderTitle.textContent = "💬 Chat with " + sellerLabel;
+
+        const welcome = document.createElement("div");
+        welcome.className = "chat-msg seller";
+        welcome.textContent =
+            "Hi! 👋 I'm " + sellerLabel + ". Interested in \"" + productName +
+            "\" (" + productPrice + ")? Send a message here or click 'Chat on WhatsApp' above!";
+        chatMessagesBox.appendChild(welcome);
+
+        const history = getChatHistory(productId);
+        history.forEach(function (entry) {
+            const msgEl = document.createElement("div");
+            msgEl.className = "chat-msg " + (entry.sender === "buyer" ? "buyer" : "seller");
+            msgEl.textContent = entry.text;
+            if (entry.time) {
+                const timeEl = document.createElement("small");
+                timeEl.textContent = entry.time;
+                msgEl.appendChild(timeEl);
+            }
+            chatMessagesBox.appendChild(msgEl);
+        });
+        chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+    }
+
+    function sendSellerChatMessage(text) {
+        const cleanText = String(text || "").trim();
+        if (!cleanText || !loadedProduct || !loadedProductId) return;
+
+        const productName = loadedProduct.name || "Untitled Product";
+        const productPrice = "₹" + (Number(loadedProduct.price) || 0).toLocaleString("en-IN");
+        const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+        const history = getChatHistory(loadedProductId);
+        history.push({ sender: "buyer", text: cleanText, time: nowStr });
+        history.push({
+            sender: "seller",
+            text: "✓ Delivered to seller's CampusKart Dashboard! You can also click '💬 Chat on WhatsApp' above for instant reply.",
+            time: nowStr
+        });
+        saveChatHistory(loadedProductId, history);
+        renderChatBox(loadedProduct, loadedProductId, productName, productPrice);
+        sellerChatInput.value = "";
+
+        recordInterestAndMessage(loadedProduct, loadedProductId, productName, cleanText);
+        showToast("Message sent to seller! 💬");
+    }
+
+    sellerChatForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        sendSellerChatMessage(sellerChatInput.value);
+    });
+
+    document.querySelectorAll(".chat-quick-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            sendSellerChatMessage(btn.dataset.msg);
+        });
+    });
+
     function setupContactActions(product, sellerProfile, productName, productPrice, productId) {
         const sellerEmail = product.sellerEmail || (sellerProfile && sellerProfile.email) || "";
-        const rawPhone = product.sellerPhone || (sellerProfile && sellerProfile.phone) || "";
-        const cleanPhone = String(rawPhone).replace(/\D/g, "").slice(-10);
+        resolvedSellerPhone = resolveSellerPhone(product, sellerProfile);
 
-        if (cleanPhone.length === 10) {
-            whatsappButton.hidden = false;
-            whatsappButton.addEventListener("click", function () {
-                const msg =
-                    "Hi" + (product.sellerName ? " " + product.sellerName : "") +
-                    "! 👋 I saw your listing \"" + productName + "\" (" + productPrice +
-                    ") on CampusKart. Is it still available for a campus meetup?";
-                window.open(
-                    "https://wa.me/91" + cleanPhone + "?text=" + encodeURIComponent(msg),
-                    "_blank",
-                    "noopener"
-                );
-            });
+        if (resolvedSellerPhone.length === 10) {
+            const phoneEl = document.getElementById("sellerPhoneText");
+            phoneEl.textContent = "WhatsApp / Phone: +91 " + resolvedSellerPhone;
+            phoneEl.hidden = false;
         }
+
+        whatsappButton.hidden = false;
+        whatsappButton.addEventListener("click", function () {
+            const history = getChatHistory(productId);
+            const lastBuyerMsg = [...history].reverse().find(function (m) { return m.sender === "buyer"; });
+            openWhatsAppChat(product, productName, productPrice, lastBuyerMsg ? lastBuyerMsg.text : undefined);
+        });
 
         if (sellerEmail) {
             emailSellerBtn.hidden = false;
@@ -870,67 +1228,19 @@
             });
         }
 
-        if (!sellerEmail && cleanPhone.length !== 10) {
-            buyButton.disabled = true;
-            buyNote.textContent = "Seller contact is not available for this item.";
-            return;
-        }
-
         buyButton.disabled = false;
-        buyNote.textContent =
-            "Notifies the seller in their CampusKart Dashboard so they can connect with you.";
-
-        buyButton.addEventListener("click", async function () {
-            if (!currentUser) {
-                if (sellerEmail) {
-                    openMailto(sellerEmail, productName, productPrice);
-                } else {
-                    showToast("Please log in to send an interest request to the seller.");
-                }
-                return;
-            }
-
-            if (currentUser.uid === product.sellerId) {
+        buyButton.addEventListener("click", function () {
+            if (currentUser && currentUser.uid === product.sellerId) {
                 showToast("This is your own listing!");
                 return;
             }
 
-            buyButton.disabled = true;
-            buyButton.textContent = "Sending interest to seller...";
+            const interestMsg = "Hi! I'm interested in buying \"" + productName + "\" (" + productPrice + "). Is it available?";
+            sendSellerChatMessage(interestMsg);
 
-            const buyerName =
-                currentUserProfile.name ||
-                currentUser.displayName ||
-                (currentUser.email || "Student").split("@")[0];
-            const buyerPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
-            const buyerSummary = buyerName + " (" + (currentUser.email || "") + buyerPhone + ")";
-
-            try {
-                await addDoc(collection(db, "orders"), {
-                    productId: productId,
-                    productName: productName,
-                    price: Number(product.price) || 0,
-                    sellerId: product.sellerId || "",
-                    sellerEmail: sellerEmail,
-                    buyerId: currentUser.uid,
-                    buyerEmail: currentUser.email || "",
-                    buyerInfo: buyerSummary,
-                    status: "new",
-                    createdAt: serverTimestamp()
-                });
-
-                buyButton.textContent = "✓ Interest Sent to Seller";
-                showToast("Interest sent! Seller will see it in their Dashboard 🎉");
-            } catch (err) {
-                console.warn("Could not save order interest to Firestore, falling back to email:", err);
-                buyButton.disabled = false;
-                buyButton.textContent = "✋ I'm Interested / Buy Now";
-                if (sellerEmail) {
-                    openMailto(sellerEmail, productName, productPrice);
-                } else {
-                    showToast("Could not send request. Please use WhatsApp or Email below.");
-                }
-            }
+            buyButton.textContent = "✓ Interest Sent to Seller (See Chat Below)";
+            showToast("Interest sent! Seller notified in Dashboard & Chat 🎉");
+            document.getElementById("sellerChatCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
         });
     }
 
@@ -939,8 +1249,12 @@
         currentUserProfile = {};
         if (user) {
             try {
+                const localProf = localStorage.getItem("campuskart_profile_" + user.uid);
+                if (localProf) currentUserProfile = JSON.parse(localProf);
+            } catch (_) {}
+            try {
                 const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) currentUserProfile = snap.data();
+                if (snap.exists()) currentUserProfile = { ...currentUserProfile, ...snap.data() };
             } catch (_) {
                 // ignore
             }
@@ -1047,6 +1361,7 @@
                     : "Seller ID: Not available";
 
             setupContactActions(product, sellerProfile, productName, productPrice, productId);
+            renderChatBox(product, productId, productName, productPrice);
             checkSavedStatus();
 
             loading.hidden = true;

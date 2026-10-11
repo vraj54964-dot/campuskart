@@ -760,10 +760,28 @@
         return name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
     }
 
+    const SAVED_STORAGE_KEY = "campuskart_saved_items";
+    const INTERESTS_STORAGE_KEY = "campuskart_interests";
+
     // ---------- Data loading ----------
     async function loadProfile(user) {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        return snap.exists() ? snap.data() : {};
+        let localProfile = {};
+        try {
+            const raw = localStorage.getItem("campuskart_profile_" + user.uid) || localStorage.getItem("campuskart_last_profile");
+            if (raw) localProfile = JSON.parse(raw);
+        } catch (_) {}
+
+        try {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) {
+                const merged = { ...localProfile, ...snap.data() };
+                try {
+                    localStorage.setItem("campuskart_profile_" + user.uid, JSON.stringify(merged));
+                } catch (_) {}
+                return merged;
+            }
+        } catch (_) {}
+        return localProfile;
     }
 
     async function loadListings(user) {
@@ -776,27 +794,57 @@
     }
 
     async function loadInterests(user) {
+        const mergedMap = new Map();
+
+        try {
+            const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+            const localList = raw ? JSON.parse(raw) : [];
+            localList.forEach((item) => {
+                if (!item.sellerEmail || !item.sellerId || item.sellerEmail === user.email || item.sellerId === user.uid || item.buyerId === user.uid) {
+                    mergedMap.set(item.id, item);
+                }
+            });
+        } catch (_) {}
+
         try {
             const snap = await getDocs(
                 query(collection(db, "orders"), where("sellerEmail", "==", user.email))
             );
-            return snap.docs
-                .map((d) => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => (toDate(b.createdAt)?.getTime() || 0) - (toDate(a.createdAt)?.getTime() || 0));
-        } catch (error) {
-            console.warn("Interests load nahi hue (Firestore rules check karein):", error);
-            return null;
+            snap.docs.forEach((d) => {
+                mergedMap.set(d.id, { id: d.id, ...d.data() });
+            });
+        } catch (_) {
+            // localStorage interests already loaded
         }
+
+        return Array.from(mergedMap.values()).sort((a, b) => {
+            const tA = toDate(a.createdAt)?.getTime() || a.createdAtMs || 0;
+            const tB = toDate(b.createdAt)?.getTime() || b.createdAtMs || 0;
+            return tB - tA;
+        });
     }
 
     async function loadSaved(user) {
+        const mergedMap = new Map();
+
+        try {
+            const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+            const localObj = raw ? JSON.parse(raw) : {};
+            Object.keys(localObj).forEach((id) => {
+                mergedMap.set(id, { id, ...localObj[id] });
+            });
+        } catch (_) {}
+
         try {
             const snap = await getDocs(collection(db, "users", user.uid, "saved"));
-            return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        } catch (error) {
-            console.warn("Saved items load nahi hue:", error);
-            return null;
+            snap.docs.forEach((d) => {
+                mergedMap.set(d.id, { id: d.id, ...d.data() });
+            });
+        } catch (_) {
+            // localStorage saved items already loaded
         }
+
+        return Array.from(mergedMap.values());
     }
 
     // ---------- Rendering ----------
@@ -849,7 +897,7 @@
         $("totalListings").textContent = listings.length;
         $("activeListings").textContent = active;
         $("soldListings").textContent = sold;
-        $("interestCount").textContent = interests ? interests.length : "—";
+        $("interestCount").textContent = interests ? interests.length : "0";
         $("savedCount").textContent = saved ? saved.length : "0";
 
         const badge = $("newBadge");
@@ -924,12 +972,7 @@
         const container = $("interests");
         container.replaceChildren();
 
-        if (interests === null) {
-            container.append(el("p", "empty-message", "Interest requests load nahi ho paayi. Firestore rules check karein."));
-            return;
-        }
-
-        if (interests.length === 0) {
+        if (!interests || interests.length === 0) {
             container.append(el("p", "empty-message", "Abhi koi buyer interest nahi aaya. Listing ko share karein! 📢"));
             return;
         }
@@ -942,11 +985,17 @@
             if (isNew) title.append(el("span", "pill-new", "NEW"));
 
             const buyer = el("p", "", "Buyer: " + (order.buyerInfo || "Not provided"));
-            const time = el("small", "", timeAgo(toDate(order.createdAt)));
+            const orderDate = toDate(order.createdAt) || (order.createdAtMs ? new Date(order.createdAtMs) : null);
+            const time = el("small", "", timeAgo(orderDate));
 
             const actions = el("div", "interest-actions");
+            if (order.productId) {
+                const openChatLink = el("a", "small-btn", "💬 Open Chat");
+                openChatLink.href = `product-details.html?id=${encodeURIComponent(order.productId)}#sellerChatCard`;
+                actions.append(openChatLink);
+            }
             if (order.buyerEmail) {
-                const replyLink = el("a", "small-btn", "✉️ Reply");
+                const replyLink = el("a", "small-btn", "✉️ Email");
                 const subj = "CampusKart: Regarding " + (order.productName || "your interest");
                 replyLink.href = `mailto:${encodeURIComponent(order.buyerEmail)}?subject=${encodeURIComponent(subj)}`;
                 actions.append(replyLink);
@@ -967,12 +1016,7 @@
         const container = $("savedItems");
         container.replaceChildren();
 
-        if (saved === null) {
-            container.append(el("p", "empty-message", "Saved items load nahi ho paaye."));
-            return;
-        }
-
-        if (saved.length === 0) {
+        if (!saved || saved.length === 0) {
             const msg = el("p", "empty-message");
             msg.append("Koi item save nahi kiya. ");
             const link = el("a", "", "Browse karein →");
@@ -1068,6 +1112,22 @@
         saveBtn.textContent = "Saving...";
         showFormError("");
 
+        const updatedLocal = {
+            ...currentProfile,
+            uid: currentUser.uid,
+            name: name,
+            fullName: name,
+            phone: phone,
+            campus: campus,
+            college: campus,
+            email: currentUser.email || ""
+        };
+
+        try {
+            localStorage.setItem("campuskart_profile_" + currentUser.uid, JSON.stringify(updatedLocal));
+            localStorage.setItem("campuskart_last_profile", JSON.stringify(updatedLocal));
+        } catch (_) {}
+
         try {
             await setDoc(
                 doc(db, "users", currentUser.uid),
@@ -1080,27 +1140,23 @@
                 },
                 { merge: true }
             );
-
-            // Firebase Auth ka displayName bhi update karein (navbar fallback ke liye)
-            if (currentUser.displayName !== name) {
-                try {
-                    await updateProfile(currentUser, { displayName: name });
-                } catch (err) {
-                    console.warn("displayName update nahi hua:", err);
-                }
-            }
-
-            closeEditModal();
-            await refreshAll();
-            showToast("Profile update ho gayi ✓");
-
-        } catch (error) {
-            console.error("Profile save error:", error);
-            showFormError("Profile save nahi ho paayi. Internet aur Firestore rules check karein.");
-        } finally {
-            saveBtn.disabled = false;
-            saveBtn.textContent = "Save Changes";
+        } catch (err) {
+            console.warn("Firestore profile save skipped (saved in localStorage):", err);
         }
+
+        if (currentUser.displayName !== name) {
+            try {
+                await updateProfile(currentUser, { displayName: name });
+            } catch (err) {
+                console.warn("displayName update nahi hua:", err);
+            }
+        }
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Changes";
+        closeEditModal();
+        await refreshAll();
+        showToast("Profile update ho gayi ✓");
     }
 
     // ---------- Actions ----------
@@ -1132,23 +1188,38 @@
     async function markInterestDone(orderId, button) {
         button.disabled = true;
         try {
+            const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+            if (raw) {
+                const list = JSON.parse(raw).map((item) =>
+                    item.id === orderId ? { ...item, status: "done" } : item
+                );
+                localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list));
+            }
+        } catch (_) {}
+
+        try {
             await updateDoc(doc(db, "orders", orderId), { status: "done" });
-            await refreshAll();
-        } catch (error) {
-            console.error("Interest update error:", error);
-            button.disabled = false;
-        }
+        } catch (_) {}
+
+        await refreshAll();
     }
 
     async function removeSaved(savedId, button) {
         button.disabled = true;
         try {
+            const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+            if (raw) {
+                const map = JSON.parse(raw);
+                delete map[savedId];
+                localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+            }
+        } catch (_) {}
+
+        try {
             await deleteDoc(doc(db, "users", currentUser.uid, "saved", savedId));
-            await refreshAll();
-        } catch (error) {
-            console.error("Remove saved error:", error);
-            button.disabled = false;
-        }
+        } catch (_) {}
+
+        await refreshAll();
     }
 
     // ---------- Main flow ----------

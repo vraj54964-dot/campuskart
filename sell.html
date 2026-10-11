@@ -890,15 +890,32 @@
                                   required></textarea>
                     </div>
 
-                    <!-- CAMPUS -->
-                    <div class="form-group">
-                        <label for="campus">
-                            College / Campus
-                        </label>
+                    <!-- CAMPUS + WHATSAPP PHONE -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="campus">
+                                College / Campus
+                            </label>
 
-                        <input type="text"
-                               id="campus"
-                               placeholder="Enter your college name">
+                            <input type="text"
+                                   id="campus"
+                                   placeholder="Enter your college name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sellerPhoneInput">
+                                WhatsApp / Phone Number
+                            </label>
+
+                            <input type="tel"
+                                   id="sellerPhoneInput"
+                                   maxlength="10"
+                                   inputmode="numeric"
+                                   placeholder="10-digit WhatsApp number">
+                            <span class="help-text">
+                                For direct WhatsApp chat with buyers.
+                            </span>
+                        </div>
                     </div>
 
                     <!-- SUBMIT -->
@@ -1086,6 +1103,13 @@
     const originalPriceInput = document.getElementById("originalPrice");
     const description = document.getElementById("description");
     const campus = document.getElementById("campus");
+    const sellerPhoneInput = document.getElementById("sellerPhoneInput");
+
+    if (sellerPhoneInput) {
+        sellerPhoneInput.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 10);
+        });
+    }
 
     const previewTitle = document.getElementById("previewTitle");
     const previewCategory = document.getElementById("previewCategory");
@@ -1149,8 +1173,13 @@
     async function showLoggedInNav(user) {
         let profile = {};
         try {
+            const rawLocal = localStorage.getItem("campuskart_profile_" + user.uid) || localStorage.getItem("campuskart_last_profile");
+            if (rawLocal) profile = JSON.parse(rawLocal) || {};
+        } catch (_) {}
+
+        try {
             const snap = await getDoc(doc(db, "users", user.uid));
-            if (snap.exists()) profile = snap.data();
+            if (snap.exists()) profile = { ...profile, ...snap.data() };
         } catch (error) {
             console.warn("User profile load nahi hua, fallback naam use hoga:", error);
         }
@@ -1165,6 +1194,11 @@
         const savedCampus = profile.campus || profile.college || "";
         if (campus && !campus.value.trim() && savedCampus) {
             campus.value = savedCampus;
+        }
+
+        const savedPhone = String(profile.phone || "").replace(/\D/g, "").slice(-10);
+        if (sellerPhoneInput && !sellerPhoneInput.value.trim() && savedPhone) {
+            sellerPhoneInput.value = savedPhone;
         }
 
         loginLink.hidden = true;
@@ -1508,6 +1542,15 @@
 
             const sellerDisplayName = getDisplayName(currentUser, currentUserProfile);
             const campusValue = campus.value.trim() || currentUserProfile.campus || currentUserProfile.college || "";
+            const phoneValue = (sellerPhoneInput && sellerPhoneInput.value.trim()) || currentUserProfile.phone || "";
+
+            if (phoneValue || campusValue) {
+                currentUserProfile = { ...currentUserProfile, phone: phoneValue, campus: campusValue };
+                try {
+                    localStorage.setItem("campuskart_profile_" + currentUser.uid, JSON.stringify(currentUserProfile));
+                    localStorage.setItem("campuskart_last_profile", JSON.stringify(currentUserProfile));
+                } catch (_) {}
+            }
 
             const docRef = await addDoc(
                 collection(db, "listings"),
@@ -1537,7 +1580,7 @@
                     sellerId: currentUser.uid,
                     sellerName: sellerDisplayName,
                     sellerEmail: currentUser.email || "",
-                    sellerPhone: currentUserProfile.phone || "",
+                    sellerPhone: phoneValue,
                     sellerHostel: currentUserProfile.hostel || "",
 
                     status: "Active",
@@ -1556,6 +1599,7 @@
 
             sellForm.reset();
             if (campus && campusValue) campus.value = campusValue;
+            if (sellerPhoneInput && phoneValue) sellerPhoneInput.value = phoneValue;
             clearPhotos();
             updatePreview();
 

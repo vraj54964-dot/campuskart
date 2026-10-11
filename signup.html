@@ -650,23 +650,32 @@
                     displayName: fullName
                 });
 
+                const profilePayload = {
+                    uid: userCredential.user.uid,
+                    name: fullName,
+                    fullName: fullName,
+                    campus: college,
+                    college: college,
+                    email: email,
+                    phone: phone,
+                    studentId: studentId,
+                    livesInHostel: livesInHostel,
+                    hostel: livesInHostel ? hostel : null,
+                    roomNo: livesInHostel ? room : null
+                };
+
+                try {
+                    localStorage.setItem("campuskart_profile_" + userCredential.user.uid, JSON.stringify(profilePayload));
+                    localStorage.setItem("campuskart_last_profile", JSON.stringify(profilePayload));
+                } catch (_) {}
+
                 // Save college, studentId, hostel and room details to
                 // Firestore so Dashboard profile completeness & WhatsApp contact work immediately.
                 try {
                     await setDoc(
                         doc(db, "users", userCredential.user.uid),
                         {
-                            uid: userCredential.user.uid,
-                            name: fullName,
-                            fullName: fullName,
-                            campus: college,
-                            college: college,
-                            email: email,
-                            phone: phone,
-                            studentId: studentId,
-                            livesInHostel: livesInHostel,
-                            hostel: livesInHostel ? hostel : null,
-                            roomNo: livesInHostel ? room : null,
+                            ...profilePayload,
                             createdAt: serverTimestamp(),
                             updatedAt: serverTimestamp()
                         },
