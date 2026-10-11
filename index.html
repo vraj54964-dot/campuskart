@@ -401,6 +401,7 @@
             border-radius: 15px;
             overflow: hidden;
             transition: 0.25s;
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -413,6 +414,9 @@
             position: relative;
             background: #e8eef5;
             overflow: hidden;
+            display: grid;
+            place-items: center;
+            font-size: 44px;
         }
 
         .product-image img {
@@ -1195,7 +1199,7 @@
         </div>
     </footer>
 
-    <!-- AUTH (naam + logout) -->
+    <!-- AUTH (naam + logout) + LIVE FEATURED LISTINGS -->
     <script type="module">
         import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import {
@@ -1205,6 +1209,8 @@
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
         import {
             getFirestore,
+            collection,
+            getDocs,
             doc,
             getDoc
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -1228,6 +1234,13 @@
         const userAvatar = document.getElementById("userAvatar");
         const userName = document.getElementById("userName");
         const logoutButton = document.getElementById("logoutButton");
+        const productGrid = document.getElementById("productGrid");
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const categoryCards = document.querySelectorAll(".category-card");
+        const emptyMessage = document.getElementById("emptyMessage");
+
+        let selectedCategory = "all";
 
         // Naam: users/{uid}.name -> displayName -> email se
         function getDisplayName(user, profile) {
@@ -1292,25 +1305,29 @@
                 logoutButton.disabled = false;
             }
         });
-    </script>
 
-    <!-- SEARCH AND CATEGORY FILTER -->
-    <script>
-        const searchForm = document.getElementById("searchForm");
-        const searchInput = document.getElementById("searchInput");
-        const productCards = document.querySelectorAll(".product-card");
-        const categoryCards = document.querySelectorAll(".category-card");
-        const emptyMessage = document.getElementById("emptyMessage");
+        // ---------- SEARCH & FEATURED PRODUCTS ----------
 
-        let selectedCategory = "all";
+        function normalizeCategory(cat) {
+            const v = String(cat || "").toLowerCase().trim();
+            if (v === "hostel essentials") return "hostel";
+            if (v === "notes & study material") return "notes";
+            return v || "other";
+        }
+
+        function categoryEmoji(cat) {
+            const map = { books: "📚", electronics: "💻", notes: "📝", hostel: "🎒" };
+            return map[normalizeCategory(cat)] || "📦";
+        }
 
         function filterProducts() {
             const searchText = searchInput.value.toLowerCase().trim();
+            const cards = productGrid.querySelectorAll(".product-card");
             let visibleCount = 0;
 
-            productCards.forEach(function(card) {
+            cards.forEach(function (card) {
                 const productName = card.innerText.toLowerCase();
-                const searchKeywords = card.dataset.search.toLowerCase();
+                const searchKeywords = (card.dataset.search || "").toLowerCase();
                 const category = card.dataset.category;
 
                 const matchesSearch =
@@ -1333,23 +1350,139 @@
                 visibleCount === 0 ? "block" : "none";
         }
 
-        searchForm.addEventListener("submit", function(event) {
+        function buildHomeCard(product) {
+            const card = document.createElement("article");
+            card.className = "product-card";
+
+            const name = product.name || "Untitled Item";
+            const cat = product.category || "Other";
+            const normCat = normalizeCategory(cat);
+            const desc = product.description || "Campus listing";
+            const cond = product.condition || "Good condition";
+            const price = Number(product.price) || 0;
+            const origPrice = Number(product.originalPrice) || 0;
+            const coverUrl =
+                (Array.isArray(product.imageUrls) && product.imageUrls[0]) ||
+                product.imageUrl ||
+                "";
+
+            card.dataset.category = normCat;
+            card.dataset.search = (name + " " + cat + " " + desc + " " + (product.campus || "")).toLowerCase();
+
+            const imgBox = document.createElement("div");
+            imgBox.className = "product-image";
+
+            if (coverUrl) {
+                const img = document.createElement("img");
+                img.src = coverUrl;
+                img.alt = name;
+                img.loading = "lazy";
+                img.addEventListener("error", function () {
+                    img.replaceWith(document.createTextNode(categoryEmoji(cat)));
+                });
+                imgBox.appendChild(img);
+            } else {
+                imgBox.appendChild(document.createTextNode(categoryEmoji(cat)));
+            }
+
+            const tag = document.createElement("span");
+            tag.className = "product-tag";
+            if (origPrice > price && price > 0) {
+                const pct = Math.round(((origPrice - price) / origPrice) * 100);
+                tag.textContent = pct + "% OFF";
+            } else {
+                tag.textContent = cond;
+            }
+            imgBox.appendChild(tag);
+
+            const info = document.createElement("div");
+            info.className = "product-info";
+
+            const catSpan = document.createElement("span");
+            catSpan.className = "product-category";
+            catSpan.textContent = cat;
+
+            const h3 = document.createElement("h3");
+            h3.textContent = name;
+
+            const pDesc = document.createElement("p");
+            pDesc.className = "product-description";
+            pDesc.textContent = desc.length > 55 ? desc.slice(0, 52) + "..." : desc;
+
+            const bottom = document.createElement("div");
+            bottom.className = "product-bottom";
+
+            const priceSpan = document.createElement("span");
+            priceSpan.className = "price";
+            priceSpan.textContent = "₹" + price.toLocaleString("en-IN");
+
+            const condSpan = document.createElement("span");
+            condSpan.className = "condition";
+            condSpan.textContent = product.campus ? "📍 " + product.campus : cond;
+
+            bottom.append(priceSpan, condSpan);
+            info.append(catSpan, h3, pDesc, bottom);
+            card.append(imgBox, info);
+
+            card.addEventListener("click", function () {
+                window.location.href = "product-details.html?id=" + encodeURIComponent(product.id);
+            });
+
+            return card;
+        }
+
+        // Attach click on static fallback cards to open Browse
+        productGrid.querySelectorAll(".product-card").forEach(function (card) {
+            card.addEventListener("click", function () {
+                window.location.href = "browse.html?category=" + encodeURIComponent(card.dataset.category || "all");
+            });
+        });
+
+        async function loadFeaturedProducts() {
+            try {
+                const snap = await getDocs(collection(db, "listings"));
+                const active = snap.docs
+                    .map(function (d) { return { id: d.id, ...d.data() }; })
+                    .filter(function (p) { return String(p.status || "").toLowerCase() === "active"; })
+                    .slice(0, 4);
+
+                if (active.length > 0) {
+                    productGrid.replaceChildren();
+                    active.forEach(function (item) {
+                        productGrid.appendChild(buildHomeCard(item));
+                    });
+                    filterProducts();
+                }
+            } catch (err) {
+                console.warn("Could not load live featured listings, keeping default picks:", err);
+            }
+        }
+
+        searchInput.addEventListener("input", filterProducts);
+
+        searchForm.addEventListener("submit", function (event) {
             event.preventDefault();
+            const q = searchInput.value.trim();
+            if (q) {
+                window.location.href = "browse.html?q=" + encodeURIComponent(q);
+                return;
+            }
             selectedCategory = "all";
             filterProducts();
-
             document.getElementById("products").scrollIntoView({
                 behavior: "smooth"
             });
         });
 
-        categoryCards.forEach(function(card) {
-            card.addEventListener("click", function() {
+        categoryCards.forEach(function (card) {
+            card.addEventListener("click", function () {
                 selectedCategory = card.dataset.category;
                 searchInput.value = "";
                 filterProducts();
             });
         });
+
+        loadFeaturedProducts();
     </script>
 
 </body>

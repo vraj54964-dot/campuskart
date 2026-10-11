@@ -884,6 +884,21 @@
 
             const actions = el("div", "row-actions");
 
+            const viewLink = el("a", "small-btn", "Dekhein");
+            viewLink.href = `product-details.html?id=${encodeURIComponent(item.id)}`;
+
+            const shareBtn = el("button", "small-btn", "🔗 Share");
+            shareBtn.type = "button";
+            shareBtn.addEventListener("click", async () => {
+                const url = new URL(`product-details.html?id=${encodeURIComponent(item.id)}`, window.location.href).href;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast("Listing link copy ho gaya! 🔗");
+                } catch (_) {
+                    showToast("Link: " + url);
+                }
+            });
+
             const toggleBtn = el("button", "small-btn", isSold(item.status) ? "Reactivate" : "Mark as Sold");
             toggleBtn.type = "button";
             toggleBtn.addEventListener("click", () =>
@@ -894,7 +909,7 @@
             deleteBtn.type = "button";
             deleteBtn.addEventListener("click", () => removeListing(item.id, item.name, deleteBtn));
 
-            actions.append(toggleBtn, deleteBtn);
+            actions.append(viewLink, shareBtn, toggleBtn, deleteBtn);
             info.append(actions);
 
             const icon = el("div", "product-icon", iconFor(item.category));
@@ -930,6 +945,12 @@
             const time = el("small", "", timeAgo(toDate(order.createdAt)));
 
             const actions = el("div", "interest-actions");
+            if (order.buyerEmail) {
+                const replyLink = el("a", "small-btn", "✉️ Reply");
+                const subj = "CampusKart: Regarding " + (order.productName || "your interest");
+                replyLink.href = `mailto:${encodeURIComponent(order.buyerEmail)}?subject=${encodeURIComponent(subj)}`;
+                actions.append(replyLink);
+            }
             if (isNew) {
                 const doneBtn = el("button", "small-btn", "Contact kar liya ✓");
                 doneBtn.type = "button";

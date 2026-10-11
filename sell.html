@@ -487,6 +487,26 @@
             font-size: 25px;
             font-weight: 800;
             margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .preview-original-price {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: line-through;
+        }
+
+        .preview-discount {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 7px;
+            border-radius: 999px;
         }
 
         .preview-condition {
@@ -524,6 +544,13 @@
             border: 1px solid #bcecdf;
             color: #087d70;
             font-size: 13px;
+        }
+
+        .success-message a {
+            color: var(--navy);
+            font-weight: 800;
+            text-decoration: underline;
+            margin-left: 6px;
         }
 
         /* FOOTER */
@@ -1117,6 +1144,8 @@
         userMenu.hidden = true;
     }
 
+    let currentUserProfile = {};
+
     async function showLoggedInNav(user) {
         let profile = {};
         try {
@@ -1126,11 +1155,17 @@
             console.warn("User profile load nahi hua, fallback naam use hoga:", error);
         }
 
+        currentUserProfile = profile;
         const name = getDisplayName(user, profile);
 
         userName.textContent = name;
         userName.title = user.email || name;
         userAvatar.textContent = getInitials(name);
+
+        const savedCampus = profile.campus || profile.college || "";
+        if (campus && !campus.value.trim() && savedCampus) {
+            campus.value = savedCampus;
+        }
 
         loginLink.hidden = true;
         userMenu.hidden = false;
@@ -1180,8 +1215,15 @@
     // 8. SUCCESS / ERROR MESSAGE
     // ==========================================
 
-    function showMessage(message, isError = false) {
-        successMessage.textContent = message;
+    function showMessage(message, isError = false, linkHref = "", linkLabel = "") {
+        successMessage.replaceChildren();
+        successMessage.append(document.createTextNode(message));
+        if (linkHref && linkLabel) {
+            const a = document.createElement("a");
+            a.href = linkHref;
+            a.textContent = linkLabel;
+            successMessage.append(a);
+        }
         successMessage.style.display = "block";
         successMessage.style.color = isError ? "#b91c1c" : "#15803d";
 
@@ -1207,20 +1249,45 @@
             condition.value || "Condition";
 
         const sellingPrice = Number(price.value);
+        const origPrice = Number(originalPriceInput.value);
 
-        previewPrice.textContent =
+        previewPrice.replaceChildren();
+
+        const hasValidPrice =
             price.value.trim() !== "" &&
             Number.isFinite(sellingPrice) &&
-            sellingPrice > 0
-                ? "₹" + sellingPrice.toLocaleString("en-IN")
-                : "₹0";
+            sellingPrice > 0;
+
+        previewPrice.append(
+            document.createTextNode(
+                hasValidPrice ? "₹" + sellingPrice.toLocaleString("en-IN") : "₹0"
+            )
+        );
+
+        if (
+            hasValidPrice &&
+            originalPriceInput.value.trim() !== "" &&
+            Number.isFinite(origPrice) &&
+            origPrice > sellingPrice
+        ) {
+            const origSpan = document.createElement("span");
+            origSpan.className = "preview-original-price";
+            origSpan.textContent = "₹" + origPrice.toLocaleString("en-IN");
+
+            const pct = Math.round(((origPrice - sellingPrice) / origPrice) * 100);
+            const discSpan = document.createElement("span");
+            discSpan.className = "preview-discount";
+            discSpan.textContent = pct + "% OFF";
+
+            previewPrice.append(origSpan, discSpan);
+        }
 
         previewDescription.textContent =
             description.value.trim() ||
             "Your product description will appear here.";
     }
 
-    [itemName, category, condition, price, description].forEach((element) => {
+    [itemName, category, condition, price, originalPriceInput, description].forEach((element) => {
         element.addEventListener("input", updatePreview);
         element.addEventListener("change", updatePreview);
     });
@@ -1439,6 +1506,9 @@
 
             showMessage("Saving your product listing...");
 
+            const sellerDisplayName = getDisplayName(currentUser, currentUserProfile);
+            const campusValue = campus.value.trim() || currentUserProfile.campus || currentUserProfile.college || "";
+
             const docRef = await addDoc(
                 collection(db, "listings"),
                 {
@@ -1455,7 +1525,7 @@
 
                     description: description.value.trim(),
 
-                    campus: campus.value.trim(),
+                    campus: campusValue,
 
                     // Cover photo (browse aur dashboard isi ko dikhate hain)
                     imageUrl: imageUrls[0] || "",
@@ -1465,7 +1535,10 @@
                     photoCount: imageUrls.length,
 
                     sellerId: currentUser.uid,
+                    sellerName: sellerDisplayName,
                     sellerEmail: currentUser.email || "",
+                    sellerPhone: currentUserProfile.phone || "",
+                    sellerHostel: currentUserProfile.hostel || "",
 
                     status: "Active",
                     createdAt: serverTimestamp()
@@ -1474,9 +1547,15 @@
 
             console.log("Listing saved with ID:", docRef.id);
 
-            showMessage("Success! Your product has been saved to CampusKart.");
+            showMessage(
+                "Success! Your product has been saved to CampusKart.",
+                false,
+                `product-details.html?id=${encodeURIComponent(docRef.id)}`,
+                "View Listing →"
+            );
 
             sellForm.reset();
+            if (campus && campusValue) campus.value = campusValue;
             clearPhotos();
             updatePreview();
 

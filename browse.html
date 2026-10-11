@@ -649,6 +649,34 @@
             z-index: 3;
         }
 
+        .save-heart-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(228, 234, 242, 0.9);
+            background: rgba(255, 255, 255, 0.94);
+            font-size: 15px;
+            line-height: 1;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 3px 10px rgba(16, 28, 53, 0.16);
+            z-index: 3;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .save-heart-btn:hover {
+            transform: scale(1.1);
+            background: #ffffff;
+        }
+
+        .save-heart-btn.saved {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
         .product-details {
             padding: 15px;
         }
@@ -680,6 +708,16 @@
             margin-top: 8px;
         }
 
+        .product-campus {
+            color: var(--navy);
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .product-bottom {
             border-top: 1px solid #edf1f6;
             margin-top: 13px;
@@ -691,10 +729,33 @@
             flex-wrap: wrap;
         }
 
+        .price-stack {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         .product-price {
             color: var(--navy);
             font-size: 20px;
             font-weight: 800;
+        }
+
+        .original-price {
+            color: var(--muted);
+            font-size: 12px;
+            text-decoration: line-through;
+            font-weight: 600;
+        }
+
+        .discount-badge {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 999px;
         }
 
         .button-group {
@@ -704,7 +765,8 @@
         }
 
         .view-button,
-        .email-button {
+        .email-button,
+        .whatsapp-btn {
             border: none;
             border-radius: 7px;
             padding: 8px 10px;
@@ -728,6 +790,15 @@
 
         .email-button:hover {
             background: #0ba996;
+        }
+
+        .whatsapp-btn {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .whatsapp-btn:hover {
+            background: #bbf7d0;
         }
 
         /* ===== 11. SKELETON LOADER ===== */
@@ -1331,7 +1402,10 @@
             collection,
             getDocs,
             doc,
-            getDoc
+            getDoc,
+            setDoc,
+            deleteDoc,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         import {
@@ -1382,6 +1456,8 @@
         let productCards = [];
         let allProducts = [];
         let toastTimer = null;
+        let currentUser = null;
+        let savedIds = new Set();
 
         // ---------- AUTH UI ----------
 
@@ -1429,12 +1505,77 @@
             welcomeLine.hidden = false;
         }
 
+        async function loadSavedIds(user) {
+            if (!user) {
+                savedIds.clear();
+                refreshHeartButtons();
+                return;
+            }
+            try {
+                const snap = await getDocs(collection(db, "users", user.uid, "saved"));
+                savedIds = new Set(snap.docs.map(function (d) { return d.id; }));
+                refreshHeartButtons();
+            } catch (err) {
+                console.warn("Could not load saved items:", err);
+            }
+        }
+
+        function refreshHeartButtons() {
+            document.querySelectorAll(".save-heart-btn").forEach(function (btn) {
+                const pid = btn.dataset.productId;
+                const isSaved = savedIds.has(pid);
+                btn.classList.toggle("saved", isSaved);
+                btn.textContent = isSaved ? "❤️" : "🤍";
+                btn.title = isSaved ? "Remove from saved items" : "Save to wishlist";
+            });
+        }
+
+        async function toggleSaveProduct(product, btn) {
+            if (!currentUser) {
+                showToast("Please log in to save items ❤️");
+                return;
+            }
+            const pid = product.id;
+            if (!pid) return;
+
+            btn.disabled = true;
+            try {
+                const savedRef = doc(db, "users", currentUser.uid, "saved", pid);
+                if (savedIds.has(pid)) {
+                    await deleteDoc(savedRef);
+                    savedIds.delete(pid);
+                    showToast("Removed from saved items.");
+                } else {
+                    const images = getProductImages(product);
+                    await setDoc(savedRef, {
+                        listingId: pid,
+                        name: product.name || "Untitled Product",
+                        category: product.category || "Other",
+                        condition: product.condition || "Used",
+                        price: Number(product.price) || 0,
+                        imageUrl: images[0] || "",
+                        savedAt: serverTimestamp()
+                    });
+                    savedIds.add(pid);
+                    showToast("Saved to wishlist ❤️ (View in Dashboard)");
+                }
+                refreshHeartButtons();
+            } catch (err) {
+                console.error("Save error:", err);
+                showToast("Could not update saved items.");
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
         onAuthStateChanged(auth, function (user) {
+            currentUser = user;
             if (user) {
                 showLoggedInUI(user);
             } else {
                 showLoggedOutUI();
             }
+            loadSavedIds(user);
         });
 
         logoutButton.addEventListener("click", async function () {
@@ -1517,6 +1658,22 @@
                 "mailto:" + product.sellerEmail +
                 "?subject=" + encodeURIComponent(subject) +
                 "&body=" + encodeURIComponent(body);
+        }
+
+        function whatsappSeller(product) {
+            const cleanPhone = String(product.sellerPhone || "").replace(/\D/g, "").slice(-10);
+            if (cleanPhone.length !== 10) return;
+            const name = product.name || "Listing";
+            const price = Number(product.price) || 0;
+            const msg =
+                "Hi" + (product.sellerName ? " " + product.sellerName : "") +
+                "! 👋 I saw your listing \"" + name + "\" (₹" + price.toLocaleString("en-IN") +
+                ") on CampusKart. Is it still available?";
+            window.open(
+                "https://wa.me/91" + cleanPhone + "?text=" + encodeURIComponent(msg),
+                "_blank",
+                "noopener"
+            );
         }
 
         function goToDetails(product) {
@@ -1670,14 +1827,16 @@
             const condition = String(product.condition || "Used");
             const description = String(product.description || "No description provided.");
             const campus = String(product.campus || "");
+            const hostel = String(product.sellerHostel || "");
             const price = Number(product.price) || 0;
+            const originalPrice = Number(product.originalPrice) || 0;
 
             card.dataset.name = name.toLowerCase();
             card.dataset.category = normalizeCategory(category);
             card.dataset.condition = normalizeCondition(condition);
             card.dataset.price = String(price);
             card.dataset.search = (
-                name + " " + category + " " + description + " " + campus
+                name + " " + category + " " + description + " " + campus + " " + hostel
             ).toLowerCase();
 
             const imageBox = createGallery(product, name, category);
@@ -1686,6 +1845,19 @@
             conditionTag.className = "condition-tag";
             conditionTag.textContent = condition;
             imageBox.appendChild(conditionTag);
+
+            const heartBtn = document.createElement("button");
+            heartBtn.type = "button";
+            const isSaved = savedIds.has(product.id);
+            heartBtn.className = "save-heart-btn" + (isSaved ? " saved" : "");
+            heartBtn.dataset.productId = product.id;
+            heartBtn.textContent = isSaved ? "❤️" : "🤍";
+            heartBtn.title = isSaved ? "Remove from saved items" : "Save to wishlist";
+            heartBtn.addEventListener("click", function (event) {
+                event.stopPropagation();
+                toggleSaveProduct(product, heartBtn);
+            });
+            imageBox.appendChild(heartBtn);
 
             const details = document.createElement("div");
             details.className = "product-details";
@@ -1705,12 +1877,37 @@
             conditionText.className = "product-condition";
             conditionText.textContent = "Condition: " + condition;
 
+            const locationLabel = hostel || campus;
+            let campusEl = null;
+            if (locationLabel) {
+                campusEl = document.createElement("p");
+                campusEl.className = "product-campus";
+                campusEl.textContent = "📍 " + locationLabel;
+            }
+
             const bottom = document.createElement("div");
             bottom.className = "product-bottom";
+
+            const priceStack = document.createElement("div");
+            priceStack.className = "price-stack";
 
             const priceText = document.createElement("span");
             priceText.className = "product-price";
             priceText.textContent = "₹" + price.toLocaleString("en-IN");
+            priceStack.appendChild(priceText);
+
+            if (originalPrice > price && price > 0) {
+                const origSpan = document.createElement("span");
+                origSpan.className = "original-price";
+                origSpan.textContent = "₹" + originalPrice.toLocaleString("en-IN");
+
+                const pct = Math.round(((originalPrice - price) / originalPrice) * 100);
+                const discSpan = document.createElement("span");
+                discSpan.className = "discount-badge";
+                discSpan.textContent = pct + "% OFF";
+
+                priceStack.append(origSpan, discSpan);
+            }
 
             const buttonGroup = document.createElement("div");
             buttonGroup.className = "button-group";
@@ -1732,9 +1929,24 @@
             });
 
             buttonGroup.append(viewButton, emailButton);
-            bottom.append(priceText, buttonGroup);
 
-            details.append(categoryLabel, title, descriptionText, conditionText, bottom);
+            const cleanPhone = String(product.sellerPhone || "").replace(/\D/g, "").slice(-10);
+            if (cleanPhone.length === 10) {
+                const waBtn = document.createElement("button");
+                waBtn.className = "whatsapp-btn";
+                waBtn.type = "button";
+                waBtn.textContent = "💬 WhatsApp";
+                waBtn.addEventListener("click", function () {
+                    whatsappSeller(product);
+                });
+                buttonGroup.appendChild(waBtn);
+            }
+
+            bottom.append(priceStack, buttonGroup);
+
+            details.append(categoryLabel, title, descriptionText, conditionText);
+            if (campusEl) details.appendChild(campusEl);
+            details.appendChild(bottom);
 
             card.append(imageBox, details);
 
@@ -1779,8 +1991,25 @@
             });
         }
 
+        function applyUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get("q");
+            const cat = params.get("category");
+
+            if (q) {
+                searchInput.value = q;
+            }
+
+            if (cat) {
+                const normalized = normalizeCategory(cat);
+                const radio = document.querySelector('input[name="category"][value="' + normalized + '"]');
+                if (radio) radio.checked = true;
+            }
+        }
+
         async function loadProducts() {
             resultsCount.textContent = "Loading products...";
+            applyUrlParams();
 
             try {
                 const snapshot = await getDocs(collection(db, "listings"));
@@ -1835,7 +2064,8 @@
         }
 
         function setCategory(value) {
-            document.querySelector('input[name="category"][value="' + value + '"]').checked = true;
+            const radio = document.querySelector('input[name="category"][value="' + value + '"]');
+            if (radio) radio.checked = true;
 
             document.querySelectorAll(".category-card").forEach(function (card) {
                 card.classList.toggle("active", card.dataset.category === value);

@@ -100,12 +100,19 @@
             overflow: hidden;
         }
 
+        .product-gallery-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .product-image-box {
             min-height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: white;
+            position: relative;
         }
 
         .product-image-box img {
@@ -116,8 +123,91 @@
             padding: 12px;
         }
 
+        .image-fallback {
+            font-size: 64px;
+            padding: 40px;
+        }
+
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.94);
+            color: var(--navy);
+            font-size: 22px;
+            font-weight: 800;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 12px rgba(16, 28, 53, 0.14);
+        }
+
+        .gallery-arrow:hover {
+            background: var(--teal);
+        }
+
+        .gallery-arrow.prev { left: 12px; }
+        .gallery-arrow.next { right: 12px; }
+
+        .gallery-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(16, 28, 53, 0.78);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 999px;
+        }
+
+        .thumbnail-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .thumbnail-btn {
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 2px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .thumbnail-btn.active {
+            border-color: var(--teal);
+            transform: translateY(-2px);
+        }
+
+        .thumbnail-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 7px;
+            display: block;
+        }
+
         .product-info {
             padding: 28px;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .category {
@@ -126,6 +216,34 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .quick-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background: #f5f8fc;
+            border: 1px solid var(--border);
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--teal);
+            background: #eefbf8;
+        }
+
+        .tool-btn.saved {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #b91c1c;
         }
 
         h2 {
@@ -139,11 +257,35 @@
             overflow-wrap: anywhere;
         }
 
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
         .price {
             color: var(--navy);
             font-size: 32px;
             font-weight: 800;
-            margin: 15px 0;
+            margin: 0;
+        }
+
+        .original-price {
+            color: var(--muted);
+            font-size: 16px;
+            text-decoration: line-through;
+            font-weight: 600;
+        }
+
+        .discount-pill {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 999px;
         }
 
         .condition {
@@ -184,19 +326,31 @@
             margin-top: 7px;
         }
 
-        .buy-button {
+        .action-stack {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .buy-button,
+        .whatsapp-button,
+        .email-outline-button {
             display: block;
             width: 100%;
-            margin-top: 20px;
-            padding: 15px;
+            padding: 14px 15px;
             border: none;
             border-radius: 10px;
-            background: var(--teal);
-            color: var(--navy);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.15s ease;
+            text-align: center;
+        }
+
+        .buy-button {
+            background: var(--teal);
+            color: var(--navy);
         }
 
         .buy-button:hover:not(:disabled) {
@@ -207,6 +361,27 @@
             background: #cfd8e3;
             color: #6b7890;
             cursor: not-allowed;
+        }
+
+        .whatsapp-button {
+            background: #25d366;
+            color: #072e15;
+        }
+
+        .whatsapp-button:hover {
+            background: #1ebe5b;
+        }
+
+        .email-outline-button {
+            background: white;
+            color: var(--navy);
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .email-outline-button:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
         }
 
         .buy-note {
@@ -234,6 +409,28 @@
 
         .status h2 {
             margin-bottom: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
         }
 
         .footer {
@@ -311,15 +508,35 @@
 
     <section id="productContent" hidden>
         <div class="product-layout">
-            <div class="product-image-box">
-                <img id="productImage" alt="Product image">
+            <div class="product-gallery-column">
+                <div class="product-image-box" id="imageBox">
+                    <img id="productImage" alt="Product image">
+                    <span id="imageFallback" class="image-fallback" hidden>📦</span>
+                    <button id="prevPhotoBtn" class="gallery-arrow prev" type="button" aria-label="Previous photo" hidden>‹</button>
+                    <button id="nextPhotoBtn" class="gallery-arrow next" type="button" aria-label="Next photo" hidden>›</button>
+                    <span id="galleryCounter" class="gallery-counter" hidden>1/1</span>
+                </div>
+                <div id="thumbnailStrip" class="thumbnail-strip" hidden></div>
             </div>
 
             <div>
                 <article class="product-info">
-                    <p id="productCategory" class="category"></p>
+                    <div class="top-row">
+                        <p id="productCategory" class="category"></p>
+                        <div class="quick-tools">
+                            <button id="saveButton" class="tool-btn" type="button">🤍 Save</button>
+                            <button id="shareButton" class="tool-btn" type="button">🔗 Share</button>
+                        </div>
+                    </div>
+
                     <h2 id="productName"></h2>
-                    <p id="productPrice" class="price"></p>
+
+                    <div class="price-row">
+                        <p id="productPrice" class="price"></p>
+                        <span id="originalPriceText" class="original-price" hidden></span>
+                        <span id="discountPill" class="discount-pill" hidden></span>
+                    </div>
+
                     <span id="productCondition" class="condition"></span>
 
                     <div class="description">
@@ -335,13 +552,25 @@
 
                 <article class="seller-box">
                     <h3>Seller Information</h3>
+                    <p id="sellerNameText" hidden></p>
                     <p id="sellerEmail"></p>
+                    <p id="sellerHostelText" hidden></p>
                     <p id="sellerId"></p>
                 </article>
 
-                <button id="buyButton" class="buy-button" type="button" disabled>
-                    Buy Now
-                </button>
+                <div class="action-stack">
+                    <button id="buyButton" class="buy-button" type="button" disabled>
+                        ✋ I'm Interested / Buy Now
+                    </button>
+
+                    <button id="whatsappButton" class="whatsapp-button" type="button" hidden>
+                        💬 Chat on WhatsApp
+                    </button>
+
+                    <button id="emailSellerBtn" class="email-outline-button" type="button" hidden>
+                        ✉️ Email Seller
+                    </button>
+                </div>
                 <p id="buyNote" class="buy-note"></p>
 
                 <div class="note">
@@ -352,6 +581,8 @@
         </div>
     </section>
 </main>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <footer class="footer">
     <div class="container">
@@ -367,9 +598,19 @@
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
     import {
+        getAuth,
+        onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+
+    import {
         getFirestore,
+        collection,
+        addDoc,
         doc,
-        getDoc
+        getDoc,
+        setDoc,
+        deleteDoc,
+        serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -387,13 +628,35 @@
         : initializeApp(firebaseConfig);
 
     const db = getFirestore(app);
+    const auth = getAuth(app);
 
     const loading = document.getElementById("loading");
     const errorBox = document.getElementById("error");
     const errorMessage = document.getElementById("errorMessage");
     const productContent = document.getElementById("productContent");
     const buyButton = document.getElementById("buyButton");
+    const whatsappButton = document.getElementById("whatsappButton");
+    const emailSellerBtn = document.getElementById("emailSellerBtn");
     const buyNote = document.getElementById("buyNote");
+    const saveButton = document.getElementById("saveButton");
+    const shareButton = document.getElementById("shareButton");
+    const toast = document.getElementById("toast");
+
+    let currentUser = null;
+    let currentUserProfile = {};
+    let loadedProduct = null;
+    let loadedProductId = "";
+    let isSaved = false;
+    let toastTimer = null;
+
+    function showToast(text) {
+        toast.textContent = text;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+            toast.classList.remove("show");
+        }, 2800);
+    }
 
     function showError(message) {
         loading.hidden = true;
@@ -402,35 +665,288 @@
         errorMessage.textContent = message;
     }
 
-    function setupBuyButton(product, productName, productPrice) {
-        const sellerEmail = product.sellerEmail;
+    function getProductImages(product) {
+        if (Array.isArray(product.imageUrls)) {
+            const list = product.imageUrls.filter(function (u) {
+                return typeof u === "string" && u.trim() !== "";
+            });
+            if (list.length > 0) return list;
+        }
+        return product.imageUrl ? [String(product.imageUrl)] : [];
+    }
 
-        if (!sellerEmail) {
+    function setupGallery(product, productName) {
+        const images = getProductImages(product);
+        const mainImg = document.getElementById("productImage");
+        const fallback = document.getElementById("imageFallback");
+        const prevBtn = document.getElementById("prevPhotoBtn");
+        const nextBtn = document.getElementById("nextPhotoBtn");
+        const counter = document.getElementById("galleryCounter");
+        const strip = document.getElementById("thumbnailStrip");
+
+        if (images.length === 0) {
+            mainImg.style.display = "none";
+            fallback.hidden = false;
+            return;
+        }
+
+        let currentIndex = 0;
+        const thumbBtns = [];
+
+        function showSlide(index) {
+            currentIndex = (index + images.length) % images.length;
+            mainImg.style.display = "block";
+            fallback.hidden = true;
+            mainImg.src = images[currentIndex];
+            mainImg.alt = productName + " - photo " + (currentIndex + 1);
+            counter.textContent = (currentIndex + 1) + "/" + images.length;
+            thumbBtns.forEach(function (btn, idx) {
+                btn.classList.toggle("active", idx === currentIndex);
+            });
+        }
+
+        mainImg.addEventListener("error", function () {
+            mainImg.style.display = "none";
+            fallback.hidden = false;
+        });
+
+        if (images.length > 1) {
+            prevBtn.hidden = false;
+            nextBtn.hidden = false;
+            counter.hidden = false;
+            strip.hidden = false;
+            strip.replaceChildren();
+
+            images.forEach(function (url, idx) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "thumbnail-btn" + (idx === 0 ? " active" : "");
+                btn.setAttribute("aria-label", "View photo " + (idx + 1));
+
+                const thumbImg = document.createElement("img");
+                thumbImg.src = url;
+                thumbImg.alt = "Thumbnail " + (idx + 1);
+                btn.appendChild(thumbImg);
+
+                btn.addEventListener("click", function () {
+                    showSlide(idx);
+                });
+
+                strip.appendChild(btn);
+                thumbBtns.push(btn);
+            });
+
+            prevBtn.addEventListener("click", function () {
+                showSlide(currentIndex - 1);
+            });
+
+            nextBtn.addEventListener("click", function () {
+                showSlide(currentIndex + 1);
+            });
+        }
+
+        showSlide(0);
+    }
+
+    async function checkSavedStatus() {
+        if (!currentUser || !loadedProductId) {
+            isSaved = false;
+            updateSaveButtonUI();
+            return;
+        }
+        try {
+            const snap = await getDoc(doc(db, "users", currentUser.uid, "saved", loadedProductId));
+            isSaved = snap.exists();
+            updateSaveButtonUI();
+        } catch (err) {
+            console.warn("Could not check saved status:", err);
+        }
+    }
+
+    function updateSaveButtonUI() {
+        saveButton.classList.toggle("saved", isSaved);
+        saveButton.textContent = isSaved ? "❤️ Saved" : "🤍 Save";
+    }
+
+    saveButton.addEventListener("click", async function () {
+        if (!currentUser) {
+            showToast("Please log in to save items to your wishlist.");
+            return;
+        }
+        if (!loadedProduct || !loadedProductId) return;
+
+        saveButton.disabled = true;
+        try {
+            const savedRef = doc(db, "users", currentUser.uid, "saved", loadedProductId);
+            if (isSaved) {
+                await deleteDoc(savedRef);
+                isSaved = false;
+                showToast("Removed from your saved items.");
+            } else {
+                const images = getProductImages(loadedProduct);
+                await setDoc(savedRef, {
+                    listingId: loadedProductId,
+                    name: loadedProduct.name || "Untitled Product",
+                    category: loadedProduct.category || "Other",
+                    condition: loadedProduct.condition || "Used",
+                    price: Number(loadedProduct.price) || 0,
+                    imageUrl: images[0] || "",
+                    savedAt: serverTimestamp()
+                });
+                isSaved = true;
+                showToast("Saved to your wishlist ❤️ (View in Dashboard)");
+            }
+            updateSaveButtonUI();
+        } catch (err) {
+            console.error("Save toggle error:", err);
+            showToast("Could not update saved item. Check connection.");
+        } finally {
+            saveButton.disabled = false;
+        }
+    });
+
+    shareButton.addEventListener("click", async function () {
+        const shareUrl = window.location.href;
+        const title = loadedProduct ? loadedProduct.name : "CampusKart Listing";
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: title + " | CampusKart",
+                    text: "Check out this campus listing on CampusKart!",
+                    url: shareUrl
+                });
+                return;
+            } catch (_) {
+                // fallback to clipboard
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            showToast("Listing link copied! Share it in your hostel group 🔗");
+        } catch (_) {
+            showToast("Copy this link from your browser address bar to share.");
+        }
+    });
+
+    function openMailto(sellerEmail, productName, productPrice) {
+        const subject = "CampusKart: I want to buy " + productName;
+        const body =
+            "Hi,\n\n" +
+            "I am interested in buying \"" + productName + "\" listed at " +
+            productPrice + " on CampusKart.\n\n" +
+            "Is it still available? Let's arrange a safe campus meetup.\n\n" +
+            "Thank you!";
+
+        window.location.href =
+            "mailto:" + encodeURIComponent(sellerEmail) +
+            "?subject=" + encodeURIComponent(subject) +
+            "&body=" + encodeURIComponent(body);
+    }
+
+    function setupContactActions(product, sellerProfile, productName, productPrice, productId) {
+        const sellerEmail = product.sellerEmail || (sellerProfile && sellerProfile.email) || "";
+        const rawPhone = product.sellerPhone || (sellerProfile && sellerProfile.phone) || "";
+        const cleanPhone = String(rawPhone).replace(/\D/g, "").slice(-10);
+
+        if (cleanPhone.length === 10) {
+            whatsappButton.hidden = false;
+            whatsappButton.addEventListener("click", function () {
+                const msg =
+                    "Hi" + (product.sellerName ? " " + product.sellerName : "") +
+                    "! 👋 I saw your listing \"" + productName + "\" (" + productPrice +
+                    ") on CampusKart. Is it still available for a campus meetup?";
+                window.open(
+                    "https://wa.me/91" + cleanPhone + "?text=" + encodeURIComponent(msg),
+                    "_blank",
+                    "noopener"
+                );
+            });
+        }
+
+        if (sellerEmail) {
+            emailSellerBtn.hidden = false;
+            emailSellerBtn.addEventListener("click", function () {
+                openMailto(sellerEmail, productName, productPrice);
+            });
+        }
+
+        if (!sellerEmail && cleanPhone.length !== 10) {
             buyButton.disabled = true;
             buyNote.textContent = "Seller contact is not available for this item.";
             return;
         }
 
         buyButton.disabled = false;
-        buyNote.textContent = "Opens your email app to contact the seller.";
+        buyNote.textContent =
+            "Notifies the seller in their CampusKart Dashboard so they can connect with you.";
 
-        buyButton.addEventListener("click", function () {
-            const subject = "CampusKart: I want to buy " + productName;
-            const body =
-                "Hi,\n\n" +
-                "I am interested in buying \"" + productName + "\" listed at " +
-                productPrice + " on CampusKart.\n\n" +
-                "Is it still available? Let's arrange a safe campus meetup.\n\n" +
-                "Thank you!";
+        buyButton.addEventListener("click", async function () {
+            if (!currentUser) {
+                if (sellerEmail) {
+                    openMailto(sellerEmail, productName, productPrice);
+                } else {
+                    showToast("Please log in to send an interest request to the seller.");
+                }
+                return;
+            }
 
-            const mailto =
-                "mailto:" + encodeURIComponent(sellerEmail) +
-                "?subject=" + encodeURIComponent(subject) +
-                "&body=" + encodeURIComponent(body);
+            if (currentUser.uid === product.sellerId) {
+                showToast("This is your own listing!");
+                return;
+            }
 
-            window.location.href = mailto;
+            buyButton.disabled = true;
+            buyButton.textContent = "Sending interest to seller...";
+
+            const buyerName =
+                currentUserProfile.name ||
+                currentUser.displayName ||
+                (currentUser.email || "Student").split("@")[0];
+            const buyerPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
+            const buyerSummary = buyerName + " (" + (currentUser.email || "") + buyerPhone + ")";
+
+            try {
+                await addDoc(collection(db, "orders"), {
+                    productId: productId,
+                    productName: productName,
+                    price: Number(product.price) || 0,
+                    sellerId: product.sellerId || "",
+                    sellerEmail: sellerEmail,
+                    buyerId: currentUser.uid,
+                    buyerEmail: currentUser.email || "",
+                    buyerInfo: buyerSummary,
+                    status: "new",
+                    createdAt: serverTimestamp()
+                });
+
+                buyButton.textContent = "✓ Interest Sent to Seller";
+                showToast("Interest sent! Seller will see it in their Dashboard 🎉");
+            } catch (err) {
+                console.warn("Could not save order interest to Firestore, falling back to email:", err);
+                buyButton.disabled = false;
+                buyButton.textContent = "✋ I'm Interested / Buy Now";
+                if (sellerEmail) {
+                    openMailto(sellerEmail, productName, productPrice);
+                } else {
+                    showToast("Could not send request. Please use WhatsApp or Email below.");
+                }
+            }
         });
     }
+
+    onAuthStateChanged(auth, async function (user) {
+        currentUser = user;
+        currentUserProfile = {};
+        if (user) {
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) currentUserProfile = snap.data();
+            } catch (_) {
+                // ignore
+            }
+        }
+        checkSavedStatus();
+    });
 
     async function loadProductDetails() {
         const params = new URLSearchParams(window.location.search);
@@ -440,6 +956,8 @@
             showError("Product ID is missing. Please select a product from Browse.");
             return;
         }
+
+        loadedProductId = productId;
 
         try {
             const productRef = doc(db, "listings", productId);
@@ -451,21 +969,47 @@
             }
 
             const product = productSnapshot.data();
+            loadedProduct = product;
 
             if (String(product.status || "").toLowerCase() !== "active") {
                 showError("This product is currently unavailable.");
                 return;
             }
 
-            const productName = product.name || "Untitled Product";
-            const productPrice = "₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+            let sellerProfile = {};
+            if (product.sellerId && (!product.sellerPhone || !product.sellerName)) {
+                try {
+                    const sellerSnap = await getDoc(doc(db, "users", product.sellerId));
+                    if (sellerSnap.exists()) sellerProfile = sellerSnap.data();
+                } catch (_) {
+                    // ignore
+                }
+            }
 
+            const productName = product.name || "Untitled Product";
+            const numericPrice = Number(product.price) || 0;
+            const numericOrigPrice = Number(product.originalPrice) || 0;
+            const productPrice = "₹" + numericPrice.toLocaleString("en-IN");
+
+            document.title = productName + " | CampusKart";
             document.getElementById("productName").textContent = productName;
 
             document.getElementById("productCategory").textContent =
                 product.category || "Other";
 
             document.getElementById("productPrice").textContent = productPrice;
+
+            if (numericOrigPrice > numericPrice && numericPrice > 0) {
+                const origEl = document.getElementById("originalPriceText");
+                const pillEl = document.getElementById("discountPill");
+                const pct = Math.round(((numericOrigPrice - numericPrice) / numericOrigPrice) * 100);
+                const savedAmt = numericOrigPrice - numericPrice;
+
+                origEl.textContent = "₹" + numericOrigPrice.toLocaleString("en-IN");
+                pillEl.textContent = pct + "% OFF · Save ₹" + savedAmt.toLocaleString("en-IN");
+                origEl.hidden = false;
+                pillEl.hidden = false;
+            }
 
             document.getElementById("productCondition").textContent =
                 product.condition || "Used";
@@ -474,20 +1018,22 @@
                 product.description || "No description provided.";
 
             document.getElementById("productCampus").textContent =
-                product.campus || "Not specified";
+                product.campus || sellerProfile.campus || sellerProfile.college || "Not specified";
 
-            const image = document.getElementById("productImage");
+            setupGallery(product, productName);
 
-            if (product.imageUrl) {
-                image.src = product.imageUrl;
-                image.alt = productName;
-                image.addEventListener("error", function () {
-                    image.alt = "Product image could not be loaded";
-                    image.style.display = "none";
-                });
-            } else {
-                image.alt = "No product image available";
-                image.style.display = "none";
+            const sellerDisplayName = product.sellerName || sellerProfile.name || sellerProfile.fullName || "";
+            if (sellerDisplayName) {
+                const nameEl = document.getElementById("sellerNameText");
+                nameEl.textContent = "Seller: " + sellerDisplayName;
+                nameEl.hidden = false;
+            }
+
+            const hostelName = product.sellerHostel || sellerProfile.hostel || "";
+            if (hostelName) {
+                const hostelEl = document.getElementById("sellerHostelText");
+                hostelEl.textContent = "Hostel: " + hostelName;
+                hostelEl.hidden = false;
             }
 
             document.getElementById("sellerEmail").textContent =
@@ -500,7 +1046,8 @@
                     ? "Seller ID: " + product.sellerId
                     : "Seller ID: Not available";
 
-            setupBuyButton(product, productName, productPrice);
+            setupContactActions(product, sellerProfile, productName, productPrice, productId);
+            checkSavedStatus();
 
             loading.hidden = true;
             errorBox.hidden = true;
