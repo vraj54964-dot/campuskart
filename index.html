@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,11 @@
     <title>CampusKart | Student Marketplace</title>
 
     <style>
+        /* 0. Helpers */
+        [hidden] {
+            display: none !important;
+        }
+
         /* 1. Basic Settings */
         * {
             margin: 0;
@@ -17,6 +21,7 @@
         :root {
             --navy: #101c35;
             --teal: #16c6b1;
+            --teal-dark: #0ba996;
             --light: #f5f8fc;
             --text: #26344d;
             --muted: #6b7890;
@@ -75,6 +80,7 @@
             font-weight: 800;
             color: var(--navy);
             letter-spacing: -1px;
+            white-space: nowrap;
         }
 
         .logo span {
@@ -96,7 +102,7 @@
 
         .nav-links a:hover,
         .nav-links a.active {
-            color: #0ba996;
+            color: var(--teal-dark);
         }
 
         .nav-actions {
@@ -111,6 +117,7 @@
             border-radius: 9px;
             font-size: 14px;
             font-weight: 700;
+            white-space: nowrap;
         }
 
         .sell-btn {
@@ -122,6 +129,63 @@
             font-weight: 800;
             font-size: 14px;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* Logged-in user chip */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0fdfa;
+            border: 1px solid #c8f1e9;
+            border-radius: 999px;
+            padding: 5px 6px 5px 5px;
+            max-width: 260px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--navy);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .logout-button {
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #203657;
+        }
+
+        .logout-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* 3. Hero Section */
@@ -599,6 +663,15 @@
 
             .nav-actions {
                 gap: 8px;
+                margin-left: auto;
+            }
+
+            .user-menu {
+                max-width: 190px;
+            }
+
+            .user-name {
+                font-size: 12px;
             }
 
             .login-btn,
@@ -743,7 +816,16 @@
             </nav>
 
             <div class="nav-actions">
-                <a href="login.html" class="login-btn">Log in</a>
+                <!-- Logged out: login button -->
+                <a href="login.html" id="loginLink" class="login-btn">Log in</a>
+
+                <!-- Logged in: user name + logout -->
+                <div id="userMenu" class="user-menu" hidden>
+                    <div id="userAvatar" class="user-avatar">?</div>
+                    <span id="userName" class="user-name">Loading...</span>
+                    <button id="logoutButton" class="logout-button" type="button">Logout</button>
+                </div>
+
                 <a href="sell.html" class="sell-btn">+ Sell Item</a>
             </div>
 
@@ -1112,6 +1194,105 @@
 
         </div>
     </footer>
+
+    <!-- AUTH (naam + logout) -->
+    <script type="module">
+        import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged,
+            signOut
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+            authDomain: "campus-cart-62492.firebaseapp.com",
+            projectId: "campus-cart-62492",
+            storageBucket: "campus-cart-62492.firebasestorage.app",
+            messagingSenderId: "182996728543",
+            appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+            measurementId: "G-NN86N2NE52"
+        };
+
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const loginLink = document.getElementById("loginLink");
+        const userMenu = document.getElementById("userMenu");
+        const userAvatar = document.getElementById("userAvatar");
+        const userName = document.getElementById("userName");
+        const logoutButton = document.getElementById("logoutButton");
+
+        // Naam: users/{uid}.name -> displayName -> email se
+        function getDisplayName(user, profile) {
+            if (profile && profile.name) return String(profile.name).trim();
+            if (user.displayName) return user.displayName.trim();
+            const base = (user.email || "Student").split("@")[0].replace(/[._-]+/g, " ");
+            return base.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
+
+        function getInitials(name) {
+            return name
+                .split(" ")
+                .filter(Boolean)
+                .slice(0, 2)
+                .map(function (p) { return p[0].toUpperCase(); })
+                .join("");
+        }
+
+        function showLoggedOutNav() {
+            loginLink.hidden = false;
+            userMenu.hidden = true;
+        }
+
+        async function showLoggedInNav(user) {
+            let profile = {};
+            try {
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) profile = snap.data();
+            } catch (error) {
+                console.warn("User profile load nahi hua, fallback naam use hoga:", error);
+            }
+
+            const name = getDisplayName(user, profile);
+
+            userName.textContent = name;
+            userName.title = user.email || name;
+            userAvatar.textContent = getInitials(name);
+
+            loginLink.hidden = true;
+            userMenu.hidden = false;
+        }
+
+        // Page load par aur login/logout ke baad state update hoti hai.
+        // Firebase login ko browser mein save rakhta hai, isliye refresh par bhi user logged in rahta hai.
+        onAuthStateChanged(auth, function (user) {
+            if (user) {
+                showLoggedInNav(user);
+            } else {
+                showLoggedOutNav();
+            }
+        });
+
+        logoutButton.addEventListener("click", async function () {
+            logoutButton.disabled = true;
+            try {
+                await signOut(auth);
+                showLoggedOutNav();
+            } catch (error) {
+                console.error("Logout error:", error);
+                alert("Logout nahi ho paaya. Dobara try karein.");
+            } finally {
+                logoutButton.disabled = false;
+            }
+        });
+    </script>
 
     <!-- SEARCH AND CATEGORY FILTER -->
     <script>

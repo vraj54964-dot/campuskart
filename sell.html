@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,11 @@
     <title>Sell an Item | CampusKart</title>
 
     <style>
+        /* ===== 0. HELPERS ===== */
+        [hidden] {
+            display: none !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +20,7 @@
         :root {
             --navy: #101c35;
             --teal: #16c6b1;
+            --teal-dark: #079e8e;
             --light: #f5f8fc;
             --white: #ffffff;
             --text: #26344d;
@@ -87,7 +92,13 @@
 
         .nav-links a:hover,
         .nav-links a.active {
-            color: #079e8e;
+            color: var(--teal-dark);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .login-link {
@@ -96,6 +107,63 @@
             border-radius: 8px;
             font-size: 13px;
             font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Logged-in user chip */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0fdfa;
+            border: 1px solid #c8f1e9;
+            border-radius: 999px;
+            padding: 5px 6px 5px 5px;
+            max-width: 260px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--navy);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .logout-button {
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #203657;
+        }
+
+        .logout-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* HEADER */
@@ -280,6 +348,12 @@
 
         .submit-button:hover {
             background: #0fb49f;
+        }
+
+        .submit-button:disabled {
+            background: #cfd8e3;
+            color: #6b7890;
+            cursor: not-allowed;
         }
 
         .reset-button {
@@ -479,6 +553,18 @@
                 font-size: 13px;
             }
 
+            .nav-right {
+                margin-left: auto;
+            }
+
+            .user-menu {
+                max-width: 190px;
+            }
+
+            .user-name {
+                font-size: 12px;
+            }
+
             .login-link {
                 font-size: 12px;
                 padding: 8px 11px;
@@ -544,7 +630,17 @@
                 <a href="dashboard.html">Dashboard</a>
             </nav>
 
-            <a href="login.html" class="login-link">Log in</a>
+            <div class="nav-right">
+                <!-- Logged out: login button -->
+                <a href="login.html" id="loginLink" class="login-link" hidden>Log in</a>
+
+                <!-- Logged in: user name + logout -->
+                <div id="userMenu" class="user-menu" hidden>
+                    <div id="userAvatar" class="user-avatar">?</div>
+                    <span id="userName" class="user-name">Loading...</span>
+                    <button id="logoutButton" class="logout-button" type="button">Logout</button>
+                </div>
+            </div>
 
         </div>
     </header>
@@ -803,8 +899,6 @@
     </footer>
 
     <!-- JAVASCRIPT -->
-    
-
 <script type="module">
     // ==========================================
     // 1. FIREBASE IMPORTS
@@ -818,13 +912,16 @@
 
     import {
         getAuth,
-        onAuthStateChanged
+        onAuthStateChanged,
+        signOut
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
     import {
         getFirestore,
         collection,
         addDoc,
+        doc,
+        getDoc,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
@@ -843,18 +940,8 @@
         measurementId: "G-NN86N2NE52"
     };
 
-       
-
-    
-const CLOUDINARY_CLOUD_NAME = "ayzcsxf2";
-const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
-
-
-    
-
-
-    
-
+    const CLOUDINARY_CLOUD_NAME = "ayzcsxf2";
+    const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
@@ -896,6 +983,13 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
     const previewPrice = document.getElementById("previewPrice");
     const previewDescription = document.getElementById("previewDescription");
 
+    // Navbar auth elements
+    const loginLink = document.getElementById("loginLink");
+    const userMenu = document.getElementById("userMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userName = document.getElementById("userName");
+    const logoutButton = document.getElementById("logoutButton");
+
 
     // ==========================================
     // 5. CHECK REQUIRED ELEMENTS
@@ -924,7 +1018,12 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
         !previewCategory ||
         !previewCondition ||
         !previewPrice ||
-        !previewDescription
+        !previewDescription ||
+        !loginLink ||
+        !userMenu ||
+        !userAvatar ||
+        !userName ||
+        !logoutButton
     ) {
         console.error(
             "Some required HTML elements are missing. Check your element IDs."
@@ -934,7 +1033,65 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 6. AUTHENTICATION STATUS
+    // 6. NAVBAR AUTH UI (naam + logout)
+    // ==========================================
+
+    // Naam: users/{uid}.name -> displayName -> email se
+    function getDisplayName(user, profile) {
+        if (profile && profile.name) return String(profile.name).trim();
+        if (user.displayName) return user.displayName.trim();
+        const base = (user.email || "Student").split("@")[0].replace(/[._-]+/g, " ");
+        return base.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+
+    function getInitials(name) {
+        return name
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (p) { return p[0].toUpperCase(); })
+            .join("");
+    }
+
+    function showLoggedOutNav() {
+        loginLink.hidden = false;
+        userMenu.hidden = true;
+    }
+
+    async function showLoggedInNav(user) {
+        let profile = {};
+        try {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) profile = snap.data();
+        } catch (error) {
+            console.warn("User profile load nahi hua, fallback naam use hoga:", error);
+        }
+
+        const name = getDisplayName(user, profile);
+
+        userName.textContent = name;
+        userName.title = user.email || name;
+        userAvatar.textContent = getInitials(name);
+
+        loginLink.hidden = true;
+        userMenu.hidden = false;
+    }
+
+    logoutButton.addEventListener("click", async function () {
+        logoutButton.disabled = true;
+        try {
+            await signOut(auth);
+            window.location.replace("login.html");
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("Logout nahi ho paaya. Dobara try karein.");
+            logoutButton.disabled = false;
+        }
+    });
+
+
+    // ==========================================
+    // 7. AUTHENTICATION STATUS
     // ==========================================
 
     let currentUser = null;
@@ -947,7 +1104,10 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             currentUser = user;
             authReady = true;
 
-            if (!user) {
+            if (user) {
+                showLoggedInNav(user);
+            } else {
+                showLoggedOutNav();
                 window.location.replace("login.html");
             }
         },
@@ -963,14 +1123,13 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 7. SHOW SUCCESS OR ERROR MESSAGE
+    // 8. SHOW SUCCESS OR ERROR MESSAGE
     // ==========================================
 
     function showMessage(message, isError = false) {
         successMessage.textContent = message;
         successMessage.style.display = "block";
 
-        // Use existing styling wherever possible.
         successMessage.style.color = isError ? "#b91c1c" : "#15803d";
 
         successMessage.scrollIntoView({
@@ -981,7 +1140,7 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 8. LIVE PRODUCT PREVIEW
+    // 9. LIVE PRODUCT PREVIEW
     // ==========================================
 
     function updatePreview() {
@@ -1022,7 +1181,7 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 9. IMAGE PREVIEW
+    // 10. IMAGE PREVIEW
     // ==========================================
 
     productImage.addEventListener("change", () => {
@@ -1033,7 +1192,6 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             return;
         }
 
-        // Only allow image files.
         if (!file.type.startsWith("image/")) {
             alert("Please choose a valid image file.");
 
@@ -1042,7 +1200,6 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             return;
         }
 
-        // Maximum image size: 5 MB.
         if (file.size > 5 * 1024 * 1024) {
             alert("Please choose an image smaller than 5 MB.");
 
@@ -1086,13 +1243,12 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 10. SUBMIT FORM AND SAVE TO FIRESTORE
+    // 11. SUBMIT FORM AND SAVE TO FIRESTORE
     // ==========================================
 
     sellForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Wait for Firebase to confirm login status.
         if (!authReady) {
             showMessage(
                 "Checking your login. Please try again in a moment.",
@@ -1101,14 +1257,12 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             return;
         }
 
-        // User must be logged in.
         if (!currentUser) {
             alert("Please log in before listing your product.");
             window.location.href = "login.html";
             return;
         }
 
-        // Read and validate prices.
         const sellingPrice = Number(price.value);
         const originalPrice = originalPriceInput.value.trim();
 
@@ -1134,7 +1288,6 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             return;
         }
 
-        // Prevent duplicate submissions while saving.
         const submitButton = sellForm.querySelector(
             'button[type="submit"], input[type="submit"]'
         );
@@ -1146,9 +1299,6 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
         showMessage("Saving your product listing...");
 
         try {
-            
-
-            // Upload product photo to Cloudinary.
             let imageUrl = "";
             const selectedFile = productImage.files[0];
 
@@ -1198,10 +1348,8 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
                         ? campus.value.trim()
                         : "",
 
-                    // Image is preview-only for now.
-                   imageUrl: imageUrl,
+                    imageUrl: imageUrl,
 
-                    // Seller information.
                     sellerId: currentUser.uid,
                     sellerEmail: currentUser.email || "",
 
@@ -1216,7 +1364,6 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
                 "Success! Your product has been saved to CampusKart."
             );
 
-            // Clear form after successful save.
             sellForm.reset();
             resetImagePreview();
             updatePreview();
@@ -1243,7 +1390,7 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 11. RESET FORM
+    // 12. RESET FORM
     // ==========================================
 
     sellForm.addEventListener("reset", () => {
@@ -1256,7 +1403,7 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 12. INITIAL PREVIEW
+    // 13. INITIAL PREVIEW
     // ==========================================
 
     updatePreview();
@@ -1265,5 +1412,3 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 </body>
 </html>
-```
-

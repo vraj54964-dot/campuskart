@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,22 +6,35 @@
     <title>CampusKart | Dashboard</title>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --navy: #101b35;
+            --teal: #0f766e;
+            --teal-light: #2dd4bf;
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --border: #e5eaf2;
+            --text: #172033;
+            --muted: #64748b;
+            --danger: #b91c1c;
+            --warn: #b45309;
         }
 
         body {
             font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #172033;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
+        /* ---------- Header ---------- */
         header {
-            background: #101b35;
+            background: var(--navy);
             color: white;
-            padding: 18px 7%;
+            padding: 16px 7%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -30,36 +42,32 @@
             gap: 15px;
         }
 
-        .logo {
-            font-size: 25px;
+        .logo { font-size: 25px; font-weight: bold; }
+        .logo span { color: var(--teal-light); }
+
+        nav { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+        nav a { color: #dce5f5; text-decoration: none; font-size: 14px; }
+        nav a:hover, nav a.active { color: var(--teal-light); }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--teal-light);
+            color: var(--navy);
             font-weight: bold;
+            display: grid;
+            place-items: center;
+            font-size: 15px;
         }
 
-        .logo span {
-            color: #2dd4bf;
-        }
-
-        nav {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        nav a {
-            color: #dce5f5;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        nav a:hover,
-        nav a.active {
-            color: #2dd4bf;
-        }
-
+        /* ---------- Layout ---------- */
         .container {
+            width: 100%;
             max-width: 1150px;
             margin: 35px auto;
             padding: 0 20px;
+            flex: 1;
         }
 
         .welcome {
@@ -68,21 +76,18 @@
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
         }
 
-        .welcome h1 {
-            font-size: 30px;
-            margin-bottom: 8px;
-        }
+        .welcome h1 { font-size: 30px; margin-bottom: 6px; }
+        .welcome .greeting { color: var(--teal); font-weight: bold; font-size: 15px; }
+        .welcome .sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
 
-        .welcome p {
-            color: #64748b;
-        }
+        .welcome-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
         .btn {
             display: inline-block;
-            background: #0f766e;
+            background: var(--teal);
             color: white;
             padding: 12px 18px;
             border: none;
@@ -90,265 +95,255 @@
             text-decoration: none;
             cursor: pointer;
             font-size: 14px;
+            font-weight: bold;
         }
-
-        .btn:hover {
-            background: #115e59;
+        .btn:hover { background: #115e59; }
+        .btn-outline {
+            background: white;
+            color: var(--navy);
+            border: 1px solid var(--border);
         }
+        .btn-outline:hover { background: #f0fdfa; border-color: var(--teal); }
 
+        /* ---------- Profile completeness ---------- */
+        .profile-card {
+            background: linear-gradient(135deg, #101b35 0%, #134e4a 100%);
+            color: white;
+            border-radius: 14px;
+            padding: 22px 24px;
+            margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 20px;
+            align-items: center;
+        }
+        .profile-card h2 { font-size: 18px; margin-bottom: 6px; }
+        .profile-card p { font-size: 13px; color: #cbd5e1; }
+        .progress-track {
+            background: rgba(255,255,255,0.15);
+            height: 10px;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 10px 0 12px;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--teal-light);
+            border-radius: 20px;
+            transition: width 0.6s ease;
+        }
+        .checklist { display: flex; flex-wrap: wrap; gap: 8px; }
+        .check-chip {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.12);
+        }
+        .check-chip.done { background: #d1fae5; color: #065f46; }
+
+        /* ---------- Stats ---------- */
         .stats {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 26px;
         }
-
         .stat-card {
-            background: white;
-            padding: 22px;
+            background: var(--card);
+            padding: 20px;
             border-radius: 14px;
-            border: 1px solid #e5eaf2;
+            border: 1px solid var(--border);
             box-shadow: 0 4px 15px #101b3508;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card .icon { font-size: 24px; margin-bottom: 12px; }
+        .stat-card h2 { font-size: 26px; margin-bottom: 4px; }
+        .stat-card p { color: var(--muted); font-size: 13px; }
+        .stat-card.highlight { border-color: var(--teal-light); }
+        .badge {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: var(--danger);
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: none;
         }
 
-        .stat-card .icon {
-            font-size: 25px;
-            margin-bottom: 15px;
-        }
-
-        .stat-card h2 {
-            font-size: 28px;
-            margin-bottom: 7px;
-        }
-
-        .stat-card p {
-            color: #64748b;
-            font-size: 14px;
-        }
-
+        /* ---------- Panels ---------- */
         .content-grid {
             display: grid;
             grid-template-columns: 1.5fr 1fr;
             gap: 22px;
-            margin-bottom: 25px;
-        }
-
-        .panel {
-            background: white;
-            padding: 24px;
-            border: 1px solid #e5eaf2;
-            border-radius: 14px;
             margin-bottom: 22px;
         }
-
+        .panel {
+            background: var(--card);
+            padding: 24px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+        }
         .panel-heading {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             flex-wrap: wrap;
         }
+        .panel-heading h2 { font-size: 18px; }
+        .panel-heading a { color: var(--teal); text-decoration: none; font-size: 14px; font-weight: bold; }
 
-        .panel-heading h2 {
-            font-size: 19px;
-        }
+        .empty-message { color: var(--muted); font-size: 14px; padding: 12px 0; }
+        .empty-message a { color: var(--teal); font-weight: bold; }
 
-        .panel-heading a {
-            color: #0f766e;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
+        /* ---------- Listing rows ---------- */
         .listing {
             display: flex;
             align-items: center;
             gap: 14px;
-            padding: 15px 0;
+            padding: 14px 0;
             border-bottom: 1px solid #edf0f5;
         }
-
-        .listing:last-child {
-            border-bottom: none;
-        }
+        .listing:last-child { border-bottom: none; }
 
         .product-icon {
-            width: 58px;
-            height: 58px;
+            width: 56px;
+            height: 56px;
             background: #e7f8f5;
             border-radius: 10px;
             display: grid;
             place-items: center;
-            font-size: 29px;
+            font-size: 26px;
             flex-shrink: 0;
         }
-
-        .listing-info {
-            flex: 1;
-            min-width: 0;
-        }
-
+        .listing-info { flex: 1; min-width: 0; }
         .listing-info h3 {
             font-size: 15px;
-            margin-bottom: 6px;
-        }
-
-        .listing-info p {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .price {
-            font-weight: bold;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
             white-space: nowrap;
         }
+        .listing-info p { color: var(--muted); font-size: 13px; }
+        .price { font-weight: bold; white-space: nowrap; }
 
         .status {
             display: inline-block;
             font-size: 11px;
-            padding: 5px 9px;
+            padding: 4px 9px;
             border-radius: 20px;
-            margin-top: 7px;
+            margin-top: 6px;
             background: #dcfce7;
             color: #166534;
+            font-weight: bold;
+        }
+        .status.sold { background: #e2e8f0; color: #475569; }
+
+        .row-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .small-btn {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--navy);
+            cursor: pointer;
+        }
+        .small-btn:hover { border-color: var(--teal); color: var(--teal); }
+        .small-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+        .small-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* ---------- Interest requests ---------- */
+        .interest {
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--teal-light);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+        .interest.done { border-left-color: #cbd5e1; opacity: 0.7; }
+        .interest h3 { font-size: 14px; margin-bottom: 6px; }
+        .interest p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+        .interest small { color: var(--muted); font-size: 12px; }
+        .interest-actions { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .pill-new {
+            display: inline-block;
+            background: #fee2e2;
+            color: var(--danger);
+            font-size: 11px;
+            font-weight: bold;
+            padding: 3px 8px;
+            border-radius: 20px;
+            margin-left: 6px;
         }
 
-        .sold {
-            background: #e2e8f0;
-            color: #475569;
-        }
-
-        .activity {
-            display: flex;
-            gap: 12px;
-            padding: 13px 0;
-            border-bottom: 1px solid #edf0f5;
-        }
-
-        .activity:last-child {
-            border-bottom: none;
-        }
-
-        .activity-icon {
-            background: #e7f8f5;
-            width: 38px;
-            height: 38px;
-            display: grid;
-            place-items: center;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        .activity p {
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .activity small {
-            color: #64748b;
-        }
-
+        /* ---------- Quick actions and tips ---------- */
         .quick-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
-
         .action-card {
-            border: 1px solid #e5eaf2;
+            border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 17px;
+            padding: 16px;
             text-decoration: none;
-            color: #172033;
+            color: var(--text);
+        }
+        .action-card:hover { border-color: var(--teal); background: #f0fdfa; }
+        .action-card .emoji { font-size: 22px; margin-bottom: 8px; }
+        .action-card h3 { font-size: 14px; margin-bottom: 4px; }
+        .action-card p { color: var(--muted); font-size: 12px; }
+
+        .tip-box {
+            margin-top: 16px;
+            background: #eefbf8;
+            border: 1px solid #c8f1e9;
+            color: #176d63;
+            border-radius: 10px;
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        .action-card:hover {
-            border-color: #0f766e;
-            background: #f0fdfa;
-        }
-
-        .action-card div {
-            font-size: 24px;
-            margin-bottom: 9px;
-        }
-
-        .action-card h3 {
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .action-card p {
-            color: #64748b;
-            font-size: 12px;
-        }
-
-        .empty-message {
-            color: #64748b;
-            font-size: 14px;
-            padding: 10px 0;
-        }
+        .saved-item .product-icon { background: #fef3c7; }
 
         footer {
             text-align: center;
             padding: 25px;
-            background: #101b35;
+            background: var(--navy);
             color: #cbd5e1;
             font-size: 13px;
             margin-top: 30px;
         }
 
-        @media (max-width: 850px) {
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
+        /* ---------- Responsive ---------- */
+        @media (max-width: 1000px) {
+            .stats { grid-template-columns: repeat(3, 1fr); }
         }
 
-        @media (max-width: 480px) {
-            header {
-                padding: 18px 5%;
-            }
+        @media (max-width: 850px) {
+            .content-grid, .profile-card { grid-template-columns: 1fr; }
+        }
 
-            nav {
-                gap: 13px;
-            }
-
-            .container {
-                padding: 0 14px;
-                margin-top: 25px;
-            }
-
-            .welcome h1 {
-                font-size: 25px;
-            }
-
-            .stats {
-                gap: 10px;
-            }
-
-            .stat-card {
-                padding: 16px;
-            }
-
-            .stat-card h2 {
-                font-size: 24px;
-            }
-
-            .panel {
-                padding: 17px;
-            }
-
-            .listing {
-                flex-wrap: wrap;
-            }
-
-            .price {
-                margin-left: 72px;
-            }
+        @media (max-width: 600px) {
+            .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .stat-card { padding: 16px; }
+            .stat-card h2 { font-size: 22px; }
+            .welcome h1 { font-size: 24px; }
+            .container { padding: 0 14px; margin-top: 25px; }
+            .panel { padding: 17px; }
+            .quick-actions { grid-template-columns: 1fr; }
+            header { padding: 16px 5%; }
+            nav { gap: 13px; }
+            .price { margin-left: 70px; }
         }
     </style>
 </head>
@@ -363,194 +358,143 @@
             <a href="browse.html">Browse</a>
             <a href="sell.html">Sell</a>
             <a href="dashboard.html" class="active">Dashboard</a>
-            <a href="login.html">Login</a>
+            <div id="avatar" class="avatar" title="Your account">?</div>
         </nav>
     </header>
 
     <main class="container">
 
+        <!-- Welcome -->
         <section class="welcome">
             <div>
-                <h1>My Dashboard 👋</h1>
-                <p id="userEmail">Loading your account...</p>
+                <p id="greeting" class="greeting">Welcome 👋</p>
+                <h1 id="userName">Loading...</h1>
+                <p id="userEmail" class="sub">Loading your account...</p>
             </div>
 
-            <a href="sell.html" class="btn">+ Sell an Item</a>
-            <button class="btn" id="logoutBtn" type="button">
-  Logout
-</button>
-            
-            
+            <div class="welcome-actions">
+                <a href="sell.html" class="btn">+ Sell an Item</a>
+                <button id="logoutBtn" class="btn btn-outline" type="button">Logout</button>
+            </div>
+        </section>
+
+        <!-- Profile completeness -->
+        <section class="profile-card">
+            <div>
+                <h2 id="profileTitle">Profile setup</h2>
+                <p id="profileText">Checking your profile...</p>
+            </div>
+            <div>
+                <div class="progress-track">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <div id="checklist" class="checklist"></div>
+            </div>
         </section>
 
         <!-- Statistics -->
         <section class="stats">
-
             <div class="stat-card">
                 <div class="icon">📦</div>
-                <h2 id="totalListings">3</h2>
+                <h2 id="totalListings">0</h2>
                 <p>Total Listings</p>
             </div>
 
             <div class="stat-card">
                 <div class="icon">🟢</div>
-                <h2 id="activeListings">2</h2>
+                <h2 id="activeListings">0</h2>
                 <p>Active Listings</p>
             </div>
 
             <div class="stat-card">
                 <div class="icon">✅</div>
-                <h2 id="soldListings">1</h2>
+                <h2 id="soldListings">0</h2>
                 <p>Items Sold</p>
+            </div>
+
+            <div class="stat-card highlight">
+                <span id="newBadge" class="badge">NEW</span>
+                <div class="icon">💬</div>
+                <h2 id="interestCount">0</h2>
+                <p>Buyer Interests</p>
             </div>
 
             <div class="stat-card">
                 <div class="icon">❤️</div>
-                <h2 id="savedCount">2</h2>
+                <h2 id="savedCount">0</h2>
                 <p>Saved Items</p>
             </div>
-
         </section>
 
+        <!-- Listings + Interests -->
         <section class="content-grid">
 
-            <!-- My Listings -->
             <div class="panel">
                 <div class="panel-heading">
                     <h2>📦 My Listings</h2>
                     <a href="sell.html">+ Add New</a>
                 </div>
-
                 <div id="myListings">
-
-                    <div class="listing">
-                        <div class="product-icon">📚</div>
-                        <div class="listing-info">
-                            <h3>Engineering Mathematics Book</h3>
-                            <p>Books · Good Condition</p>
-                            <span class="status">Active</span>
-                        </div>
-                        <div class="price">₹250</div>
-                    </div>
-
-                    <div class="listing">
-                        <div class="product-icon">🧮</div>
-                        <div class="listing-info">
-                            <h3>Scientific Calculator</h3>
-                            <p>Electronics · Like New</p>
-                            <span class="status">Active</span>
-                        </div>
-                        <div class="price">₹450</div>
-                    </div>
-
-                    <div class="listing">
-                        <div class="product-icon">🎒</div>
-                        <div class="listing-info">
-                            <h3>College Backpack</h3>
-                            <p>Bags · Good Condition</p>
-                            <span class="status sold">Sold</span>
-                        </div>
-                        <div class="price">₹300</div>
-                    </div>
-
+                    <p class="empty-message">Loading your listings...</p>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
             <div class="panel">
                 <div class="panel-heading">
-                    <h2>🔔 Recent Activity</h2>
+                    <h2>💬 Buyer Interests</h2>
                 </div>
-
-                <div class="activity">
-                    <div class="activity-icon">💬</div>
-                    <div>
-                        <p><strong>New message received</strong></p>
-                        <small>A student is interested in your book.</small>
-                    </div>
+                <div id="interests">
+                    <p class="empty-message">Loading interests...</p>
                 </div>
-
-                <div class="activity">
-                    <div class="activity-icon">❤️</div>
-                    <div>
-                        <p><strong>Item saved</strong></p>
-                        <small>You saved a programming book.</small>
-                    </div>
-                </div>
-
-                <div class="activity">
-                    <div class="activity-icon">✅</div>
-                    <div>
-                        <p><strong>Item marked as sold</strong></p>
-                        <small>Your backpack listing was sold.</small>
-                    </div>
-                </div>
-
             </div>
 
         </section>
 
+        <!-- Saved + Quick actions -->
         <section class="content-grid">
 
-            <!-- Saved Items -->
             <div class="panel">
                 <div class="panel-heading">
                     <h2>❤️ Saved Items</h2>
                     <a href="browse.html">Browse More</a>
                 </div>
-
-                <div class="listing">
-                    <div class="product-icon">💻</div>
-                    <div class="listing-info">
-                        <h3>Second-hand Laptop</h3>
-                        <p>Electronics · Good Condition</p>
-                    </div>
-                    <div class="price">₹12,000</div>
-                </div>
-
-                <div class="listing">
-                    <div class="product-icon">📖</div>
-                    <div class="listing-info">
-                        <h3>Programming Notes</h3>
-                        <p>Study Material · Like New</p>
-                    </div>
-                    <div class="price">₹100</div>
+                <div id="savedItems">
+                    <p class="empty-message">Loading saved items...</p>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
             <div class="panel">
                 <div class="panel-heading">
                     <h2>⚡ Quick Actions</h2>
                 </div>
 
                 <div class="quick-actions">
-
                     <a href="sell.html" class="action-card">
-                        <div>➕</div>
+                        <div class="emoji">➕</div>
                         <h3>Sell an Item</h3>
                         <p>List your product</p>
                     </a>
 
                     <a href="browse.html" class="action-card">
-                        <div>🔍</div>
+                        <div class="emoji">🔍</div>
                         <h3>Browse Items</h3>
                         <p>Find campus deals</p>
                     </a>
 
                     <a href="index.html" class="action-card">
-                        <div>🏠</div>
+                        <div class="emoji">🏠</div>
                         <h3>Home Page</h3>
                         <p>Explore CampusKart</p>
                     </a>
 
                     <a href="login.html" class="action-card">
-                        <div>👤</div>
+                        <div class="emoji">👤</div>
                         <h3>My Account</h3>
-                        <p>Login or sign up</p>
+                        <p>Switch account</p>
                     </a>
-
                 </div>
+
+                <div id="campusTip" class="tip-box"></div>
             </div>
 
         </section>
@@ -561,154 +505,444 @@
         <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
     </footer>
 
-   
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-  import {
-  getFirestore,
-  collection,
-  query,
-  where,
-  getDocs,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import {
+        getFirestore,
+        collection,
+        query,
+        where,
+        getDocs,
+        getDoc,
+        doc,
+        updateDoc,
+        deleteDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-  import {
-    getAuth,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    const firebaseConfig = {
+        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+        authDomain: "campus-cart-62492.firebaseapp.com",
+        projectId: "campus-cart-62492",
+        storageBucket: "campus-cart-62492.firebasestorage.app",
+        messagingSenderId: "182996728543",
+        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+        measurementId: "G-NN86N2NE52"
+    };
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
-    authDomain: "campus-cart-62492.firebaseapp.com",
-    projectId: "campus-cart-62492",
-    storageBucket: "campus-cart-62492.firebasestorage.app",
-    messagingSenderId: "182996728543",
-    appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
-    measurementId: "G-NN86N2NE52"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+    const $ = (id) => document.getElementById(id);
 
-  const userEmail = document.getElementById("userEmail");
-  const logoutBtn = document.getElementById("logoutBtn");
+    const CAMPUS_TIPS = [
+        "Ek clear photo aur sahi price se listing jaldi bikti hai. 📸",
+        "Buyer ko campus ki safe jagah par meet karna best hai. 🏫",
+        "Phone number add karein taaki buyer aapko seedha contact kar sake. 📞",
+        "Exam season se pehle books list karein, demand zyada hoti hai. 📚",
+        "Jo item bik jaye use turant 'Sold' mark karein, taaki confusion na ho. ✅",
+        "Acchi condition wali cheezein 'Like New' likhne se jaldi dikhti hain. ✨"
+    ];
 
-  // Check whether the student is logged in
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      userEmail.textContent = "Logged in as: " + user.email;
-      loadMyListings(user);
-    } else {
-      window.location.replace("login.html");
-    }
-  });
+    let currentUser = null;
+    let currentProfile = {};
 
-  // Logout functionality
-  logoutBtn.addEventListener("click", async () => {
-    try {
-      await signOut(auth);
-      window.location.replace("login.html");
-      
-    } catch (error) {
-      console.error("Logout error:", error);
-      alert("Logout failed. Please try again.");
-    }
-  });
-
-  
-async function loadMyListings(user) {
-  const listingsContainer = document.getElementById("myListings");
-
-  try {
-    listingsContainer.innerHTML =
-      '<p class="empty-message">Loading your listings...</p>';
-
-    const listingsQuery = query(
-      collection(db, "listings"),
-      where("sellerId", "==", user.uid)
-    );
-
-    const snapshot = await getDocs(listingsQuery);
-    const myItems = snapshot.docs.map(item => ({
-      id: item.id,
-      ...item.data()
-    }));
-
-    // Update dashboard statistics
-    document.getElementById("totalListings").textContent =
-      myItems.length;
-
-    document.getElementById("activeListings").textContent =
-      myItems.filter(item => item.status === "Active").length;
-
-    document.getElementById("soldListings").textContent =
-      myItems.filter(item => item.status === "Sold").length;
-
-    // Saved items feature is not connected yet
-    document.getElementById("savedCount").textContent = "0";
-
-    if (myItems.length === 0) {
-      listingsContainer.innerHTML = `
-        <p class="empty-message">
-          You haven't listed any products yet.
-          <a href="sell.html">Sell your first item</a>
-        </p>
-      `;
-      return;
+    // ---------- Helpers ----------
+    function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
     }
 
-    listingsContainer.replaceChildren();
+    const formatPrice = (value) => "₹" + (Number(value) || 0).toLocaleString("en-IN");
+    const isActive = (status) => String(status || "").toLowerCase() === "active";
+    const isSold = (status) => String(status || "").toLowerCase() === "sold";
 
-    myItems.forEach(item => {
-      const listing = document.createElement("div");
-      listing.className = "listing";
+    const iconFor = (category) => ({
+        Books: "📚",
+        Electronics: "🧮",
+        Bags: "🎒",
+        Clothing: "👕",
+        Furniture: "🪑",
+        "Study Material": "📖"
+    }[category] || "📦");
 
-      const icon = document.createElement("div");
-      icon.className = "product-icon";
-      icon.textContent =
-        item.category === "Books" ? "📚" :
-        item.category === "Electronics" ? "🧮" :
-        item.category === "Bags" ? "🎒" : "📦";
+    function timeAgo(date) {
+        if (!date) return "";
+        const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (seconds < 60) return "abhi abhi";
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} min pehle`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} ghante pehle`;
+        const days = Math.floor(hours / 24);
+        return `${days} din pehle`;
+    }
 
-      const info = document.createElement("div");
-      info.className = "listing-info";
+    function toDate(value) {
+        if (!value) return null;
+        if (typeof value.toDate === "function") return value.toDate();
+        return null;
+    }
 
-      const name = document.createElement("h3");
-      name.textContent = item.name || "Untitled product";
+    function getFullName(user, profile) {
+        if (profile.name) return String(profile.name).trim();
+        if (user.displayName) return user.displayName.trim();
+        const base = (user.email || "Student").split("@")[0].replace(/[._-]+/g, " ");
+        return base.replace(/\b\w/g, (c) => c.toUpperCase());
+    }
 
-      const details = document.createElement("p");
-      details.textContent =
-        `${item.category || "Other"} · ${item.condition || "Condition not specified"}`;
+    function getGreeting() {
+        const hour = new Date().getHours();
+        if (hour < 12) return "Good morning ☀️";
+        if (hour < 17) return "Good afternoon 🌤️";
+        if (hour < 21) return "Good evening 🌆";
+        return "Good night 🌙";
+    }
 
-      const status = document.createElement("span");
-      status.className =
-        item.status === "Sold" ? "status sold" : "status";
-      status.textContent = item.status || "Active";
+    function getInitials(name) {
+        return name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
+    }
 
-      info.append(name, details, status);
+    // ---------- Data loading ----------
+    async function loadProfile(user) {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        return snap.exists() ? snap.data() : {};
+    }
 
-      const price = document.createElement("div");
-      price.className = "price";
-      price.textContent =
-        `₹${Number(item.price || 0).toLocaleString("en-IN")}`;
+    async function loadListings(user) {
+        const snap = await getDocs(
+            query(collection(db, "listings"), where("sellerId", "==", user.uid))
+        );
+        return snap.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (toDate(b.createdAt)?.getTime() || 0) - (toDate(a.createdAt)?.getTime() || 0));
+    }
 
-      listing.append(icon, info, price);
-      listingsContainer.appendChild(listing);
+    async function loadInterests(user) {
+        try {
+            const snap = await getDocs(
+                query(collection(db, "orders"), where("sellerEmail", "==", user.email))
+            );
+            return snap.docs
+                .map((d) => ({ id: d.id, ...d.data() }))
+                .sort((a, b) => (toDate(b.createdAt)?.getTime() || 0) - (toDate(a.createdAt)?.getTime() || 0));
+        } catch (error) {
+            console.warn("Interests load nahi hue (Firestore rules check karein):", error);
+            return null;
+        }
+    }
+
+    async function loadSaved(user) {
+        try {
+            const snap = await getDocs(collection(db, "users", user.uid, "saved"));
+            return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        } catch (error) {
+            console.warn("Saved items load nahi hue:", error);
+            return null;
+        }
+    }
+
+    // ---------- Rendering ----------
+    function renderHeader(user, profile) {
+        const name = getFullName(user, profile);
+        const firstName = name.split(" ")[0];
+
+        document.title = `${firstName} | CampusKart Dashboard`;
+        $("greeting").textContent = `${getGreeting()}, ${firstName}`;
+        $("userName").textContent = name;
+        $("userEmail").textContent = user.email;
+        $("avatar").textContent = getInitials(name);
+        $("avatar").title = name;
+    }
+
+    function renderProfileCard(user, profile, listings) {
+        const checks = [
+            { label: "Naam", done: Boolean(profile.name || user.displayName) },
+            { label: "Phone number", done: Boolean(profile.phone) },
+            { label: "Campus", done: Boolean(profile.campus || listings.some((l) => l.campus)) },
+            { label: "Pehla listing", done: listings.length > 0 }
+        ];
+
+        const doneCount = checks.filter((c) => c.done).length;
+        const percent = Math.round((doneCount / checks.length) * 100);
+
+        $("progressFill").style.width = percent + "%";
+
+        const chips = $("checklist");
+        chips.replaceChildren();
+        checks.forEach((c) => {
+            chips.append(el("span", "check-chip" + (c.done ? " done" : ""), (c.done ? "✓ " : "○ ") + c.label));
+        });
+
+        if (percent === 100) {
+            $("profileTitle").textContent = "Profile complete 🎉";
+            $("profileText").textContent = "Aapka profile poora hai. Buyers aapse aasani se connect kar payenge.";
+        } else {
+            const missing = checks.filter((c) => !c.done).map((c) => c.label).join(", ");
+            $("profileTitle").textContent = `Profile ${percent}% complete`;
+            $("profileText").textContent = `Ye add karein: ${missing}. Complete profile par buyers ka bharosa badhta hai.`;
+        }
+    }
+
+    function renderStats(listings, interests, saved) {
+        const active = listings.filter((l) => isActive(l.status)).length;
+        const sold = listings.filter((l) => isSold(l.status)).length;
+        const newInterests = interests ? interests.filter((i) => i.status === "new").length : 0;
+
+        $("totalListings").textContent = listings.length;
+        $("activeListings").textContent = active;
+        $("soldListings").textContent = sold;
+        $("interestCount").textContent = interests ? interests.length : "—";
+        $("savedCount").textContent = saved ? saved.length : "0";
+
+        const badge = $("newBadge");
+        badge.style.display = newInterests > 0 ? "inline-block" : "none";
+        badge.textContent = newInterests + " NEW";
+    }
+
+    function renderListings(listings) {
+        const container = $("myListings");
+        container.replaceChildren();
+
+        if (listings.length === 0) {
+            const msg = el("p", "empty-message");
+            msg.append("Aapne abhi tak koi product list nahi kiya. ");
+            const link = el("a", "", "Pehla item becho →");
+            link.href = "sell.html";
+            msg.append(link);
+            container.append(msg);
+            return;
+        }
+
+        listings.forEach((item) => {
+            const row = el("div", "listing");
+            const info = el("div", "listing-info");
+            const statusText = isSold(item.status) ? "Sold" : "Active";
+
+            info.append(
+                el("h3", "", item.name || "Untitled product"),
+                el("p", "", `${item.category || "Other"} · ${item.condition || "Condition not specified"}`),
+                el("span", "status" + (isSold(item.status) ? " sold" : ""), statusText)
+            );
+
+            const actions = el("div", "row-actions");
+
+            const toggleBtn = el("button", "small-btn", isSold(item.status) ? "Reactivate" : "Mark as Sold");
+            toggleBtn.type = "button";
+            toggleBtn.addEventListener("click", () =>
+                changeStatus(item.id, isSold(item.status) ? "Active" : "Sold", toggleBtn)
+            );
+
+            const deleteBtn = el("button", "small-btn danger", "Delete");
+            deleteBtn.type = "button";
+            deleteBtn.addEventListener("click", () => removeListing(item.id, item.name, deleteBtn));
+
+            actions.append(toggleBtn, deleteBtn);
+            info.append(actions);
+
+            const icon = el("div", "product-icon", iconFor(item.category));
+            const price = el("div", "price", formatPrice(item.price));
+
+            row.append(icon, info, price);
+            container.append(row);
+        });
+    }
+
+    function renderInterests(interests) {
+        const container = $("interests");
+        container.replaceChildren();
+
+        if (interests === null) {
+            container.append(el("p", "empty-message", "Interest requests load nahi ho paayi. Firestore rules check karein."));
+            return;
+        }
+
+        if (interests.length === 0) {
+            container.append(el("p", "empty-message", "Abhi koi buyer interest nahi aaya. Listing ko share karein! 📢"));
+            return;
+        }
+
+        interests.forEach((order) => {
+            const isNew = order.status === "new";
+            const card = el("div", "interest" + (order.status === "done" ? " done" : ""));
+
+            const title = el("h3", "", order.productName || "Product");
+            if (isNew) title.append(el("span", "pill-new", "NEW"));
+
+            const buyer = el("p", "", "Buyer: " + (order.buyerInfo || "Not provided"));
+            const time = el("small", "", timeAgo(toDate(order.createdAt)));
+
+            const actions = el("div", "interest-actions");
+            if (isNew) {
+                const doneBtn = el("button", "small-btn", "Contact kar liya ✓");
+                doneBtn.type = "button";
+                doneBtn.addEventListener("click", () => markInterestDone(order.id, doneBtn));
+                actions.append(doneBtn);
+            }
+
+            card.append(title, buyer, time, actions);
+            container.append(card);
+        });
+    }
+
+    function renderSaved(saved) {
+        const container = $("savedItems");
+        container.replaceChildren();
+
+        if (saved === null) {
+            container.append(el("p", "empty-message", "Saved items load nahi ho paaye."));
+            return;
+        }
+
+        if (saved.length === 0) {
+            const msg = el("p", "empty-message");
+            msg.append("Koi item save nahi kiya. ");
+            const link = el("a", "", "Browse karein →");
+            link.href = "browse.html";
+            msg.append(link);
+            container.append(msg);
+            return;
+        }
+
+        saved.forEach((item) => {
+            const row = el("div", "listing saved-item");
+            const info = el("div", "listing-info");
+
+            const title = el("h3", "", item.name || "Untitled product");
+            const meta = el("p", "", `${item.category || "Other"} · ${item.condition || "Used"}`);
+
+            const actions = el("div", "row-actions");
+
+            const viewLink = el("a", "small-btn", "Dekhein");
+            viewLink.href = `product.html?id=${encodeURIComponent(item.listingId || item.id)}`;
+            viewLink.style.textDecoration = "none";
+
+            const removeBtn = el("button", "small-btn danger", "Remove");
+            removeBtn.type = "button";
+            removeBtn.addEventListener("click", () => removeSaved(item.id, removeBtn));
+
+            actions.append(viewLink, removeBtn);
+            info.append(title, meta, actions);
+
+            row.append(
+                el("div", "product-icon", iconFor(item.category)),
+                info,
+                el("div", "price", formatPrice(item.price))
+            );
+            container.append(row);
+        });
+    }
+
+    function renderCampusTip() {
+        const dayIndex = new Date().getDate() % CAMPUS_TIPS.length;
+        $("campusTip").textContent = "💡 Campus tip: " + CAMPUS_TIPS[dayIndex];
+    }
+
+    // ---------- Actions ----------
+    async function changeStatus(listingId, newStatus, button) {
+        button.disabled = true;
+        try {
+            await updateDoc(doc(db, "listings", listingId), { status: newStatus });
+            await refreshAll();
+        } catch (error) {
+            console.error("Status update error:", error);
+            alert("Status update nahi ho paaya. Dobara try karein.");
+            button.disabled = false;
+        }
+    }
+
+    async function removeListing(listingId, name, button) {
+        if (!confirm(`"${name || "Ye item"}" ko delete karna chahte hain? Ye wapas nahi aayega.`)) return;
+        button.disabled = true;
+        try {
+            await deleteDoc(doc(db, "listings", listingId));
+            await refreshAll();
+        } catch (error) {
+            console.error("Delete error:", error);
+            alert("Delete nahi ho paaya. Dobara try karein.");
+            button.disabled = false;
+        }
+    }
+
+    async function markInterestDone(orderId, button) {
+        button.disabled = true;
+        try {
+            await updateDoc(doc(db, "orders", orderId), { status: "done" });
+            await refreshAll();
+        } catch (error) {
+            console.error("Interest update error:", error);
+            button.disabled = false;
+        }
+    }
+
+    async function removeSaved(savedId, button) {
+        button.disabled = true;
+        try {
+            await deleteDoc(doc(db, "users", currentUser.uid, "saved", savedId));
+            await refreshAll();
+        } catch (error) {
+            console.error("Remove saved error:", error);
+            button.disabled = false;
+        }
+    }
+
+    // ---------- Main flow ----------
+    async function refreshAll() {
+        if (!currentUser) return;
+
+        const [profileRes, listingsRes, interestsRes, savedRes] = await Promise.allSettled([
+            loadProfile(currentUser),
+            loadListings(currentUser),
+            loadInterests(currentUser),
+            loadSaved(currentUser)
+        ]);
+
+        currentProfile = profileRes.status === "fulfilled" ? profileRes.value : {};
+        const listings = listingsRes.status === "fulfilled" ? listingsRes.value : [];
+        const interests = interestsRes.status === "fulfilled" ? interestsRes.value : null;
+        const saved = savedRes.status === "fulfilled" ? savedRes.value : null;
+
+        if (listingsRes.status === "rejected") {
+            console.error("Listings error:", listingsRes.reason);
+            $("myListings").innerHTML = '<p class="empty-message">Listings load nahi ho paayi. Page refresh karein.</p>';
+        }
+
+        renderHeader(currentUser, currentProfile);
+        renderProfileCard(currentUser, currentProfile, listings);
+        renderStats(listings, interests, saved);
+
+        if (listingsRes.status === "fulfilled") renderListings(listings);
+        renderInterests(interests);
+        renderSaved(saved);
+    }
+
+    onAuthStateChanged(auth, async (user) => {
+        if (!user) {
+            window.location.replace("login.html");
+            return;
+        }
+        currentUser = user;
+        renderCampusTip();
+        await refreshAll();
     });
 
-  } catch (error) {
-    console.error("Error loading listings:", error);
-    listingsContainer.innerHTML =
-      '<p class="empty-message">Could not load listings. Please refresh the page.</p>';
-  }
-}
-
+    $("logoutBtn").addEventListener("click", async () => {
+        try {
+            await signOut(auth);
+            window.location.replace("login.html");
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("Logout failed. Please try again.");
+        }
+    });
 </script>
-```
 
 </body>
 </html>
