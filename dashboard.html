@@ -370,6 +370,24 @@
             font-family: inherit;
             outline: none;
         }
+
+.field select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #dce4ee;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: white;
+    color: var(--text);
+    outline: none;
+}
+
+.field select:focus {
+    border-color: var(--teal-light);
+    box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+}
+
         .field input:focus {
             border-color: var(--teal-light);
             box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
@@ -610,11 +628,11 @@
     <div id="editModal" class="modal-backdrop" hidden>
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
             <h2 id="editTitle">Edit Profile</h2>
-            <p class="modal-sub">Ye details buyers ko dikhengi aur navbar par aapka naam badlega.</p>
+            
 
             <div id="formError" class="form-error" hidden></div>
 
-            <form id="profileForm" novalidate>
+            <form id="profileForm" novalidate><br>
                 <div class="field">
                     <label for="editName">Full Name *</label>
                     <input id="editName" type="text" maxlength="40" placeholder="e.g. Rahul Sharma" autocomplete="name">
@@ -630,6 +648,25 @@
                     <label for="editCampus">College / Campus <span class="optional">(optional)</span></label>
                     <input id="editCampus" type="text" maxlength="80" placeholder="e.g. ABC Engineering College">
                 </div>
+
+<div class="field">
+    <label for="editCourse">Course</label>
+    <input id="editCourse" type="text" maxlength="80"
+           placeholder="e.g. B.Tech AI/ML">
+</div>
+
+<div class="field">
+    <label for="editYear">Year / Semester</label>
+    <select id="editYear">
+        <option value="">Select year</option>
+        <option value="1st Year">1st Year</option>
+        <option value="2nd Year">2nd Year</option>
+        <option value="3rd Year">3rd Year</option>
+        <option value="4th Year">4th Year</option>
+        <option value="Other">Other</option>
+    </select>
+</div>
+
 
                 <div class="modal-actions">
                     <button id="cancelEdit" class="btn btn-outline" type="button">Cancel</button>
@@ -813,12 +850,16 @@
     }
 
     function renderProfileCard(user, profile, listings) {
-        const checks = [
-            { label: "Naam", done: Boolean(profile.name || user.displayName) },
-            { label: "Phone number", done: Boolean(profile.phone) },
-            { label: "Campus", done: Boolean(profile.campus || listings.some((l) => l.campus)) },
-            { label: "Pehla listing", done: listings.length > 0 }
-        ];
+       
+const checks = [
+    { label: "Naam", done: Boolean(profile.name || user.displayName) },
+    { label: "Phone number", done: Boolean(profile.phone) },
+    { label: "Campus", done: Boolean(profile.campus) },
+    { label: "Course", done: Boolean(profile.course) },
+    { label: "Year", done: Boolean(profile.year) },
+    { label: "Pehla listing", done: listings.length > 0 }
+];
+
 
         const doneCount = checks.filter((c) => c.done).length;
         const percent = Math.round((doneCount / checks.length) * 100);
@@ -997,14 +1038,21 @@
     // ---------- Edit profile ----------
     const PHONE_REGEX = /^[6-9]\d{9}$/;
 
-    function openEditModal() {
-        $("editName").value = currentProfile.name || currentUser.displayName || "";
-        $("editPhone").value = currentProfile.phone || "";
-        $("editCampus").value = currentProfile.campus || "";
-        showFormError("");
-        $("editModal").hidden = false;
-        $("editName").focus();
-    }
+   
+function openEditModal() {
+    $("editName").value =
+        currentProfile.name || currentUser.displayName || "";
+
+    $("editPhone").value = currentProfile.phone || "";
+    $("editCampus").value = currentProfile.campus || "";
+    $("editCourse").value = currentProfile.course || "";
+    $("editYear").value = currentProfile.year || "";
+
+    showFormError("");
+    $("editModal").hidden = false;
+    $("editName").focus();
+}
+
 
     function closeEditModal() {
         $("editModal").hidden = true;
@@ -1020,10 +1068,11 @@
         event.preventDefault();
         if (!currentUser) return;
 
-        const name = $("editName").value.trim().replace(/\s+/g, " ");
-        const phone = $("editPhone").value.trim().replace(/[\s-]/g, "");
-        const campus = $("editCampus").value.trim();
-
+       const name = $("editName").value.trim().replace(/\s+/g, " ");
+const phone = $("editPhone").value.trim().replace(/[\s-]/g, "");
+const campus = $("editCampus").value.trim();
+const course = $("editCourse").value.trim();
+const year = $("editYear").value;
         if (!name) {
             showFormError("Naam zaroori hai.");
             $("editName").focus();
