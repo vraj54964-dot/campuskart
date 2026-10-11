@@ -843,6 +843,19 @@
         measurementId: "G-NN86N2NE52"
     };
 
+       
+
+    
+const CLOUDINARY_CLOUD_NAME = "ayzcsxf2";
+const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
+
+
+    
+
+
+    
+
+
 
     // ==========================================
     // 3. INITIALIZE FIREBASE
@@ -1133,7 +1146,38 @@
         showMessage("Saving your product listing...");
 
         try {
-            // Save product details in Firestore.
+            
+
+            // Upload product photo to Cloudinary.
+            let imageUrl = "";
+            const selectedFile = productImage.files[0];
+
+            if (selectedFile) {
+                const formData = new FormData();
+                formData.append("file", selectedFile);
+                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+                showMessage("Uploading product photo...");
+
+                const uploadResponse = await fetch(
+                    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+                    {
+                        method: "POST",
+                        body: formData
+                    }
+                );
+
+                const uploadResult = await uploadResponse.json();
+
+                if (!uploadResponse.ok) {
+                    throw new Error(
+                        uploadResult.error?.message || "Photo upload failed."
+                    );
+                }
+
+                imageUrl = uploadResult.secure_url;
+            }
+
             const docRef = await addDoc(
                 collection(db, "listings"),
                 {
@@ -1155,7 +1199,7 @@
                         : "",
 
                     // Image is preview-only for now.
-                    imageUrl: "",
+                   imageUrl: imageUrl,
 
                     // Seller information.
                     sellerId: currentUser.uid,
