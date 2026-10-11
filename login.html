@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,6 +191,21 @@
             text-decoration: underline;
         }
 
+        .forgot-link {
+            background: none;
+            border: none;
+            color: #0f766e;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .forgot-link:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .login-btn {
             width: 100%;
             padding: 14px;
@@ -208,6 +222,11 @@
             background: #115e59;
         }
 
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
         .signup-text {
             text-align: center;
             margin-top: 23px;
@@ -215,15 +234,33 @@
             color: #64748b;
         }
 
-        .demo-notice {
-            background: #f0fdfa;
-            color: #115e59;
-            border: 1px solid #ccfbf1;
-            border-radius: 8px;
+        /* Message box */
+        .message {
+            display: none;
             padding: 12px;
-            margin-top: 20px;
-            font-size: 12px;
-            line-height: 1.6;
+            border-radius: 8px;
+            margin-top: 18px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .message.error {
+            display: block;
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .message.success {
+            display: block;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .message.info {
+            display: block;
+            color: #115e59;
+            background: #f0fdfa;
+            border: 1px solid #ccfbf1;
         }
 
         footer {
@@ -330,25 +367,24 @@
                             Remember me
                         </label>
 
-                        <a href="#" id="forgotPassword">
+                        <button type="button" class="forgot-link" id="forgotPassword">
                             Forgot password?
-                        </a>
+                        </button>
 
                     </div>
 
-                    <button type="submit" class="login-btn">
+                    <button type="submit" class="login-btn" id="loginBtn">
                         Login to CampusKart →
                     </button>
 
                 </form>
-                <p id="message" role="status" aria-live="polite"></p>
+
+                <div id="message" class="message" role="status" aria-live="polite"></div>
 
                 <p class="signup-text">
                     Don't have an account?
                     <a href="signup.html">Create Account</a>
                 </p>
-
-                
 
             </div>
         </div>
@@ -358,76 +394,147 @@
         <p>© 2026 CampusKart | Buy. Sell. Connect. Right on Campus.</p>
     </footer>
 
-    <!-- java script -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    <!-- JAVASCRIPT -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-  import {
-    getAuth,
-    signInWithEmailAndPassword
-  } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+        import {
+            getAuth,
+            signInWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
-    authDomain: "campus-cart-62492.firebaseapp.com",
-    projectId: "campus-cart-62492",
-    storageBucket: "campus-cart-62492.firebasestorage.app",
-    messagingSenderId: "182996728543",
-    appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
-    measurementId: "G-NN86N2NE52"
-  };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+            authDomain: "campus-cart-62492.firebaseapp.com",
+            projectId: "campus-cart-62492",
+            storageBucket: "campus-cart-62492.firebasestorage.app",
+            messagingSenderId: "182996728543",
+            appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+            measurementId: "G-NN86N2NE52"
+        };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
 
-  const loginForm = document.getElementById("loginForm");
-  const message = document.getElementById("message");
+        const loginForm = document.getElementById("loginForm");
+        const loginBtn = document.getElementById("loginBtn");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+        const forgotPassword = document.getElementById("forgotPassword");
+        const message = document.getElementById("message");
 
-const passwordInput = document.getElementById("password");
-const togglePassword = document.getElementById("togglePassword");
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = "message " + type;
+        }
 
-togglePassword.addEventListener("click", () => {
-    if (passwordInput.type === "password") {
-        passwordInput.type = "text";
-        togglePassword.textContent = "Hide";
-    } else {
-        passwordInput.type = "password";
-        togglePassword.textContent = "Show";
-    }
-});
+        // Show / Hide password
+        togglePassword.addEventListener("click", function () {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                togglePassword.textContent = "Show";
+            }
+        });
 
+        // Login
+        loginForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
 
-  loginForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+            loginBtn.disabled = true;
+            loginBtn.textContent = "Logging in...";
+            showMessage("Logging in...", "info");
 
-    message.textContent = "Logging in...";
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
 
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
+                showMessage("Login successful!", "success");
+                window.location.href = "dashboard.html";
 
-      message.textContent = "Login successful!";
+            } catch (error) {
+                console.error("Login error code:", error.code);
 
-      window.location.href = "dashboard.html";
+                let errorMessage = "Login failed. Please try again.";
 
-    } catch (error) {
-      console.error(error);
+                if (
+                    error.code === "auth/invalid-credential" ||
+                    error.code === "auth/wrong-password" ||
+                    error.code === "auth/user-not-found"
+                ) {
+                    errorMessage = "Incorrect email or password.";
+                } else if (error.code === "auth/invalid-email") {
+                    errorMessage = "Please enter a valid email address.";
+                } else if (error.code === "auth/too-many-requests") {
+                    errorMessage = "Too many attempts. Thodi der baad try karein, ya password reset karein.";
+                } else if (error.code === "auth/network-request-failed") {
+                    errorMessage = "Network error. Check your internet connection.";
+                }
 
-      if (
-        error.code === "auth/invalid-credential" ||
-        error.code === "auth/wrong-password" ||
-        error.code === "auth/user-not-found"
-      ) {
-        message.textContent = "Incorrect email or password.";
-      } else {
-        message.textContent = error.message;
-      }
-    }
-  });
-</script>
+                showMessage(errorMessage, "error");
 
+                loginBtn.disabled = false;
+                loginBtn.textContent = "Login to CampusKart →";
+            }
+        });
+
+        // Forgot password: reset link email par bhejna
+        forgotPassword.addEventListener("click", async function () {
+            const email = emailInput.value.trim();
+
+            if (!email) {
+                showMessage("Pehle apna email upar likhein, phir Forgot password par click karein.", "error");
+                emailInput.focus();
+                return;
+            }
+
+            if (!emailInput.checkValidity()) {
+                showMessage("Please enter a valid email address.", "error");
+                emailInput.focus();
+                return;
+            }
+
+            forgotPassword.disabled = true;
+            showMessage("Reset link bheja ja raha hai...", "info");
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+
+                showMessage(
+                    "Password reset link aapke email par bhej diya gaya hai. " +
+                    "Inbox ke saath Spam/Junk bhi check karein. Link khol kar naya password set karein, " +
+                    "phir yahin se login karein.",
+                    "success"
+                );
+
+            } catch (error) {
+                console.error("Password reset error code:", error.code);
+
+                let errorMessage = "Reset link nahi bheja ja saka. Dobara try karein.";
+
+                if (error.code === "auth/invalid-email") {
+                    errorMessage = "Please enter a valid email address.";
+                } else if (error.code === "auth/user-not-found") {
+                    errorMessage = "Is email se koi account nahi mila. Please Create Account karein.";
+                } else if (error.code === "auth/too-many-requests") {
+                    errorMessage = "Bahut zyada requests aa gayi hain. Thodi der baad try karein.";
+                } else if (error.code === "auth/network-request-failed") {
+                    errorMessage = "Network error. Check your internet connection.";
+                }
+
+                showMessage(errorMessage, "error");
+
+            } finally {
+                forgotPassword.disabled = false;
+            }
+        });
+    </script>
 
 </body>
 </html>

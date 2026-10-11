@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -185,6 +184,38 @@
             margin-top: 7px;
         }
 
+        .buy-button {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: var(--teal);
+            color: var(--navy);
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .buy-button:hover:not(:disabled) {
+            background: #0fb0a0;
+        }
+
+        .buy-button:disabled {
+            background: #cfd8e3;
+            color: #6b7890;
+            cursor: not-allowed;
+        }
+
+        .buy-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
         .note {
             background: #eefbf8;
             border: 1px solid #c8f1e9;
@@ -308,6 +339,11 @@
                     <p id="sellerId"></p>
                 </article>
 
+                <button id="buyButton" class="buy-button" type="button" disabled>
+                    Buy Now
+                </button>
+                <p id="buyNote" class="buy-note"></p>
+
                 <div class="note">
                     For your safety, verify the item and seller before
                     completing any exchange. Meet in a safe campus location.
@@ -356,12 +392,44 @@
     const errorBox = document.getElementById("error");
     const errorMessage = document.getElementById("errorMessage");
     const productContent = document.getElementById("productContent");
+    const buyButton = document.getElementById("buyButton");
+    const buyNote = document.getElementById("buyNote");
 
     function showError(message) {
         loading.hidden = true;
         productContent.hidden = true;
         errorBox.hidden = false;
         errorMessage.textContent = message;
+    }
+
+    function setupBuyButton(product, productName, productPrice) {
+        const sellerEmail = product.sellerEmail;
+
+        if (!sellerEmail) {
+            buyButton.disabled = true;
+            buyNote.textContent = "Seller contact is not available for this item.";
+            return;
+        }
+
+        buyButton.disabled = false;
+        buyNote.textContent = "Opens your email app to contact the seller.";
+
+        buyButton.addEventListener("click", function () {
+            const subject = "CampusKart: I want to buy " + productName;
+            const body =
+                "Hi,\n\n" +
+                "I am interested in buying \"" + productName + "\" listed at " +
+                productPrice + " on CampusKart.\n\n" +
+                "Is it still available? Let's arrange a safe campus meetup.\n\n" +
+                "Thank you!";
+
+            const mailto =
+                "mailto:" + encodeURIComponent(sellerEmail) +
+                "?subject=" + encodeURIComponent(subject) +
+                "&body=" + encodeURIComponent(body);
+
+            window.location.href = mailto;
+        });
     }
 
     async function loadProductDetails() {
@@ -389,14 +457,15 @@
                 return;
             }
 
-            document.getElementById("productName").textContent =
-                product.name || "Untitled Product";
+            const productName = product.name || "Untitled Product";
+            const productPrice = "₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+
+            document.getElementById("productName").textContent = productName;
 
             document.getElementById("productCategory").textContent =
                 product.category || "Other";
 
-            document.getElementById("productPrice").textContent =
-                "₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+            document.getElementById("productPrice").textContent = productPrice;
 
             document.getElementById("productCondition").textContent =
                 product.condition || "Used";
@@ -411,7 +480,7 @@
 
             if (product.imageUrl) {
                 image.src = product.imageUrl;
-                image.alt = product.name || "Product image";
+                image.alt = productName;
                 image.addEventListener("error", function () {
                     image.alt = "Product image could not be loaded";
                     image.style.display = "none";
@@ -430,6 +499,8 @@
                 product.sellerId
                     ? "Seller ID: " + product.sellerId
                     : "Seller ID: Not available";
+
+            setupBuyButton(product, productName, productPrice);
 
             loading.hidden = true;
             errorBox.hidden = true;

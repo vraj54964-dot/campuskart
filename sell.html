@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +6,11 @@
     <title>Sell an Item | CampusKart</title>
 
     <style>
+        /* ===== 0. HELPERS ===== */
+        [hidden] {
+            display: none !important;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,6 +20,7 @@
         :root {
             --navy: #101c35;
             --teal: #16c6b1;
+            --teal-dark: #079e8e;
             --light: #f5f8fc;
             --white: #ffffff;
             --text: #26344d;
@@ -87,7 +92,13 @@
 
         .nav-links a:hover,
         .nav-links a.active {
-            color: #079e8e;
+            color: var(--teal-dark);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .login-link {
@@ -96,6 +107,63 @@
             border-radius: 8px;
             font-size: 13px;
             font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Logged-in user chip */
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f0fdfa;
+            border: 1px solid #c8f1e9;
+            border-radius: 999px;
+            padding: 5px 6px 5px 5px;
+            max-width: 260px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            background: var(--teal);
+            color: var(--navy);
+            font-size: 13px;
+            font-weight: 800;
+            display: grid;
+            place-items: center;
+        }
+
+        .user-name {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--navy);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .logout-button {
+            background: var(--navy);
+            color: white;
+            border: none;
+            border-radius: 999px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .logout-button:hover {
+            background: #203657;
+        }
+
+        .logout-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         /* HEADER */
@@ -235,6 +303,11 @@
             background: #f0fcf9;
         }
 
+        .upload-box.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
         .upload-icon {
             font-size: 33px;
             margin-bottom: 5px;
@@ -255,14 +328,77 @@
             display: none;
         }
 
-        .image-preview {
-            display: none;
-            width: 100%;
-            max-height: 260px;
-            object-fit: contain;
+        /* PHOTO GALLERY */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 10px;
             margin-top: 15px;
+        }
+
+        .photo-grid:empty {
+            display: none;
+        }
+
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1 / 1;
             border-radius: 10px;
-            background: var(--light);
+            overflow: hidden;
+            border: 2px solid var(--border);
+            background: #edf2f8;
+            cursor: pointer;
+        }
+
+        .photo-item.cover {
+            border-color: var(--teal);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .photo-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(16, 28, 53, 0.85);
+            color: white;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+        }
+
+        .photo-remove:hover {
+            background: #b91c1c;
+        }
+
+        .cover-badge {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            background: var(--teal);
+            color: var(--navy);
+            font-size: 10px;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 5px;
+        }
+
+        .photo-hint {
+            display: block;
+            color: var(--muted);
+            font-size: 11px;
+            margin-top: 8px;
         }
 
         /* BUTTONS */
@@ -280,6 +416,12 @@
 
         .submit-button:hover {
             background: #0fb49f;
+        }
+
+        .submit-button:disabled {
+            background: #cfd8e3;
+            color: #6b7890;
+            cursor: not-allowed;
         }
 
         .reset-button {
@@ -479,6 +621,18 @@
                 font-size: 13px;
             }
 
+            .nav-right {
+                margin-left: auto;
+            }
+
+            .user-menu {
+                max-width: 190px;
+            }
+
+            .user-name {
+                font-size: 12px;
+            }
+
             .login-link {
                 font-size: 12px;
                 padding: 8px 11px;
@@ -520,6 +674,10 @@
                 font-size: 21px;
             }
 
+            .photo-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
             .footer-content {
                 flex-direction: column;
             }
@@ -544,7 +702,17 @@
                 <a href="dashboard.html">Dashboard</a>
             </nav>
 
-            <a href="login.html" class="login-link">Log in</a>
+            <div class="nav-right">
+                <!-- Logged out: login button -->
+                <a href="login.html" id="loginLink" class="login-link" hidden>Log in</a>
+
+                <!-- Logged in: user name + logout -->
+                <div id="userMenu" class="user-menu" hidden>
+                    <div id="userAvatar" class="user-avatar">?</div>
+                    <span id="userName" class="user-name">Loading...</span>
+                    <button id="logoutButton" class="logout-button" type="button">Logout</button>
+                </div>
+            </div>
 
         </div>
     </header>
@@ -576,22 +744,28 @@
 
                 <form id="sellForm">
 
-                    <!-- IMAGE -->
+                    <!-- PHOTOS (multiple) -->
                     <div class="form-group">
-                        <label>Product Photo</label>
+                        <label>Product Photos</label>
 
-                        <label class="upload-box" for="productImage">
+                        <label class="upload-box" id="uploadBox" for="productImage">
                             <div class="upload-icon">📸</div>
-                            <strong>Click to upload a photo</strong>
-                            <span>Choose an image from your device</span>
+                            <strong>Click to add photos</strong>
+                            <span>JPG, PNG, WEBP · max 5 MB each · up to 5 photos</span>
                             <input type="file"
                                    id="productImage"
-                                   accept="image/*">
+                                   accept="image/*"
+                                   multiple>
                         </label>
 
-                        <img id="imagePreview"
-                             class="image-preview"
-                             alt="Selected product preview">
+                        <div id="photoGrid" class="photo-grid"></div>
+
+                        <span class="photo-hint" id="photoCount">
+                            0 / 5 photos added.
+                        </span>
+                        <span class="photo-hint">
+                            Pehli photo cover hogi. Kisi bhi photo par click karke use cover bana sakte hain.
+                        </span>
                     </div>
 
                     <!-- TITLE -->
@@ -762,7 +936,7 @@
                     <h2>Tips for Selling</h2>
 
                     <ul>
-                        <li>Upload a clear photo of your actual item.</li>
+                        <li>Upload clear photos from different angles.</li>
                         <li>Choose the correct category and condition.</li>
                         <li>Set a fair and student-friendly price.</li>
                         <li>Mention any damage honestly.</li>
@@ -803,8 +977,6 @@
     </footer>
 
     <!-- JAVASCRIPT -->
-    
-
 <script type="module">
     // ==========================================
     // 1. FIREBASE IMPORTS
@@ -818,19 +990,22 @@
 
     import {
         getAuth,
-        onAuthStateChanged
+        onAuthStateChanged,
+        signOut
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
     import {
         getFirestore,
         collection,
         addDoc,
+        doc,
+        getDoc,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 
     // ==========================================
-    // 2. FIREBASE CONFIGURATION
+    // 2. CONFIGURATION
     // ==========================================
 
     const firebaseConfig = {
@@ -843,18 +1018,11 @@
         measurementId: "G-NN86N2NE52"
     };
 
-       
+    const CLOUDINARY_CLOUD_NAME = "ayzcsxf2";
+    const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
-    
-const CLOUDINARY_CLOUD_NAME = "ayzcsxf2";
-const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
-
-
-    
-
-
-    
-
+    const MAX_PHOTOS = 5;
+    const MAX_PHOTO_SIZE = 5 * 1024 * 1024; // 5 MB
 
 
     // ==========================================
@@ -875,8 +1043,10 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
     const sellForm = document.getElementById("sellForm");
 
+    const uploadBox = document.getElementById("uploadBox");
     const productImage = document.getElementById("productImage");
-    const imagePreview = document.getElementById("imagePreview");
+    const photoGrid = document.getElementById("photoGrid");
+    const photoCount = document.getElementById("photoCount");
     const previewCardImage = document.getElementById("previewCardImage");
     const previewPlaceholder = document.getElementById("previewPlaceholder");
 
@@ -896,45 +1066,91 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
     const previewPrice = document.getElementById("previewPrice");
     const previewDescription = document.getElementById("previewDescription");
 
+    // Navbar auth elements
+    const loginLink = document.getElementById("loginLink");
+    const userMenu = document.getElementById("userMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userName = document.getElementById("userName");
+    const logoutButton = document.getElementById("logoutButton");
+
 
     // ==========================================
     // 5. CHECK REQUIRED ELEMENTS
     // ==========================================
 
-    if (!sellForm) {
-        console.error(
-            'Form not found. Check that your form has id="sellForm".'
-        );
-        throw new Error("Sell form not found.");
-    }
-
     if (
-        !productImage ||
-        !imagePreview ||
-        !previewCardImage ||
-        !previewPlaceholder ||
-        !successMessage ||
-        !itemName ||
-        !category ||
-        !condition ||
-        !price ||
-        !originalPriceInput ||
-        !description ||
-        !previewTitle ||
-        !previewCategory ||
-        !previewCondition ||
-        !previewPrice ||
-        !previewDescription
+        !sellForm || !uploadBox || !productImage || !photoGrid || !photoCount ||
+        !previewCardImage || !previewPlaceholder || !successMessage ||
+        !itemName || !category || !condition || !price || !originalPriceInput ||
+        !description || !previewTitle || !previewCategory || !previewCondition ||
+        !previewPrice || !previewDescription || !loginLink || !userMenu ||
+        !userAvatar || !userName || !logoutButton
     ) {
-        console.error(
-            "Some required HTML elements are missing. Check your element IDs."
-        );
+        console.error("Some required HTML elements are missing. Check your element IDs.");
         throw new Error("Required sell page elements are missing.");
     }
 
 
     // ==========================================
-    // 6. AUTHENTICATION STATUS
+    // 6. NAVBAR AUTH UI (naam + logout)
+    // ==========================================
+
+    // Naam: users/{uid}.name -> displayName -> email se
+    function getDisplayName(user, profile) {
+        if (profile && profile.name) return String(profile.name).trim();
+        if (user.displayName) return user.displayName.trim();
+        const base = (user.email || "Student").split("@")[0].replace(/[._-]+/g, " ");
+        return base.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+    }
+
+    function getInitials(name) {
+        return name
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (p) { return p[0].toUpperCase(); })
+            .join("");
+    }
+
+    function showLoggedOutNav() {
+        loginLink.hidden = false;
+        userMenu.hidden = true;
+    }
+
+    async function showLoggedInNav(user) {
+        let profile = {};
+        try {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) profile = snap.data();
+        } catch (error) {
+            console.warn("User profile load nahi hua, fallback naam use hoga:", error);
+        }
+
+        const name = getDisplayName(user, profile);
+
+        userName.textContent = name;
+        userName.title = user.email || name;
+        userAvatar.textContent = getInitials(name);
+
+        loginLink.hidden = true;
+        userMenu.hidden = false;
+    }
+
+    logoutButton.addEventListener("click", async function () {
+        logoutButton.disabled = true;
+        try {
+            await signOut(auth);
+            window.location.replace("login.html");
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("Logout nahi ho paaya. Dobara try karein.");
+            logoutButton.disabled = false;
+        }
+    });
+
+
+    // ==========================================
+    // 7. AUTHENTICATION STATUS
     // ==========================================
 
     let currentUser = null;
@@ -942,35 +1158,31 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
     onAuthStateChanged(
         auth,
-
         (user) => {
             currentUser = user;
             authReady = true;
 
-            if (!user) {
+            if (user) {
+                showLoggedInNav(user);
+            } else {
+                showLoggedOutNav();
                 window.location.replace("login.html");
             }
         },
-
         (error) => {
             console.error("Authentication error:", error);
-            showMessage(
-                "Could not verify your login. Please refresh the page.",
-                true
-            );
+            showMessage("Could not verify your login. Please refresh the page.", true);
         }
     );
 
 
     // ==========================================
-    // 7. SHOW SUCCESS OR ERROR MESSAGE
+    // 8. SUCCESS / ERROR MESSAGE
     // ==========================================
 
     function showMessage(message, isError = false) {
         successMessage.textContent = message;
         successMessage.style.display = "block";
-
-        // Use existing styling wherever possible.
         successMessage.style.color = isError ? "#b91c1c" : "#15803d";
 
         successMessage.scrollIntoView({
@@ -981,7 +1193,7 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 8. LIVE PRODUCT PREVIEW
+    // 9. LIVE PRODUCT PREVIEW
     // ==========================================
 
     function updatePreview() {
@@ -1008,107 +1220,190 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
             "Your product description will appear here.";
     }
 
-
-    [
-        itemName,
-        category,
-        condition,
-        price,
-        description
-    ].forEach((element) => {
+    [itemName, category, condition, price, description].forEach((element) => {
         element.addEventListener("input", updatePreview);
         element.addEventListener("change", updatePreview);
     });
 
 
     // ==========================================
-    // 9. IMAGE PREVIEW
+    // 10. MULTIPLE PHOTOS (add, remove, cover)
     // ==========================================
 
+    // Har photo: { file: File, url: blob preview URL }
+    // Pehli photo cover hai (preview card aur Firestore imageUrl mein yahi jaati hai)
+    let selectedPhotos = [];
+
+    function revokePhotoUrl(photo) {
+        URL.revokeObjectURL(photo.url);
+    }
+
+    function addPhotos(fileList) {
+        const files = Array.from(fileList);
+
+        for (const file of files) {
+            if (selectedPhotos.length >= MAX_PHOTOS) {
+                alert(`Aap maximum ${MAX_PHOTOS} photos add kar sakte hain.`);
+                break;
+            }
+
+            if (!file.type.startsWith("image/")) {
+                alert(`"${file.name}" ek valid image nahi hai.`);
+                continue;
+            }
+
+            if (file.size > MAX_PHOTO_SIZE) {
+                alert(`"${file.name}" 5 MB se bada hai. Chhoti image chunein.`);
+                continue;
+            }
+
+            selectedPhotos.push({
+                file: file,
+                url: URL.createObjectURL(file)
+            });
+        }
+
+        // Input clear karna taaki same file dobara chunne par bhi change event aaye
+        productImage.value = "";
+        renderPhotos();
+    }
+
+    function removePhoto(index) {
+        const [removed] = selectedPhotos.splice(index, 1);
+        if (removed) revokePhotoUrl(removed);
+        renderPhotos();
+    }
+
+    function setCoverPhoto(index) {
+        if (index <= 0 || index >= selectedPhotos.length) return;
+        const [photo] = selectedPhotos.splice(index, 1);
+        selectedPhotos.unshift(photo);
+        renderPhotos();
+    }
+
+    function clearPhotos() {
+        selectedPhotos.forEach(revokePhotoUrl);
+        selectedPhotos = [];
+        productImage.value = "";
+        renderPhotos();
+    }
+
+    function renderPhotos() {
+        photoGrid.replaceChildren();
+
+        selectedPhotos.forEach((photo, index) => {
+            const item = document.createElement("div");
+            item.className = "photo-item" + (index === 0 ? " cover" : "");
+            item.title = index === 0 ? "Cover photo" : "Cover banane ke liye click karein";
+
+            const img = document.createElement("img");
+            img.src = photo.url;
+            img.alt = "Photo " + (index + 1);
+
+            const removeBtn = document.createElement("button");
+            removeBtn.type = "button";
+            removeBtn.className = "photo-remove";
+            removeBtn.textContent = "×";
+            removeBtn.title = "Photo hataayein";
+            removeBtn.addEventListener("click", (event) => {
+                event.stopPropagation();
+                removePhoto(index);
+            });
+
+            item.addEventListener("click", () => setCoverPhoto(index));
+
+            item.append(img, removeBtn);
+
+            if (index === 0) {
+                const badge = document.createElement("span");
+                badge.className = "cover-badge";
+                badge.textContent = "Cover";
+                item.append(badge);
+            }
+
+            photoGrid.append(item);
+        });
+
+        const full = selectedPhotos.length >= MAX_PHOTOS;
+        uploadBox.classList.toggle("disabled", full);
+        productImage.disabled = full;
+
+        photoCount.textContent =
+            `${selectedPhotos.length} / ${MAX_PHOTOS} photos added.`;
+
+        updateCoverPreview();
+    }
+
+    function updateCoverPreview() {
+        if (selectedPhotos.length === 0) {
+            previewCardImage.removeAttribute("src");
+            previewCardImage.style.display = "none";
+            previewPlaceholder.style.display = "block";
+            return;
+        }
+
+        previewCardImage.src = selectedPhotos[0].url;
+        previewCardImage.style.display = "block";
+        previewPlaceholder.style.display = "none";
+    }
+
     productImage.addEventListener("change", () => {
-        const file = productImage.files[0];
-
-        if (!file) {
-            resetImagePreview();
-            return;
+        if (productImage.files && productImage.files.length > 0) {
+            addPhotos(productImage.files);
         }
-
-        // Only allow image files.
-        if (!file.type.startsWith("image/")) {
-            alert("Please choose a valid image file.");
-
-            productImage.value = "";
-            resetImagePreview();
-            return;
-        }
-
-        // Maximum image size: 5 MB.
-        if (file.size > 5 * 1024 * 1024) {
-            alert("Please choose an image smaller than 5 MB.");
-
-            productImage.value = "";
-            resetImagePreview();
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = (event) => {
-            imagePreview.src = event.target.result;
-            imagePreview.style.display = "block";
-
-            previewCardImage.src = event.target.result;
-            previewCardImage.style.display = "block";
-
-            previewPlaceholder.style.display = "none";
-        };
-
-        reader.onerror = () => {
-            alert("Could not preview this image. Please try another.");
-
-            productImage.value = "";
-            resetImagePreview();
-        };
-
-        reader.readAsDataURL(file);
     });
 
 
-    function resetImagePreview() {
-        imagePreview.removeAttribute("src");
-        imagePreview.style.display = "none";
+    // ==========================================
+    // 11. CLOUDINARY UPLOAD
+    // ==========================================
 
-        previewCardImage.removeAttribute("src");
-        previewCardImage.style.display = "none";
+    async function uploadToCloudinary(file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-        previewPlaceholder.style.display = "block";
+        const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error?.message || "Photo upload failed.");
+        }
+
+        return result.secure_url;
+    }
+
+    // Saari photos ek saath upload hongi (order same rahega: pehli = cover)
+    async function uploadAllPhotos(photos) {
+        return Promise.all(photos.map((photo) => uploadToCloudinary(photo.file)));
     }
 
 
     // ==========================================
-    // 10. SUBMIT FORM AND SAVE TO FIRESTORE
+    // 12. SUBMIT FORM AND SAVE TO FIRESTORE
     // ==========================================
 
     sellForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Wait for Firebase to confirm login status.
         if (!authReady) {
-            showMessage(
-                "Checking your login. Please try again in a moment.",
-                true
-            );
+            showMessage("Checking your login. Please try again in a moment.", true);
             return;
         }
 
-        // User must be logged in.
         if (!currentUser) {
             alert("Please log in before listing your product.");
             window.location.href = "login.html";
             return;
         }
 
-        // Read and validate prices.
         const sellingPrice = Number(price.value);
         const originalPrice = originalPriceInput.value.trim();
 
@@ -1124,59 +1419,25 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
         if (
             originalPrice !== "" &&
-            (
-                !Number.isFinite(Number(originalPrice)) ||
-                Number(originalPrice) < 0
-            )
+            (!Number.isFinite(Number(originalPrice)) || Number(originalPrice) < 0)
         ) {
             alert("Please enter a valid, non-negative original price.");
             originalPriceInput.focus();
             return;
         }
 
-        // Prevent duplicate submissions while saving.
-        const submitButton = sellForm.querySelector(
-            'button[type="submit"], input[type="submit"]'
-        );
-
-        if (submitButton) {
-            submitButton.disabled = true;
-        }
-
-        showMessage("Saving your product listing...");
+        const submitButton = sellForm.querySelector('button[type="submit"]');
+        if (submitButton) submitButton.disabled = true;
 
         try {
-            
+            let imageUrls = [];
 
-            // Upload product photo to Cloudinary.
-            let imageUrl = "";
-            const selectedFile = productImage.files[0];
-
-            if (selectedFile) {
-                const formData = new FormData();
-                formData.append("file", selectedFile);
-                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-
-                showMessage("Uploading product photo...");
-
-                const uploadResponse = await fetch(
-                    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-                    {
-                        method: "POST",
-                        body: formData
-                    }
-                );
-
-                const uploadResult = await uploadResponse.json();
-
-                if (!uploadResponse.ok) {
-                    throw new Error(
-                        uploadResult.error?.message || "Photo upload failed."
-                    );
-                }
-
-                imageUrl = uploadResult.secure_url;
+            if (selectedPhotos.length > 0) {
+                showMessage(`Uploading ${selectedPhotos.length} photo(s)...`);
+                imageUrls = await uploadAllPhotos(selectedPhotos);
             }
+
+            showMessage("Saving your product listing...");
 
             const docRef = await addDoc(
                 collection(db, "listings"),
@@ -1194,14 +1455,15 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
                     description: description.value.trim(),
 
-                    campus: campus
-                        ? campus.value.trim()
-                        : "",
+                    campus: campus.value.trim(),
 
-                    // Image is preview-only for now.
-                   imageUrl: imageUrl,
+                    // Cover photo (browse aur dashboard isi ko dikhate hain)
+                    imageUrl: imageUrls[0] || "",
 
-                    // Seller information.
+                    // Saari photos (pehli = cover)
+                    imageUrls: imageUrls,
+                    photoCount: imageUrls.length,
+
                     sellerId: currentUser.uid,
                     sellerEmail: currentUser.email || "",
 
@@ -1212,13 +1474,10 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
             console.log("Listing saved with ID:", docRef.id);
 
-            showMessage(
-                "Success! Your product has been saved to CampusKart."
-            );
+            showMessage("Success! Your product has been saved to CampusKart.");
 
-            // Clear form after successful save.
             sellForm.reset();
-            resetImagePreview();
+            clearPhotos();
             updatePreview();
 
         } catch (error) {
@@ -1229,26 +1488,21 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
                 true
             );
 
-            alert(
-                "Firebase error: " +
-                (error.code || error.message || "Unknown error")
-            );
+            alert("Error: " + (error.code || error.message || "Unknown error"));
 
         } finally {
-            if (submitButton) {
-                submitButton.disabled = false;
-            }
+            if (submitButton) submitButton.disabled = false;
         }
     });
 
 
     // ==========================================
-    // 11. RESET FORM
+    // 13. RESET FORM
     // ==========================================
 
     sellForm.addEventListener("reset", () => {
         setTimeout(() => {
-            resetImagePreview();
+            clearPhotos();
             successMessage.style.display = "none";
             updatePreview();
         }, 0);
@@ -1256,14 +1510,13 @@ const CLOUDINARY_UPLOAD_PRESET = "campus_upload";
 
 
     // ==========================================
-    // 12. INITIAL PREVIEW
+    // 14. INITIAL STATE
     // ==========================================
 
+    renderPhotos();
     updatePreview();
 
 </script>
 
 </body>
 </html>
-```
-
