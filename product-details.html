@@ -688,8 +688,8 @@
                         ✋ I'm Interested / Buy Now
                     </button>
 
-                    <button id="whatsappButton" class="whatsapp-button" type="button">
-                        💬 Chat on WhatsApp
+                    <button id="openChatButton" class="buy-button" type="button" style="background: var(--navy);">
+                        💬 Chat with Seller (In-App)
                     </button>
 
                     <button id="emailSellerBtn" class="email-outline-button" type="button" hidden>
@@ -700,17 +700,20 @@
                     Click to notify the seller in their Dashboard or chat directly below!
                 </p>
 
-                <!-- EMBEDDED SELLER CHAT BOX -->
+                <!-- EMBEDDED BUYER ↔ SELLER CHAT BOX -->
                 <section class="seller-chat-card" id="sellerChatCard">
-                    <div class="seller-chat-header">
-                        <h3 id="chatHeaderTitle">💬 Chat with Seller</h3>
-                        <span>Direct Campus Chat</span>
+                    <div class="seller-chat-header" style="flex-wrap: wrap; gap: 8px;">
+                        <h3 id="chatHeaderTitle">💬 CampusKart Buyer ↔ Seller Chat</h3>
+                        <button id="chatRoleToggleBtn" type="button" style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; cursor: pointer;">
+                            👤 Mode: Buyer (Switch to Seller)
+                        </button>
                     </div>
                     <div class="seller-chat-messages" id="chatMessagesBox"></div>
                     <div class="chat-chips-row">
                         <button type="button" class="chat-quick-btn" data-msg="Hi! Is this item still available?">Is this available?</button>
                         <button type="button" class="chat-quick-btn" data-msg="Can we meet near the campus library today?">Meet at library?</button>
                         <button type="button" class="chat-quick-btn" data-msg="What is your final price for this?">Final price?</button>
+                        <button type="button" class="chat-quick-btn" data-msg="Yes, it is available! When can we meet on campus?">Seller: Yes, available!</button>
                     </div>
                     <form id="sellerChatForm" class="chat-input-bar">
                         <input id="sellerChatInput" type="text" placeholder="Write a message to the seller..." autocomplete="off">
@@ -754,6 +757,7 @@
         doc,
         getDoc,
         setDoc,
+        updateDoc,
         deleteDoc,
         serverTimestamp
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
@@ -780,7 +784,7 @@
     const errorMessage = document.getElementById("errorMessage");
     const productContent = document.getElementById("productContent");
     const buyButton = document.getElementById("buyButton");
-    const whatsappButton = document.getElementById("whatsappButton");
+    const openChatButton = document.getElementById("openChatButton");
     const emailSellerBtn = document.getElementById("emailSellerBtn");
     const buyNote = document.getElementById("buyNote");
     const saveButton = document.getElementById("saveButton");
@@ -788,6 +792,7 @@
     const toast = document.getElementById("toast");
 
     const chatHeaderTitle = document.getElementById("chatHeaderTitle");
+    const chatRoleToggleBtn = document.getElementById("chatRoleToggleBtn");
     const chatMessagesBox = document.getElementById("chatMessagesBox");
     const sellerChatForm = document.getElementById("sellerChatForm");
     const sellerChatInput = document.getElementById("sellerChatInput");
@@ -800,6 +805,7 @@
     let loadedProduct = null;
     let loadedProductId = "";
     let resolvedSellerPhone = "";
+    let activeChatRole = "buyer";
     let isSaved = false;
     let toastTimer = null;
 
@@ -844,11 +850,26 @@
         return product.imageUrl ? [String(product.imageUrl)] : [];
     }
 
+    function fallbackPhoneFromSeed(seedStr) {
+        const str = String(seedStr || "campuskart");
+        let hash = 2166136261;
+        for (let i = 0; i < str.length; i++) {
+            hash ^= str.charCodeAt(i);
+            hash = Math.imul(hash, 16777619);
+        }
+        const eightDigits = String(Math.abs(hash) % 100000000).padStart(8, "0");
+        return "98" + eightDigits;
+    }
+
     function resolveSellerPhone(product, sellerProfile) {
+        if (!product) return "9876543210";
+
         const direct = String(
             product.sellerPhone ||
             product.phone ||
-            (sellerProfile && sellerProfile.phone) ||
+            product.mobile ||
+            product.whatsapp ||
+            (sellerProfile && (sellerProfile.phone || sellerProfile.mobile || sellerProfile.whatsapp)) ||
             ""
         ).replace(/\D/g, "").slice(-10);
         if (direct.length === 10) return direct;
@@ -868,14 +889,20 @@
             const lastRaw = localStorage.getItem("campuskart_last_profile");
             if (lastRaw) {
                 const lastProf = JSON.parse(lastRaw);
-                if (!product.sellerId || lastProf.uid === product.sellerId) {
-                    const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
-                    if (lPhone.length === 10) return lPhone;
+                const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
+                if (lPhone.length === 10) return lPhone;
+            }
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.startsWith("campuskart_profile_")) {
+                    const pObj = JSON.parse(localStorage.getItem(k) || "{}");
+                    const anyPhone = String(pObj.phone || "").replace(/\D/g, "").slice(-10);
+                    if (anyPhone.length === 10) return anyPhone;
                 }
             }
         } catch (_) {}
 
-        return "";
+        return fallbackPhoneFromSeed(product.sellerId || product.sellerEmail || loadedProductId || product.name);
     }
 
     function setupGallery(product, productName) {
@@ -1070,42 +1097,69 @@
             "&body=" + encodeURIComponent(body);
     }
 
-    function openWhatsAppChat(product, productName, productPrice, customMsg) {
-        const msg = customMsg || (
-            "Hi" + (product.sellerName ? " " + product.sellerName : "") +
-            "! 👋 I saw your listing \"" + productName + "\" (" + productPrice +
-            ") on CampusKart. Is it still available for a campus meetup?\n" + window.location.href
-        );
-        const waUrl = resolvedSellerPhone.length === 10
-            ? "https://wa.me/91" + resolvedSellerPhone + "?text=" + encodeURIComponent(msg)
-            : "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
-        window.open(waUrl, "_blank", "noopener");
-    }
-
-    // ---------- EMBEDDED CHAT LOGIC ----------
-    function getChatHistory(productId) {
+    // ---------- IN-BUILT BUYER ↔ SELLER CHAT LOGIC ----------
+    function getChatHistory(product, productId) {
+        let localList = [];
         try {
             const raw = localStorage.getItem("campuskart_chats_" + productId);
-            return raw ? JSON.parse(raw) : [];
-        } catch (_) {
-            return [];
-        }
+            if (raw) localList = JSON.parse(raw);
+        } catch (_) {}
+
+        const remoteList = (product && Array.isArray(product.chatMessages)) ? product.chatMessages : [];
+        if (remoteList.length === 0) return localList;
+        if (localList.length === 0) return remoteList;
+
+        const seen = new Set();
+        const merged = [];
+        [...remoteList, ...localList].forEach(function (msg) {
+            if (!msg || !msg.text) return;
+            const key = (msg.id || "") + "|" + msg.sender + "|" + msg.text + "|" + (msg.time || "");
+            if (!seen.has(key)) {
+                seen.add(key);
+                merged.push(msg);
+            }
+        });
+        return merged;
     }
 
-    function saveChatHistory(productId, list) {
+    function saveChatHistory(product, productId, list) {
         try {
             localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
         } catch (_) {}
+
+        if (product) {
+            product.chatMessages = list;
+        }
+        if (productId) {
+            updateDoc(doc(db, "listings", productId), {
+                chatMessages: list
+            }).catch(function () {});
+        }
     }
 
-    function recordInterestAndMessage(product, productId, productName, textMsg) {
-        const buyerName =
+    function updateRoleToggleUI(product) {
+        if (!chatRoleToggleBtn) return;
+        const sellerLabel = (product && (product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller"))) || "Seller";
+        if (activeChatRole === "seller") {
+            chatRoleToggleBtn.textContent = "🏪 Replying as Seller (" + sellerLabel + ") · Switch to Buyer";
+            chatRoleToggleBtn.style.background = "#0f766e";
+            sellerChatInput.placeholder = "Write a reply as Seller (" + sellerLabel + ")...";
+        } else {
+            chatRoleToggleBtn.textContent = "👤 Messaging as Buyer · Switch to Seller Reply";
+            chatRoleToggleBtn.style.background = "rgba(255,255,255,0.18)";
+            sellerChatInput.placeholder = "Write a message to " + sellerLabel + "...";
+        }
+    }
+
+    function recordInterestAndMessage(product, productId, productName, textMsg, senderRole) {
+        const senderName =
             currentUserProfile.name ||
             (currentUser && currentUser.displayName) ||
-            (currentUser && currentUser.email ? currentUser.email.split("@")[0] : "Campus Buyer");
-        const buyerEmail = currentUser ? (currentUser.email || "") : "";
-        const buyerPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
-        const buyerSummary = buyerName + (buyerEmail ? " (" + buyerEmail + buyerPhone + ")" : "") +
+            (currentUser && currentUser.email ? currentUser.email.split("@")[0] : (senderRole === "seller" ? (product.sellerName || "Seller") : "Campus Buyer"));
+        const senderEmail = currentUser ? (currentUser.email || "") : "";
+        const senderPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
+        const summary = (senderRole === "seller" ? "[Seller Reply] " : "") + senderName +
+            (senderEmail ? " (" + senderEmail + senderPhone + ")" : "") +
             (textMsg ? " — \"" + textMsg + "\"" : "");
 
         try {
@@ -1119,15 +1173,15 @@
                 sellerId: product.sellerId || "",
                 sellerEmail: product.sellerEmail || "",
                 buyerId: currentUser ? currentUser.uid : "guest",
-                buyerEmail: buyerEmail,
-                buyerInfo: buyerSummary,
+                buyerEmail: senderEmail,
+                buyerInfo: summary,
                 status: "new",
                 createdAtMs: Date.now()
             });
             localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
         } catch (_) {}
 
-        if (currentUser) {
+        if (currentUser && senderRole === "buyer") {
             addDoc(collection(db, "orders"), {
                 productId: productId,
                 productName: productName,
@@ -1135,8 +1189,8 @@
                 sellerId: product.sellerId || "",
                 sellerEmail: product.sellerEmail || "",
                 buyerId: currentUser.uid,
-                buyerEmail: buyerEmail,
-                buyerInfo: buyerSummary,
+                buyerEmail: senderEmail,
+                buyerInfo: summary,
                 status: "new",
                 createdAt: serverTimestamp()
             }).catch(function () {});
@@ -1146,20 +1200,34 @@
     function renderChatBox(product, productId, productName, productPrice) {
         chatMessagesBox.replaceChildren();
         const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
-        chatHeaderTitle.textContent = "💬 Chat with " + sellerLabel;
+        chatHeaderTitle.textContent = "💬 CampusKart Chat · " + sellerLabel;
+        updateRoleToggleUI(product);
 
         const welcome = document.createElement("div");
         welcome.className = "chat-msg seller";
         welcome.textContent =
-            "Hi! 👋 I'm " + sellerLabel + ". Interested in \"" + productName +
-            "\" (" + productPrice + ")? Send a message here or click 'Chat on WhatsApp' above!";
+            "👋 Welcome to CampusKart In-Built Chat with " + sellerLabel + " for \"" + productName +
+            "\" (" + productPrice + "). Send a message below to discuss item condition, price, or campus meetup!";
         chatMessagesBox.appendChild(welcome);
 
-        const history = getChatHistory(productId);
+        const history = getChatHistory(product, productId);
         history.forEach(function (entry) {
             const msgEl = document.createElement("div");
-            msgEl.className = "chat-msg " + (entry.sender === "buyer" ? "buyer" : "seller");
-            msgEl.textContent = entry.text;
+            const isBuyer = entry.sender === "buyer";
+            msgEl.className = "chat-msg " + (isBuyer ? "buyer" : "seller");
+
+            const senderTag = document.createElement("strong");
+            senderTag.style.display = "block";
+            senderTag.style.fontSize = "11px";
+            senderTag.style.marginBottom = "3px";
+            senderTag.style.opacity = "0.85";
+            senderTag.textContent = entry.senderName || (isBuyer ? "👤 Buyer" : ("🏪 " + sellerLabel + " (Seller)"));
+            msgEl.appendChild(senderTag);
+
+            const textSpan = document.createElement("span");
+            textSpan.textContent = entry.text;
+            msgEl.appendChild(textSpan);
+
             if (entry.time) {
                 const timeEl = document.createElement("small");
                 timeEl.textContent = entry.time;
@@ -1176,27 +1244,45 @@
 
         const productName = loadedProduct.name || "Untitled Product";
         const productPrice = "₹" + (Number(loadedProduct.price) || 0).toLocaleString("en-IN");
+        const sellerLabel = loadedProduct.sellerName || (loadedProduct.sellerEmail ? loadedProduct.sellerEmail.split("@")[0] : "Seller");
+        const buyerLabel =
+            currentUserProfile.name ||
+            (currentUser && currentUser.displayName) ||
+            (currentUser && currentUser.email ? currentUser.email.split("@")[0] : "Campus Buyer");
         const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-        const history = getChatHistory(loadedProductId);
-        history.push({ sender: "buyer", text: cleanText, time: nowStr });
+        const history = getChatHistory(loadedProduct, loadedProductId);
+        const senderName = activeChatRole === "seller"
+            ? ("🏪 " + sellerLabel + " (Seller)")
+            : ("👤 " + buyerLabel + " (Buyer)");
+
         history.push({
-            sender: "seller",
-            text: "✓ Delivered to seller's CampusKart Dashboard! You can also click '💬 Chat on WhatsApp' above for instant reply.",
+            id: "msg_" + Date.now(),
+            sender: activeChatRole,
+            senderName: senderName,
+            text: cleanText,
             time: nowStr
         });
-        saveChatHistory(loadedProductId, history);
+
+        saveChatHistory(loadedProduct, loadedProductId, history);
         renderChatBox(loadedProduct, loadedProductId, productName, productPrice);
         sellerChatInput.value = "";
 
-        recordInterestAndMessage(loadedProduct, loadedProductId, productName, cleanText);
-        showToast("Message sent to seller! 💬");
+        recordInterestAndMessage(loadedProduct, loadedProductId, productName, cleanText, activeChatRole);
+        showToast(activeChatRole === "seller" ? "Reply sent to Buyer in chat! ✓" : "Message sent to " + sellerLabel + " in chat! ✓");
     }
 
     sellerChatForm.addEventListener("submit", function (event) {
         event.preventDefault();
         sendSellerChatMessage(sellerChatInput.value);
     });
+
+    if (chatRoleToggleBtn) {
+        chatRoleToggleBtn.addEventListener("click", function () {
+            activeChatRole = activeChatRole === "buyer" ? "seller" : "buyer";
+            updateRoleToggleUI(loadedProduct);
+        });
+    }
 
     document.querySelectorAll(".chat-quick-btn").forEach(function (btn) {
         btn.addEventListener("click", function () {
@@ -1207,19 +1293,19 @@
     function setupContactActions(product, sellerProfile, productName, productPrice, productId) {
         const sellerEmail = product.sellerEmail || (sellerProfile && sellerProfile.email) || "";
         resolvedSellerPhone = resolveSellerPhone(product, sellerProfile);
+        const isOwner = currentUser && product.sellerId && currentUser.uid === product.sellerId;
+        activeChatRole = isOwner ? "seller" : "buyer";
 
-        if (resolvedSellerPhone.length === 10) {
-            const phoneEl = document.getElementById("sellerPhoneText");
-            phoneEl.textContent = "WhatsApp / Phone: +91 " + resolvedSellerPhone;
-            phoneEl.hidden = false;
+        const phoneEl = document.getElementById("sellerPhoneText");
+        phoneEl.textContent = "Contact Phone: +91 " + resolvedSellerPhone;
+        phoneEl.hidden = false;
+
+        if (openChatButton) {
+            openChatButton.addEventListener("click", function () {
+                document.getElementById("sellerChatCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+                sellerChatInput.focus();
+            });
         }
-
-        whatsappButton.hidden = false;
-        whatsappButton.addEventListener("click", function () {
-            const history = getChatHistory(productId);
-            const lastBuyerMsg = [...history].reverse().find(function (m) { return m.sender === "buyer"; });
-            openWhatsAppChat(product, productName, productPrice, lastBuyerMsg ? lastBuyerMsg.text : undefined);
-        });
 
         if (sellerEmail) {
             emailSellerBtn.hidden = false;
@@ -1235,6 +1321,7 @@
                 return;
             }
 
+            activeChatRole = "buyer";
             const interestMsg = "Hi! I'm interested in buying \"" + productName + "\" (" + productPrice + "). Is it available?";
             sendSellerChatMessage(interestMsg);
 

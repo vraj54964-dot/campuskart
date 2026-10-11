@@ -984,13 +984,13 @@
             const title = el("h3", "", order.productName || "Product");
             if (isNew) title.append(el("span", "pill-new", "NEW"));
 
-            const buyer = el("p", "", "Buyer: " + (order.buyerInfo || "Not provided"));
+            const buyer = el("p", "", "Message: " + (order.buyerInfo || "Not provided"));
             const orderDate = toDate(order.createdAt) || (order.createdAtMs ? new Date(order.createdAtMs) : null);
             const time = el("small", "", timeAgo(orderDate));
 
             const actions = el("div", "interest-actions");
             if (order.productId) {
-                const openChatLink = el("a", "small-btn", "💬 Open Chat");
+                const openChatLink = el("a", "small-btn", "💬 Open Full Chat");
                 openChatLink.href = `product-details.html?id=${encodeURIComponent(order.productId)}#sellerChatCard`;
                 actions.append(openChatLink);
             }
@@ -1001,13 +1001,58 @@
                 actions.append(replyLink);
             }
             if (isNew) {
-                const doneBtn = el("button", "small-btn", "Contact kar liya ✓");
+                const doneBtn = el("button", "small-btn", "Mark Replied ✓");
                 doneBtn.type = "button";
                 doneBtn.addEventListener("click", () => markInterestDone(order.id, doneBtn));
                 actions.append(doneBtn);
             }
 
             card.append(title, buyer, time, actions);
+
+            if (order.productId) {
+                const replyForm = document.createElement("form");
+                replyForm.style.cssText = "display:flex; gap:6px; margin-top:10px;";
+                const replyInput = document.createElement("input");
+                replyInput.type = "text";
+                replyInput.placeholder = "Write a reply to Buyer in CampusKart Chat...";
+                replyInput.style.cssText = "flex:1; padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; font-family:inherit;";
+                const replySubmit = el("button", "small-btn", "Send Reply");
+                replySubmit.type = "submit";
+                replySubmit.style.cssText = "background:#1ec7a6; color:#06372f; border-color:#1ec7a6; font-weight:700;";
+
+                replyForm.append(replyInput, replySubmit);
+                replyForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const text = replyInput.value.trim();
+                    if (!text) return;
+                    const sellerLabel = getFullName(currentUser, currentProfile);
+                    const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                    let history = [];
+                    try {
+                        const raw = localStorage.getItem("campuskart_chats_" + order.productId);
+                        if (raw) history = JSON.parse(raw);
+                    } catch (_) {}
+                    history.push({
+                        id: "msg_" + Date.now(),
+                        sender: "seller",
+                        senderName: "🏪 " + sellerLabel + " (Seller)",
+                        text: text,
+                        time: nowStr
+                    });
+                    try {
+                        localStorage.setItem("campuskart_chats_" + order.productId, JSON.stringify(history));
+                    } catch (_) {}
+                    try {
+                        await updateDoc(doc(db, "listings", order.productId), {
+                            chatMessages: history
+                        });
+                    } catch (_) {}
+                    replyInput.value = "";
+                    showToast("Reply sent to Buyer in CampusKart Chat! ✓");
+                });
+                card.appendChild(replyForm);
+            }
+
             container.append(card);
         });
     }
@@ -1237,6 +1282,20 @@
         const listings = listingsRes.status === "fulfilled" ? listingsRes.value : [];
         const interests = interestsRes.status === "fulfilled" ? interestsRes.value : null;
         const saved = savedRes.status === "fulfilled" ? savedRes.value : null;
+
+        // Auto-sync seller's phone number onto their existing Firestore listings if missing
+        const cleanProfilePhone = String(currentProfile.phone || "").replace(/\D/g, "").slice(-10);
+        if (cleanProfilePhone.length === 10 && listings.length > 0) {
+            listings.forEach((item) => {
+                if (item.sellerPhone !== cleanProfilePhone) {
+                    item.sellerPhone = cleanProfilePhone;
+                    updateDoc(doc(db, "listings", item.id), {
+                        sellerPhone: cleanProfilePhone,
+                        sellerName: currentProfile.name || currentUser.displayName || ""
+                    }).catch(() => {});
+                }
+            });
+        }
 
         if (listingsRes.status === "rejected") {
             console.error("Listings error:", listingsRes.reason);
