@@ -1,0 +1,448 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details | CampusKart</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #101c35;
+            --teal: #16c6b1;
+            --light: #f5f8fc;
+            --white: #ffffff;
+            --text: #26344d;
+            --muted: #6b7890;
+            --border: #e4eaf2;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: 92%;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            min-height: 75px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--navy);
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .back-link {
+            color: var(--navy);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .page-heading {
+            padding: 35px 0 20px;
+        }
+
+        .page-heading p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .page-heading h1 {
+            color: var(--navy);
+            font-size: 30px;
+            margin-top: 5px;
+        }
+
+        .product-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding-bottom: 60px;
+        }
+
+        .product-image-box,
+        .product-info,
+        .seller-box {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .product-image-box {
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+        }
+
+        .product-image-box img {
+            width: 100%;
+            height: 380px;
+            object-fit: contain;
+            display: block;
+            padding: 12px;
+        }
+
+        .product-info {
+            padding: 28px;
+        }
+
+        .category {
+            color: #079e8e;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            color: var(--navy);
+        }
+
+        .product-info h2 {
+            font-size: 29px;
+            line-height: 1.3;
+            margin: 10px 0;
+            overflow-wrap: anywhere;
+        }
+
+        .price {
+            color: var(--navy);
+            font-size: 32px;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+
+        .condition {
+            display: inline-block;
+            background: #e2faf4;
+            color: #087d70;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .description {
+            margin-top: 22px;
+        }
+
+        .description h3,
+        .seller-box h3 {
+            color: var(--navy);
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .description p,
+        .seller-box p {
+            color: var(--muted);
+            font-size: 14px;
+            overflow-wrap: anywhere;
+            white-space: pre-wrap;
+        }
+
+        .seller-box {
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .seller-box p {
+            margin-top: 7px;
+        }
+
+        .note {
+            background: #eefbf8;
+            border: 1px solid #c8f1e9;
+            padding: 14px;
+            border-radius: 9px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #176d63;
+        }
+
+        .status {
+            padding: 55px 15px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .status h2 {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            background: var(--navy);
+            color: white;
+            padding: 25px 0;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .product-layout {
+                grid-template-columns: 1fr;
+                gap: 18px;
+            }
+
+            .product-image-box img {
+                height: 280px;
+            }
+
+            .product-info {
+                padding: 20px;
+            }
+
+            .product-info h2 {
+                font-size: 24px;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .nav-content {
+                min-height: 65px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header class="navbar">
+    <div class="container nav-content">
+        <a href="index.html" class="logo">
+            Campus<span>Kart</span>
+        </a>
+
+        <a href="browse.html" class="back-link">
+            ← Back to Browse
+        </a>
+    </div>
+</header>
+
+<main class="container">
+    <section class="page-heading">
+        <p>Home / Browse / Product Details</p>
+        <h1>Product Details</h1>
+    </section>
+
+    <section id="loading" class="status">
+        Loading product details...
+    </section>
+
+    <section id="error" class="status" hidden>
+        <h2>Product not found</h2>
+        <p id="errorMessage">
+            Please return to Browse and select a product again.
+        </p>
+        <p style="margin-top: 18px;">
+            <a href="browse.html" class="back-link">
+                ← Return to Browse
+            </a>
+        </p>
+    </section>
+
+    <section id="productContent" hidden>
+        <div class="product-layout">
+            <div class="product-image-box">
+                <img id="productImage" alt="Product image">
+            </div>
+
+            <div>
+                <article class="product-info">
+                    <p id="productCategory" class="category"></p>
+                    <h2 id="productName"></h2>
+                    <p id="productPrice" class="price"></p>
+                    <span id="productCondition" class="condition"></span>
+
+                    <div class="description">
+                        <h3>About this item</h3>
+                        <p id="productDescription"></p>
+                    </div>
+
+                    <div class="description">
+                        <h3>Campus</h3>
+                        <p id="productCampus"></p>
+                    </div>
+                </article>
+
+                <article class="seller-box">
+                    <h3>Seller Information</h3>
+                    <p id="sellerEmail"></p>
+                    <p id="sellerId"></p>
+                </article>
+
+                <div class="note">
+                    For your safety, verify the item and seller before
+                    completing any exchange. Meet in a safe campus location.
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        © 2026 CampusKart. Buy. Sell. Connect. Right on Campus.
+    </div>
+</footer>
+
+<script type="module">
+    import {
+        initializeApp,
+        getApp,
+        getApps
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+    import {
+        getFirestore,
+        doc,
+        getDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+        authDomain: "campus-cart-62492.firebaseapp.com",
+        projectId: "campus-cart-62492",
+        storageBucket: "campus-cart-62492.firebasestorage.app",
+        messagingSenderId: "182996728543",
+        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+        measurementId: "G-NN86N2NE52"
+    };
+
+    const app = getApps().length
+        ? getApp()
+        : initializeApp(firebaseConfig);
+
+    const db = getFirestore(app);
+
+    const loading = document.getElementById("loading");
+    const errorBox = document.getElementById("error");
+    const errorMessage = document.getElementById("errorMessage");
+    const productContent = document.getElementById("productContent");
+
+    function showError(message) {
+        loading.hidden = true;
+        productContent.hidden = true;
+        errorBox.hidden = false;
+        errorMessage.textContent = message;
+    }
+
+    async function loadProductDetails() {
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id");
+
+        if (!productId) {
+            showError("Product ID is missing. Please select a product from Browse.");
+            return;
+        }
+
+        try {
+            const productRef = doc(db, "listings", productId);
+            const productSnapshot = await getDoc(productRef);
+
+            if (!productSnapshot.exists()) {
+                showError("This product does not exist or may have been removed.");
+                return;
+            }
+
+            const product = productSnapshot.data();
+
+            if (String(product.status || "").toLowerCase() !== "active") {
+                showError("This product is currently unavailable.");
+                return;
+            }
+
+            document.getElementById("productName").textContent =
+                product.name || "Untitled Product";
+
+            document.getElementById("productCategory").textContent =
+                product.category || "Other";
+
+            document.getElementById("productPrice").textContent =
+                "₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+
+            document.getElementById("productCondition").textContent =
+                product.condition || "Used";
+
+            document.getElementById("productDescription").textContent =
+                product.description || "No description provided.";
+
+            document.getElementById("productCampus").textContent =
+                product.campus || "Not specified";
+
+            const image = document.getElementById("productImage");
+
+            if (product.imageUrl) {
+                image.src = product.imageUrl;
+                image.alt = product.name || "Product image";
+                image.addEventListener("error", function () {
+                    image.alt = "Product image could not be loaded";
+                    image.style.display = "none";
+                });
+            } else {
+                image.alt = "No product image available";
+                image.style.display = "none";
+            }
+
+            document.getElementById("sellerEmail").textContent =
+                product.sellerEmail
+                    ? "Seller email: " + product.sellerEmail
+                    : "Seller email: Not provided";
+
+            document.getElementById("sellerId").textContent =
+                product.sellerId
+                    ? "Seller ID: " + product.sellerId
+                    : "Seller ID: Not available";
+
+            loading.hidden = true;
+            errorBox.hidden = true;
+            productContent.hidden = false;
+
+        } catch (error) {
+            console.error("Product details error:", error);
+            showError("Could not load product details. Please check your internet connection and Firebase permissions.");
+        }
+    }
+
+    loadProductDetails();
+</script>
+
+</body>
+</html>
