@@ -338,18 +338,11 @@
                     <p id="sellerEmail"></p>
                     <p id="sellerId"></p>
                 </article>
-                
-<div class="seller-box">
-    <h3>Interested in this item?</h3>
-    <p id="buyMessage">Checking login status...</p>
 
-    <button id="requestBuyBtn" type="button" disabled
-        style="width:100%; margin-top:15px; padding:13px; border:0; border-radius:8px; background:#16c6b1; color:#101c35; font-size:15px; font-weight:bold; cursor:pointer;">
-        Request to Buy
-    </button>
-</div>
-
-
+                <button id="buyButton" class="buy-button" type="button" disabled>
+                    Buy Now
+                </button>
+                <p id="buyNote" class="buy-note"></p>
 
                 <div class="note">
                     For your safety, verify the item and seller before
@@ -378,10 +371,6 @@
         doc,
         getDoc
     } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-    import {
-    getAuth,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
@@ -398,21 +387,6 @@
         : initializeApp(firebaseConfig);
 
     const db = getFirestore(app);
-    const auth = getAuth(app);
-
-const requestBuyBtn = document.getElementById("requestBuyBtn");
-const buyMessage = document.getElementById("buyMessage");
-
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        requestBuyBtn.disabled = false;
-        buyMessage.textContent = "You're logged in and can request this item.";
-    } else {
-        requestBuyBtn.disabled = true;
-        buyMessage.textContent = "Please log in to request this item.";
-    }
-});
-
 
     const loading = document.getElementById("loading");
     const errorBox = document.getElementById("error");
