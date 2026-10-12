@@ -1589,7 +1589,7 @@
                 <button type="submit" class="chat-send-btn">Send ➤</button>
             </form>
             <div class="chat-footer-bar">
-                <button type="button" id="chatRoleToggleBtn" class="view-button">👤 Mode: Buyer (Switch to Seller)</button>
+                <span id="chatRoleToggleBtn" class="view-button" style="cursor: default;">👤 Mode: Buyer</span>
                 <button type="button" id="chatToEmailBtn" class="email-button">✉️ Email Seller</button>
             </div>
         </div>
@@ -1851,12 +1851,26 @@
             }
         }
 
+        function refreshChatButtons() {
+            document.querySelectorAll(".chat-btn").forEach(function (btn) {
+                const pid = btn.dataset.productId;
+                const prod = allProducts.find(function (p) { return p.id === pid; });
+                if (prod) {
+                    btn.textContent = isProductSeller(prod) ? "💬 Seller Chat" : "💬 Chat with Seller";
+                }
+            });
+        }
+
         onAuthStateChanged(auth, function (user) {
             currentUser = user;
             if (user) {
                 showLoggedInUI(user);
             } else {
                 showLoggedOutUI();
+            }
+            refreshChatButtons();
+            if (activeChatProduct) {
+                updateRoleToggleUI(activeChatProduct);
             }
             loadSavedIds(user);
         });
@@ -2016,7 +2030,44 @@
         }
 
         // ---------- IN-BUILT BUYER ↔ SELLER CHAT MODAL ----------
-        let activeChatRole = "buyer";
+        const chatQuickChips = document.getElementById("chatQuickChips");
+
+        function isProductSeller(product) {
+            const user = currentUser || auth.currentUser;
+            if (!user || !product) return false;
+            if (product.sellerId && user.uid === product.sellerId) return true;
+            const userEmail = String(user.email || "").trim().toLowerCase();
+            const prodSellerEmail = String(product.sellerEmail || "").trim().toLowerCase();
+            if (userEmail && prodSellerEmail && userEmail === prodSellerEmail) return true;
+            return false;
+        }
+
+        function renderModalQuickChips(role) {
+            if (!chatQuickChips) return;
+            const chips = role === "seller"
+                ? [
+                    { label: "Yes, available!", msg: "Yes, it is available! When can we meet on campus?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Price negotiable", msg: "The price is slightly negotiable for campus pickup." }
+                ]
+                : [
+                    { label: "Is this available?", msg: "Hi! Is this item still available?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Best price?", msg: "What is your final price for this?" }
+                ];
+            chatQuickChips.replaceChildren();
+            chips.forEach(function (item) {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "chat-chip";
+                chip.dataset.msg = item.msg;
+                chip.textContent = item.label;
+                chip.addEventListener("click", function () {
+                    sendChatMessage(item.msg);
+                });
+                chatQuickChips.appendChild(chip);
+            });
+        }
 
         function getChatHistory(product) {
             const productId = typeof product === "string" ? product : (product && product.id ? product.id : "");
@@ -2083,17 +2134,27 @@
         }
 
         function updateRoleToggleUI(product) {
-            if (!chatRoleToggleBtn) return;
+            const isSeller = isProductSeller(product);
+            activeChatRole = isSeller ? "seller" : "buyer";
             const sellerLabel = product && (product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller")) || "Seller";
-            if (activeChatRole === "seller") {
-                chatRoleToggleBtn.textContent = "🏪 Replying as Seller (" + sellerLabel + ") · Switch to Buyer";
-                chatRoleToggleBtn.style.background = "#0f766e";
-                chatInput.placeholder = "Write a reply as Seller (" + sellerLabel + ")...";
-            } else {
-                chatRoleToggleBtn.textContent = "👤 Messaging as Buyer · Switch to Seller Reply";
-                chatRoleToggleBtn.style.background = "#0d2c54";
-                chatInput.placeholder = "Write a message to " + sellerLabel + "...";
+
+            if (chatRoleToggleBtn) {
+                if (activeChatRole === "seller") {
+                    chatRoleToggleBtn.textContent = "🏪 Mode: Seller (" + sellerLabel + ")";
+                    chatRoleToggleBtn.style.background = "#0f766e";
+                    chatInput.placeholder = "Write a reply as Seller (" + sellerLabel + ")...";
+                } else {
+                    chatRoleToggleBtn.textContent = "👤 Mode: Buyer";
+                    chatRoleToggleBtn.style.background = "#0d2c54";
+                    chatInput.placeholder = "Write a message to " + sellerLabel + "...";
+                }
             }
+
+            if (chatToEmailBtn) {
+                chatToEmailBtn.hidden = isSeller;
+            }
+
+            renderModalQuickChips(activeChatRole);
         }
 
         function renderChatMessages(product) {
@@ -2136,8 +2197,7 @@
 
         function openChatModal(product) {
             activeChatProduct = product;
-            const isOwner = currentUser && product.sellerId && currentUser.uid === product.sellerId;
-            activeChatRole = isOwner ? "seller" : "buyer";
+            activeChatRole = isProductSeller(product) ? "seller" : "buyer";
             const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Campus Seller");
             chatModalTitle.textContent = "💬 CampusKart Chat · " + sellerLabel;
             chatModalSubtitle.textContent = (product.name || "Item") + " · ₹" + (Number(product.price) || 0).toLocaleString("en-IN") + (product.campus ? " · 📍 " + product.campus : "");
@@ -2157,6 +2217,8 @@
             if (!cleanText || !activeChatProduct) return;
 
             const product = activeChatProduct;
+            activeChatRole = isProductSeller(product) ? "seller" : "buyer";
+
             const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
             const buyerLabel = currentUser
                 ? (currentUser.displayName || (currentUser.email || "Buyer").split("@")[0])
@@ -2210,17 +2272,6 @@
             event.preventDefault();
             sendChatMessage(chatInput.value);
         });
-        document.querySelectorAll(".chat-chip").forEach(function (chip) {
-            chip.addEventListener("click", function () {
-                sendChatMessage(chip.dataset.msg);
-            });
-        });
-        if (chatRoleToggleBtn) {
-            chatRoleToggleBtn.addEventListener("click", function () {
-                activeChatRole = activeChatRole === "buyer" ? "seller" : "buyer";
-                if (activeChatProduct) updateRoleToggleUI(activeChatProduct);
-            });
-        }
         chatToEmailBtn.addEventListener("click", function () {
             if (!activeChatProduct) return;
             emailSeller(activeChatProduct);
@@ -2474,7 +2525,8 @@
             const chatBtn = document.createElement("button");
             chatBtn.className = "chat-btn";
             chatBtn.type = "button";
-            chatBtn.textContent = "💬 Chat with Seller";
+            chatBtn.dataset.productId = product.id;
+            chatBtn.textContent = isProductSeller(product) ? "💬 Seller Chat" : "💬 Chat with Seller";
             chatBtn.addEventListener("click", function () {
                 openChatModal(product);
             });
