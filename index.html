@@ -954,114 +954,9 @@
 
                 <div class="products" id="productGrid">
 
-                    <!-- Product 1 -->
-                    <article class="product-card"
-                             data-category="books"
-                             data-search="engineering mathematics textbook book">
-                        <div class="product-image">
-                            <img
-                                src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=700&q=80"
-                                alt="Books for engineering students"
-                                loading="lazy"
-                            >
-                            <span class="product-tag">Popular</span>
-                        </div>
-
-                        <div class="product-info">
-                            <span class="product-category">Books</span>
-                            <h3>Engineering Mathematics</h3>
-                            <p class="product-description">
-                                Semester study book
-                            </p>
-
-                            <div class="product-bottom">
-                                <span class="price">₹250</span>
-                                <span class="condition">Good condition</span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Product 2 -->
-                    <article class="product-card"
-                             data-category="electronics"
-                             data-search="scientific calculator electronics casio">
-                        <div class="product-image">
-                            <img
-                                src="https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&w=700&q=80"
-                                alt="Calculator for college students"
-                                loading="lazy"
-                            >
-                            <span class="product-tag">Great Deal</span>
-                        </div>
-
-                        <div class="product-info">
-                            <span class="product-category">Electronics</span>
-                            <h3>Scientific Calculator</h3>
-                            <p class="product-description">
-                                Useful for engineering exams
-                            </p>
-
-                            <div class="product-bottom">
-                                <span class="price">₹400</span>
-                                <span class="condition">Like new</span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Product 3 -->
-                    <article class="product-card"
-                             data-category="notes"
-                             data-search="physics handwritten notes study material">
-                        <div class="product-image">
-                            <img
-                                src="https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=700&q=80"
-                                alt="Notes and study material"
-                                loading="lazy"
-                            >
-                            <span class="product-tag">Student Pick</span>
-                        </div>
-
-                        <div class="product-info">
-                            <span class="product-category">Notes</span>
-                            <h3>Physics Study Notes</h3>
-                            <p class="product-description">
-                                Revision-ready notes
-                            </p>
-
-                            <div class="product-bottom">
-                                <span class="price">₹100</span>
-                                <span class="condition">Well maintained</span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <!-- Product 4 -->
-                    <article class="product-card"
-                             data-category="hostel"
-                             data-search="college backpack bag hostel essentials">
-                        <div class="product-image">
-                            <img
-                                src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=700&q=80"
-                                alt="Backpack for college"
-                                loading="lazy"
-                            >
-                            <span class="product-tag">Affordable</span>
-                        </div>
-
-                        <div class="product-info">
-                            <span class="product-category">Hostel Essentials</span>
-                            <h3>College Backpack</h3>
-                            <p class="product-description">
-                                Everyday campus bag
-                            </p>
-
-                            <div class="product-bottom">
-                                <span class="price">₹350</span>
-                                <span class="condition">Good condition</span>
-                            </div>
-                        </div>
-                    </article>
-
+                   <p style="padding:20px; color:#6b7890;">
+    Loading products from CampusKart...
+</p>
                 </div>
 
                 <p class="empty-message" id="emptyMessage">
@@ -1203,11 +1098,15 @@
             onAuthStateChanged,
             signOut
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        import {
-            getFirestore,
-            doc,
-            getDoc
-        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        
+import {
+    getFirestore,
+    doc,
+    getDoc,
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
 
         const firebaseConfig = {
             apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
@@ -1222,6 +1121,217 @@
         const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+function normalizeCategory(category) {
+    const value = String(category || "").toLowerCase().trim();
+
+    if (value.includes("book")) return "books";
+    if (
+        value.includes("electronic") ||
+        value.includes("calculator") ||
+        value.includes("gadget")
+    ) return "electronics";
+    if (value.includes("note") || value.includes("study")) return "notes";
+    if (
+        value.includes("hostel") ||
+        value.includes("bag") ||
+        value.includes("daily")
+    ) return "hostel";
+
+    return value || "other";
+}
+
+async function loadFeaturedProducts() {
+    const productGrid = document.getElementById("productGrid");
+    const emptyMessage = document.getElementById("emptyMessage");
+
+    productGrid.replaceChildren();
+
+    const loadingMessage = document.createElement("p");
+    loadingMessage.textContent = "Loading products...";
+    loadingMessage.style.padding = "20px";
+    productGrid.appendChild(loadingMessage);
+
+    try {
+        const snapshot = await getDocs(collection(db, "listings"));
+        productGrid.replaceChildren();
+
+        let count = 0;
+
+        snapshot.forEach(function (productDoc) {
+            const product = productDoc.data();
+
+            // Sirf active listings homepage par dikhani hain.
+            if (String(product.status || "").toLowerCase() !== "active") {
+                return;
+            }
+
+            const name = String(product.name || "Student Item");
+            const category = String(product.category || "Other");
+            const condition = String(product.condition || "Condition not specified");
+            const description = String(product.description || "Student marketplace listing");
+            const price = Number(product.price);
+            const imageUrl = String(product.imageUrl || "");
+
+            const card = document.createElement("article");
+            card.className = "product-card";
+            card.dataset.category = normalizeCategory(category);
+            card.dataset.search = (
+                name + " " + category + " " + description + " " +
+                condition + " " + String(product.campus || "")
+            ).toLowerCase();
+
+            const imageBox = document.createElement("div");
+            imageBox.className = "product-image";
+
+            if (imageUrl && /^https?:\/\//i.test(imageUrl)) {
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.alt = name;
+                img.loading = "lazy";
+                img.onerror = function () {
+                    img.remove();
+                };
+                imageBox.appendChild(img);
+            } else {
+                imageBox.style.display = "grid";
+                imageBox.style.placeItems = "center";
+                imageBox.style.color = "#6b7890";
+                imageBox.style.fontSize = "14px";
+                imageBox.textContent = "No image available";
+            }
+
+            const tag = document.createElement("span");
+            tag.className = "product-tag";
+            tag.textContent = "Student Listing";
+            imageBox.appendChild(tag);
+
+            const info = document.createElement("div");
+            info.className = "product-info";
+
+            const categoryLabel = document.createElement("span");
+            categoryLabel.className = "product-category";
+            categoryLabel.textContent = category;
+
+            const title = document.createElement("h3");
+            title.textContent = name;
+
+            const desc = document.createElement("p");
+            desc.className = "product-description";
+            desc.textContent = description;
+
+            const bottom = document.createElement("div");
+            bottom.className = "product-bottom";
+
+            const priceLabel = document.createElement("span");
+            priceLabel.className = "price";
+            priceLabel.textContent =
+                Number.isFinite(price) && price >= 0
+                    ? "₹" + price.toLocaleString("en-IN")
+                    : "Price unavailable";
+
+            const conditionLabel = document.createElement("span");
+            conditionLabel.className = "condition";
+            conditionLabel.textContent = condition;
+
+            
+bottom.append(priceLabel, conditionLabel);
+
+// Buttons container
+const actions = document.createElement("div");
+actions.style.display = "flex";
+actions.style.gap = "8px";
+actions.style.marginTop = "14px";
+
+// View Details button
+const detailsButton = document.createElement("button");
+detailsButton.type = "button";
+detailsButton.textContent = "View Details";
+detailsButton.style.flex = "1";
+detailsButton.style.padding = "10px 6px";
+detailsButton.style.border = "none";
+detailsButton.style.borderRadius = "8px";
+detailsButton.style.background = "#101c35";
+detailsButton.style.color = "white";
+detailsButton.style.cursor = "pointer";
+
+detailsButton.addEventListener("click", function () {
+    const params = new URLSearchParams({
+        id: productDoc.id
+    });
+
+    window.location.href = "product-details.html?" + params.toString();
+});
+
+// Email Seller button
+const emailButton = document.createElement("button");
+emailButton.type = "button";
+emailButton.textContent = "Email Seller";
+emailButton.style.flex = "1";
+emailButton.style.padding = "10px 6px";
+emailButton.style.border = "1px solid #16c6b1";
+emailButton.style.borderRadius = "8px";
+emailButton.style.background = "#e8faf7";
+emailButton.style.color = "#101c35";
+emailButton.style.fontWeight = "700";
+emailButton.style.cursor = "pointer";
+
+emailButton.addEventListener("click", function () {
+    const sellerEmail = String(product.sellerEmail || "").trim();
+
+    if (!sellerEmail) {
+        alert("Seller ka email available nahi hai.");
+        return;
+    }
+
+    const subject = "CampusKart: " + name;
+    const body =
+        "Hi,\n\n" +
+        "Mujhe aapki listing '" + name + "' (₹" + price +
+        ") ke baare mein baat karni hai.\n" +
+        "Kya yeh item abhi available hai?\n\nThanks";
+
+    window.location.href =
+        "mailto:" + sellerEmail +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body);
+});
+
+actions.append(detailsButton, emailButton);
+info.append(categoryLabel, title, desc, bottom, actions);
+card.append(imageBox, info);
+productGrid.appendChild(card);
+
+            count++;
+        });
+
+        if (count === 0) {
+            productGrid.style.display = "none";
+            emptyMessage.textContent =
+                "Abhi koi active listing nahi hai. Pehla item sell karke shuruaat karo!";
+            emptyMessage.style.display = "block";
+        } else {
+            productGrid.style.display = "";
+            emptyMessage.style.display = "none";
+        }
+
+        // Products load hone ke baad search/category filters dobara apply karo.
+        if (typeof filterProducts === "function") {
+            filterProducts();
+        }
+    } catch (error) {
+        console.error("Homepage products load error:", error);
+
+        productGrid.replaceChildren();
+        productGrid.style.display = "none";
+        emptyMessage.textContent =
+            "Products load nahi ho paaye. Internet aur Firestore rules check karo.";
+        emptyMessage.style.display = "block";
+    }
+}
+
+loadFeaturedProducts();
+
 
         const loginLink = document.getElementById("loginLink");
         const userMenu = document.getElementById("userMenu");
@@ -1295,62 +1405,73 @@
     </script>
 
     <!-- SEARCH AND CATEGORY FILTER -->
-    <script>
-        const searchForm = document.getElementById("searchForm");
-        const searchInput = document.getElementById("searchInput");
-        const productCards = document.querySelectorAll(".product-card");
-        const categoryCards = document.querySelectorAll(".category-card");
-        const emptyMessage = document.getElementById("emptyMessage");
+   
+<script>
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const categoryCards = document.querySelectorAll(".category-card");
+    const emptyMessage = document.getElementById("emptyMessage");
 
-        let selectedCategory = "all";
+    let selectedCategory = "all";
 
-        function filterProducts() {
-            const searchText = searchInput.value.toLowerCase().trim();
-            let visibleCount = 0;
+    function filterProducts() {
+        const searchText = searchInput.value.toLowerCase().trim();
 
-            productCards.forEach(function(card) {
-                const productName = card.innerText.toLowerCase();
-                const searchKeywords = card.dataset.search.toLowerCase();
-                const category = card.dataset.category;
+        // Har baar current product cards lo, kyunki Firebase unhe baad mein add karta hai.
+        const productCards = document.querySelectorAll("#productGrid .product-card");
+        let visibleCount = 0;
 
-                const matchesSearch =
-                    productName.includes(searchText) ||
-                    searchKeywords.includes(searchText);
+        productCards.forEach(function (card) {
+            const productName = card.innerText.toLowerCase();
+            const searchKeywords = (card.dataset.search || "").toLowerCase();
+            const category = card.dataset.category || "";
 
-                const matchesCategory =
-                    selectedCategory === "all" ||
-                    category === selectedCategory;
+            const matchesSearch =
+                productName.includes(searchText) ||
+                searchKeywords.includes(searchText);
 
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = "";
-                    visibleCount++;
-                } else {
-                    card.style.display = "none";
-                }
-            });
+            const matchesCategory =
+                selectedCategory === "all" ||
+                category === selectedCategory;
 
-            emptyMessage.style.display =
-                visibleCount === 0 ? "block" : "none";
+            if (matchesSearch && matchesCategory) {
+                card.style.display = "";
+                visibleCount++;
+            } else {
+                card.style.display = "none";
+            }
+        });
+
+        if (visibleCount === 0 && productCards.length > 0) {
+            emptyMessage.textContent =
+                "No matching items found. Try another search.";
+            emptyMessage.style.display = "block";
+        } else if (productCards.length > 0) {
+            emptyMessage.style.display = "none";
         }
+    }
 
-        searchForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-            selectedCategory = "all";
+    searchForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        selectedCategory = "all";
+        filterProducts();
+
+        document.getElementById("products").scrollIntoView({
+            behavior: "smooth"
+        });
+    });
+
+    searchInput.addEventListener("input", filterProducts);
+
+    categoryCards.forEach(function (card) {
+        card.addEventListener("click", function () {
+            selectedCategory = card.dataset.category;
+            searchInput.value = "";
             filterProducts();
-
-            document.getElementById("products").scrollIntoView({
-                behavior: "smooth"
-            });
         });
+    });
+</script>
 
-        categoryCards.forEach(function(card) {
-            card.addEventListener("click", function() {
-                selectedCategory = card.dataset.category;
-                searchInput.value = "";
-                filterProducts();
-            });
-        });
-    </script>
 
 </body>
 </html>
