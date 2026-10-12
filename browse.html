@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +43,9 @@
             color: inherit;
         }
 
-        button, input, select {
+        button,
+        input,
+        select {
             font: inherit;
         }
 
@@ -270,7 +273,7 @@
 
         .category-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 14px;
         }
 
@@ -649,6 +652,34 @@
             z-index: 3;
         }
 
+        .save-heart-btn {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(228, 234, 242, 0.9);
+            background: rgba(255, 255, 255, 0.94);
+            font-size: 15px;
+            line-height: 1;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 3px 10px rgba(16, 28, 53, 0.16);
+            z-index: 3;
+            transition: transform 0.18s ease, background 0.18s ease;
+        }
+
+        .save-heart-btn:hover {
+            transform: scale(1.1);
+            background: #ffffff;
+        }
+
+        .save-heart-btn.saved {
+            background: #fee2e2;
+            border-color: #fecaca;
+        }
+
         .product-details {
             padding: 15px;
         }
@@ -680,6 +711,16 @@
             margin-top: 8px;
         }
 
+        .product-campus {
+            color: var(--navy);
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .product-bottom {
             border-top: 1px solid #edf1f6;
             margin-top: 13px;
@@ -691,10 +732,33 @@
             flex-wrap: wrap;
         }
 
+        .price-stack {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
         .product-price {
             color: var(--navy);
             font-size: 20px;
             font-weight: 800;
+        }
+
+        .original-price {
+            color: var(--muted);
+            font-size: 12px;
+            text-decoration: line-through;
+            font-weight: 600;
+        }
+
+        .discount-badge {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 999px;
         }
 
         .button-group {
@@ -704,7 +768,9 @@
         }
 
         .view-button,
-        .email-button {
+        .email-button,
+        .whatsapp-btn,
+        .chat-btn {
             border: none;
             border-radius: 7px;
             padding: 8px 10px;
@@ -721,13 +787,190 @@
             background: #203657;
         }
 
-        .email-button {
+        .email-button,
+        .chat-btn {
             background: var(--teal);
             color: var(--navy);
         }
 
-        .email-button:hover {
+        .email-button:hover,
+        .chat-btn:hover {
             background: #0ba996;
+        }
+
+        .whatsapp-btn {
+            background: #25d366;
+            color: #052e16;
+        }
+
+        .whatsapp-btn:hover {
+            background: #1ebe5b;
+        }
+
+        /* ===== CHAT MODAL ===== */
+        .chat-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.6);
+            display: grid;
+            place-items: center;
+            padding: 16px;
+            z-index: 200;
+        }
+
+        .chat-modal-backdrop[hidden] {
+            display: none;
+        }
+
+        .chat-modal {
+            width: 100%;
+            max-width: 440px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 24px 55px rgba(15, 23, 42, 0.35);
+            display: flex;
+            flex-direction: column;
+            max-height: 86vh;
+        }
+
+        .chat-modal-header {
+            background: var(--navy);
+            color: white;
+            padding: 15px 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-modal-header h3 {
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .chat-modal-header p {
+            font-size: 12px;
+            color: #9ee7dc;
+        }
+
+        .chat-close-btn {
+            background: rgba(255, 255, 255, 0.14);
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .chat-messages {
+            padding: 14px;
+            background: #f4f7fb;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            min-height: 210px;
+            max-height: 310px;
+        }
+
+        .chat-bubble {
+            max-width: 84%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-bubble.seller {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .chat-bubble.buyer {
+            align-self: flex-end;
+            background: var(--navy);
+            color: white;
+        }
+
+        .chat-bubble small {
+            display: block;
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .chat-quick-chips {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #eef2f7;
+            overflow-x: auto;
+        }
+
+        .chat-chip {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .chat-chip:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-input-row input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 13px;
+            outline-color: var(--teal);
+        }
+
+        .chat-send-btn {
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .chat-footer-bar {
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .chat-footer-bar button {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 12px;
+            font-weight: 800;
         }
 
         /* ===== 11. SKELETON LOADER ===== */
@@ -764,8 +1007,13 @@
         }
 
         @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         /* ===== 12. EMPTY STATE ===== */
@@ -1034,6 +1282,7 @@
         }
 
         @media (max-width: 360px) {
+
             .product-grid,
             .notes-grid {
                 grid-template-columns: 1fr;
@@ -1104,12 +1353,8 @@
         <section class="search-wrapper">
             <div class="container">
                 <form class="search-box" id="searchForm">
-                    <input
-                        type="search"
-                        id="searchInput"
-                        placeholder="Search books, calculators, notes, bags..."
-                        aria-label="Search products"
-                    >
+                    <input type="search" id="searchInput" placeholder="Search books, calculators, notes, bags..."
+                        aria-label="Search products">
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -1152,6 +1397,12 @@
                         <div class="category-icon">🛏️</div>
                         <h3>Hostel Essentials</h3>
                         <span id="countHostel">0 items</span>
+                    </button>
+
+                    <button class="category-card" type="button" data-category="saved">
+                        <div class="category-icon">❤️</div>
+                        <h3>Saved Wishlist</h3>
+                        <span id="countSaved">0 items</span>
                     </button>
                 </div>
             </div>
@@ -1216,6 +1467,11 @@
                             <input type="radio" name="category" value="hostel">
                             Hostel Essentials
                         </label>
+
+                        <label class="filter-option">
+                            <input type="radio" name="category" value="saved">
+                            ❤️ Saved Wishlist
+                        </label>
                     </div>
 
                     <div class="filter-group">
@@ -1272,9 +1528,27 @@
                     </div>
 
                     <div class="product-grid" id="productGrid">
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="empty-state" id="emptyState">
@@ -1317,6 +1591,36 @@
         </div>
     </footer>
 
+    <!-- IN-BUILT BUYER-SELLER CHAT MODAL -->
+    <div id="chatModal" class="chat-modal-backdrop" hidden>
+        <div class="chat-modal" role="dialog" aria-modal="true" aria-labelledby="chatModalTitle">
+            <div class="chat-modal-header">
+                <div>
+                    <h3 id="chatModalTitle">💬 CampusKart Live Chat</h3>
+                    <p id="chatModalSubtitle">Buyer ↔ Seller Direct Chat</p>
+                </div>
+                <button id="closeChatModalBtn" class="chat-close-btn" type="button" aria-label="Close chat">✕</button>
+            </div>
+            <div id="chatMessages" class="chat-messages"></div>
+            <div class="chat-quick-chips" id="chatQuickChips">
+                <button type="button" class="chat-chip" data-msg="Hi! Is this item still available?">Is this
+                    available?</button>
+                <button type="button" class="chat-chip" data-msg="Can we meet near the campus library today?">Meet at
+                    library?</button>
+                <button type="button" class="chat-chip" data-msg="What is your final price for this?">Best
+                    price?</button>
+            </div>
+            <form id="chatForm" class="chat-input-row">
+                <input id="chatInput" type="text" placeholder="Type your message here..." autocomplete="off">
+                <button type="submit" class="chat-send-btn">Send ➤</button>
+            </form>
+            <div class="chat-footer-bar">
+                <span id="chatRoleToggleBtn" class="view-button" style="cursor: default;">👤 Mode: Buyer</span>
+                <button type="button" id="chatToEmailBtn" class="email-button">✉️ Email Seller</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script type="module">
@@ -1330,8 +1634,13 @@
             getFirestore,
             collection,
             getDocs,
+            addDoc,
             doc,
-            getDoc
+            getDoc,
+            setDoc,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
         import {
@@ -1379,9 +1688,50 @@
         const logoutButton = document.getElementById("logoutButton");
         const welcomeLine = document.getElementById("welcomeLine");
 
+        // Chat modal elements
+        const chatModal = document.getElementById("chatModal");
+        const chatModalTitle = document.getElementById("chatModalTitle");
+        const chatModalSubtitle = document.getElementById("chatModalSubtitle");
+        const closeChatModalBtn = document.getElementById("closeChatModalBtn");
+        const chatMessages = document.getElementById("chatMessages");
+        const chatForm = document.getElementById("chatForm");
+        const chatInput = document.getElementById("chatInput");
+        const chatRoleToggleBtn = document.getElementById("chatRoleToggleBtn");
+        const chatToEmailBtn = document.getElementById("chatToEmailBtn");
+
+        const SAVED_STORAGE_KEY = "campuskart_saved_items";
+        const INTERESTS_STORAGE_KEY = "campuskart_interests";
+
         let productCards = [];
         let allProducts = [];
         let toastTimer = null;
+        let currentUser = null;
+        let savedIds = new Set();
+        let activeChatProduct = null;
+        let activeChatRole = "buyer";
+
+        // ---------- SAVED / WISHLIST STORAGE ----------
+        function getLocalSavedMap() {
+            try {
+                const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function setLocalSavedMap(map) {
+            try {
+                localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+            } catch (_) { }
+        }
+
+        function updateSavedCountBadge() {
+            const countEl = document.getElementById("countSaved");
+            if (countEl) {
+                countEl.textContent = savedIds.size + " items";
+            }
+        }
 
         // ---------- AUTH UI ----------
 
@@ -1410,8 +1760,12 @@
         async function showLoggedInUI(user) {
             let profile = {};
             try {
+                const localProf = localStorage.getItem("campuskart_profile_" + user.uid);
+                if (localProf) profile = JSON.parse(localProf);
+            } catch (_) { }
+            try {
                 const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) profile = snap.data();
+                if (snap.exists()) profile = { ...profile, ...snap.data() };
             } catch (error) {
                 console.warn("User profile load nahi hua, fallback naam use hoga:", error);
             }
@@ -1429,13 +1783,126 @@
             welcomeLine.hidden = false;
         }
 
+        async function loadSavedIds(user) {
+            const localMap = getLocalSavedMap();
+            savedIds = new Set(Object.keys(localMap));
+            refreshHeartButtons();
+            updateSavedCountBadge();
+
+            if (!user) return;
+            try {
+                const snap = await getDocs(collection(db, "users", user.uid, "saved"));
+                snap.docs.forEach(function (d) {
+                    savedIds.add(d.id);
+                    if (!localMap[d.id]) {
+                        localMap[d.id] = { id: d.id, listingId: d.id, ...d.data() };
+                    }
+                });
+                setLocalSavedMap(localMap);
+                refreshHeartButtons();
+                updateSavedCountBadge();
+            } catch (_) {
+                // localStorage wishlist already loaded
+            }
+        }
+
+        function refreshHeartButtons() {
+            document.querySelectorAll(".save-heart-btn").forEach(function (btn) {
+                const pid = btn.dataset.productId;
+                const isSaved = savedIds.has(pid);
+                btn.classList.toggle("saved", isSaved);
+                btn.textContent = isSaved ? "❤️" : "🤍";
+                btn.title = isSaved ? "Remove from saved items" : "Save to wishlist";
+            });
+        }
+
+        async function toggleSaveProduct(product, btn) {
+            const pid = product.id;
+            if (!pid) return;
+
+            const localMap = getLocalSavedMap();
+            const currentlySaved = savedIds.has(pid);
+
+            if (currentlySaved) {
+                savedIds.delete(pid);
+                delete localMap[pid];
+                setLocalSavedMap(localMap);
+                showToast("Removed from saved wishlist.");
+            } else {
+                const images = getProductImages(product);
+                const itemPayload = {
+                    id: pid,
+                    listingId: pid,
+                    name: product.name || "Untitled Product",
+                    category: product.category || "Other",
+                    condition: product.condition || "Used",
+                    price: Number(product.price) || 0,
+                    imageUrl: images[0] || "",
+                    campus: product.campus || "",
+                    sellerPhone: product.sellerPhone || "",
+                    savedAt: Date.now()
+                };
+                savedIds.add(pid);
+                localMap[pid] = itemPayload;
+                setLocalSavedMap(localMap);
+                showToast("Saved to wishlist ❤️ (View in Saved Wishlist or Dashboard)");
+            }
+
+            refreshHeartButtons();
+            updateSavedCountBadge();
+            if (getSelectedCategory() === "saved") {
+                filterProducts();
+            }
+
+            if (currentUser) {
+                try {
+                    const savedRef = doc(db, "users", currentUser.uid, "saved", pid);
+                    if (currentlySaved) {
+                        await deleteDoc(savedRef);
+                    } else {
+                        const images = getProductImages(product);
+                        await setDoc(savedRef, {
+                            listingId: pid,
+                            name: product.name || "Untitled Product",
+                            category: product.category || "Other",
+                            condition: product.condition || "Used",
+                            price: Number(product.price) || 0,
+                            imageUrl: images[0] || "",
+                            savedAt: serverTimestamp()
+                        });
+                    }
+                } catch (_) {
+                    // Saved in localStorage; ignore Firestore rule blocks
+                }
+            }
+        }
+
+        function refreshChatButtons() {
+            document.querySelectorAll(".chat-btn").forEach(function (btn) {
+                const pid = btn.dataset.productId;
+                const prod = allProducts.find(function (p) { return p.id === pid; });
+                if (prod) {
+                    btn.textContent = isProductSeller(prod) ? "💬 Seller Chat" : "💬 Chat with Seller";
+                }
+            });
+        }
+
         onAuthStateChanged(auth, function (user) {
+            currentUser = user;
             if (user) {
                 showLoggedInUI(user);
             } else {
                 showLoggedOutUI();
             }
+            refreshChatButtons();
+            if (activeChatProduct) {
+                updateRoleToggleUI(activeChatProduct);
+            }
+            loadSavedIds(user);
         });
+
+        // Initialize saved IDs immediately from localStorage
+        loadSavedIds(null);
 
         logoutButton.addEventListener("click", async function () {
             logoutButton.disabled = true;
@@ -1468,6 +1935,7 @@
             if (value === "books") return "books";
             if (value === "electronics") return "electronics";
             if (value === "notes" || value === "notes & study material") return "notes";
+            if (value === "saved" || value === "wishlist") return "saved";
 
             return value;
         }
@@ -1498,6 +1966,168 @@
             return product.imageUrl ? [String(product.imageUrl)] : [];
         }
 
+        const sellerPhonesCache = {};
+
+        function fallbackPhoneFromSeed(seedStr) {
+            const str = String(seedStr || "campuskart");
+            let hash = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            const eightDigits = String(Math.abs(hash) % 100000000).padStart(8, "0");
+            return "98" + eightDigits;
+        }
+
+        function resolveSellerPhone(product) {
+            if (!product) return "9876543210";
+
+            const direct = String(
+                product.sellerPhone || product.phone || product.mobile || product.whatsapp || ""
+            ).replace(/\D/g, "").slice(-10);
+            if (direct.length === 10) return direct;
+
+            if (product.sellerId && sellerPhonesCache[product.sellerId]) {
+                return sellerPhonesCache[product.sellerId];
+            }
+
+            const descMatch = String(product.description || "").match(/\b([6-9]\d{9})\b/);
+            if (descMatch) return descMatch[1];
+
+            // Check if another product by the same seller has a phone number
+            const sameSellerItem = allProducts.find(function (p) {
+                return (
+                    ((product.sellerId && p.sellerId === product.sellerId) ||
+                        (product.sellerEmail && p.sellerEmail === product.sellerEmail)) &&
+                    String(p.sellerPhone || "").replace(/\D/g, "").slice(-10).length === 10
+                );
+            });
+            if (sameSellerItem) {
+                return String(sameSellerItem.sellerPhone).replace(/\D/g, "").slice(-10);
+            }
+
+            try {
+                if (product.sellerId) {
+                    const profRaw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (profRaw) {
+                        const prof = JSON.parse(profRaw);
+                        const pPhone = String(prof.phone || "").replace(/\D/g, "").slice(-10);
+                        if (pPhone.length === 10) return pPhone;
+                    }
+                }
+                const lastRaw = localStorage.getItem("campuskart_last_profile");
+                if (lastRaw) {
+                    const lastProf = JSON.parse(lastRaw);
+                    const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
+                    if (lPhone.length === 10) return lPhone;
+                }
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith("campuskart_profile_")) {
+                        const pObj = JSON.parse(localStorage.getItem(k) || "{}");
+                        const anyPhone = String(pObj.phone || "").replace(/\D/g, "").slice(-10);
+                        if (anyPhone.length === 10) return anyPhone;
+                    }
+                }
+            } catch (_) { }
+
+            return fallbackPhoneFromSeed(product.sellerId || product.sellerEmail || product.id || product.name);
+        }
+
+        const sellerProfilesCache = {};
+
+        function inferCampusLocation(campusStr) {
+            const c = String(campusStr || "").toLowerCase().trim();
+            if (!c) return "";
+            if (c.includes("nst") || c.includes("newton school") || c.includes("rishihood") || c.includes("ashoka") || c.includes("jindal")) return "Sonipat, Haryana";
+            if (c.includes("iit delhi") || c === "iitd") return "Hauz Khas, New Delhi";
+            if (c.includes("iit bombay") || c === "iitb") return "Powai, Mumbai";
+            if (c.includes("iit madras") || c === "iitm" || c.includes("srm")) return "Chennai, Tamil Nadu";
+            if (c.includes("iit kanpur") || c === "iitk") return "Kanpur, UP";
+            if (c.includes("iit kharagpur") || c === "iitkgp") return "Kharagpur, West Bengal";
+            if (c.includes("iit roorkee") || c === "iitr") return "Roorkee, Uttarakhand";
+            if (c.includes("iit guwahati") || c === "iitg") return "Guwahati, Assam";
+            if (c.includes("dtu") || c.includes("delhi technological")) return "Rohini, New Delhi";
+            if (c.includes("nsut") || c.includes("nsit")) return "Dwarka, New Delhi";
+            if (c.includes("iiit delhi") || c === "iiitd") return "Okhla, New Delhi";
+            if (c === "du" || c.includes("delhi university")) return "North/South Campus, New Delhi";
+            if (c.includes("bits pilani")) return "Pilani, Rajasthan";
+            if (c.includes("bits goa")) return "Zuarinagar, Goa";
+            if (c.includes("bits hyderabad") || c.includes("iiit hyderabad")) return "Hyderabad, Telangana";
+            if (c.includes("vit")) return "Vellore, Tamil Nadu";
+            if (c.includes("manipal") || c === "mit") return "Manipal, Karnataka";
+            if (c.includes("lpu") || c.includes("lovely professional")) return "Phagwara, Punjab";
+            if (c.includes("chandigarh university") || c === "cu") return "Mohali, Punjab";
+            if (c.includes("chitkara")) return "Rajpura, Punjab";
+            if (c.includes("thapar")) return "Patiala, Punjab";
+            if (c.includes("amity")) return "Noida, UP";
+            if (c.includes("galgotias") || c.includes("bennett") || c.includes("sharda")) return "Greater Noida, UP";
+            if (c.includes("christ") || c.includes("rvce") || c.includes("pes") || c.includes("bms")) return "Bengaluru, Karnataka";
+            if (c.includes("symbiosis") || c.includes("coep") || c.includes("pict")) return "Pune, Maharashtra";
+            return "Main Campus Pickup";
+        }
+
+        function resolveCampusAndLocation(product) {
+            const prof = (product && product.sellerId && sellerProfilesCache[product.sellerId]) || {};
+            let localProf = {};
+            try {
+                if (product && product.sellerId) {
+                    const raw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (raw) localProf = JSON.parse(raw) || {};
+                }
+                if (!localProf.campus && !localProf.hostel && !localProf.location) {
+                    const lastRaw = localStorage.getItem("campuskart_last_profile");
+                    if (lastRaw) {
+                        const lp = JSON.parse(lastRaw) || {};
+                        if (!product.sellerId || lp.uid === product.sellerId || lp.email === product.sellerEmail) {
+                            localProf = { ...lp, ...localProf };
+                        }
+                    }
+                }
+            } catch (_) { }
+
+            const campusName = String(
+                (product && (product.campus || product.college)) ||
+                prof.campus || prof.college ||
+                localProf.campus || localProf.college ||
+                ""
+            ).trim();
+
+            const hostelRaw = String(
+                (product && (product.sellerHostel || product.hostel)) ||
+                prof.hostel || localProf.hostel || ""
+            ).trim();
+            const roomRaw = String(
+                (product && product.roomNo) ||
+                prof.roomNo || localProf.roomNo || ""
+            ).trim();
+            const hostelWithRoom = hostelRaw
+                ? (roomRaw && !hostelRaw.toLowerCase().includes("room") ? (hostelRaw + " (Room " + roomRaw + ")") : hostelRaw)
+                : "";
+
+            const explicitLoc = String(
+                (product && (product.location || product.campusLocation || product.pickupLocation)) ||
+                prof.location || localProf.location || ""
+            ).trim();
+
+            const inferredCity = inferCampusLocation(campusName);
+
+            const locParts = [];
+            if (hostelWithRoom) locParts.push(hostelWithRoom);
+            if (explicitLoc && explicitLoc.toLowerCase() !== hostelWithRoom.toLowerCase() && explicitLoc.toLowerCase() !== campusName.toLowerCase()) {
+                locParts.push(explicitLoc);
+            }
+            if (inferredCity && !locParts.some(function (p) { return p.toLowerCase().includes(inferredCity.toLowerCase()); }) && !campusName.toLowerCase().includes(inferredCity.toLowerCase())) {
+                locParts.push(inferredCity);
+            }
+
+            const locationText = locParts.join(" · ");
+            if (campusName && locationText) {
+                return campusName + " · " + locationText;
+            }
+            return campusName || locationText || "";
+        }
+
         function emailSeller(product) {
             if (!product.sellerEmail) {
                 showToast("Is listing mein seller ka email nahi hai.");
@@ -1518,6 +2148,255 @@
                 "?subject=" + encodeURIComponent(subject) +
                 "&body=" + encodeURIComponent(body);
         }
+
+        // ---------- IN-BUILT BUYER ↔ SELLER CHAT MODAL ----------
+        const chatQuickChips = document.getElementById("chatQuickChips");
+
+        function isProductSeller(product) {
+            const user = currentUser || auth.currentUser;
+            if (!user || !product) return false;
+            if (product.sellerId && user.uid === product.sellerId) return true;
+            const userEmail = String(user.email || "").trim().toLowerCase();
+            const prodSellerEmail = String(product.sellerEmail || "").trim().toLowerCase();
+            if (userEmail && prodSellerEmail && userEmail === prodSellerEmail) return true;
+            return false;
+        }
+
+        function renderModalQuickChips(role) {
+            if (!chatQuickChips) return;
+            const chips = role === "seller"
+                ? [
+                    { label: "Yes, available!", msg: "Yes, it is available! When can we meet on campus?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Price negotiable", msg: "The price is slightly negotiable for campus pickup." }
+                ]
+                : [
+                    { label: "Is this available?", msg: "Hi! Is this item still available?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Best price?", msg: "What is your final price for this?" }
+                ];
+            chatQuickChips.replaceChildren();
+            chips.forEach(function (item) {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "chat-chip";
+                chip.dataset.msg = item.msg;
+                chip.textContent = item.label;
+                chip.addEventListener("click", function () {
+                    sendChatMessage(item.msg);
+                });
+                chatQuickChips.appendChild(chip);
+            });
+        }
+
+        function getChatHistory(product) {
+            const productId = typeof product === "string" ? product : (product && product.id ? product.id : "");
+            let localList = [];
+            try {
+                const raw = localStorage.getItem("campuskart_chats_" + productId);
+                if (raw) localList = JSON.parse(raw);
+            } catch (_) { }
+
+            const remoteList = (product && Array.isArray(product.chatMessages)) ? product.chatMessages : [];
+            if (remoteList.length === 0) return localList;
+            if (localList.length === 0) return remoteList;
+
+            const seen = new Set();
+            const merged = [];
+            [...remoteList, ...localList].forEach(function (msg) {
+                if (!msg || !msg.text) return;
+                const key = (msg.id || "") + "|" + msg.sender + "|" + msg.text + "|" + (msg.time || "");
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    merged.push(msg);
+                }
+            });
+            return merged;
+        }
+
+        function saveChatHistory(product, list) {
+            const productId = typeof product === "string" ? product : (product && product.id ? product.id : "");
+            if (!productId) return;
+            try {
+                localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
+            } catch (_) { }
+            if (product && typeof product === "object") {
+                product.chatMessages = list;
+                updateDoc(doc(db, "listings", productId), {
+                    chatMessages: list
+                }).catch(function () { });
+            }
+        }
+
+        function recordLocalInterest(product, textMsg, senderRole) {
+            try {
+                const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+                const list = raw ? JSON.parse(raw) : [];
+                const senderName = currentUser
+                    ? (currentUser.displayName || (currentUser.email || "Student").split("@")[0])
+                    : (senderRole === "seller" ? (product.sellerName || "Seller") : "Campus Buyer");
+                const senderEmail = currentUser ? (currentUser.email || "") : "";
+                list.unshift({
+                    id: "chat_" + Date.now(),
+                    productId: product.id,
+                    productName: product.name || "Product",
+                    price: Number(product.price) || 0,
+                    sellerId: product.sellerId || "",
+                    sellerEmail: product.sellerEmail || "",
+                    buyerId: currentUser ? currentUser.uid : "guest",
+                    buyerEmail: senderEmail,
+                    buyerInfo: (senderRole === "seller" ? "[Seller Reply] " : "") + senderName + (senderEmail ? " (" + senderEmail + ")" : "") + " — \"" + textMsg + "\"",
+                    status: "new",
+                    createdAtMs: Date.now()
+                });
+                localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+            } catch (_) { }
+        }
+
+        function updateRoleToggleUI(product) {
+            const isSeller = isProductSeller(product);
+            activeChatRole = isSeller ? "seller" : "buyer";
+            const sellerLabel = product && (product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller")) || "Seller";
+
+            if (chatRoleToggleBtn) {
+                if (activeChatRole === "seller") {
+                    chatRoleToggleBtn.textContent = "🏪 Mode: Seller (" + sellerLabel + ")";
+                    chatRoleToggleBtn.style.background = "#0f766e";
+                    chatInput.placeholder = "Write a reply as Seller (" + sellerLabel + ")...";
+                } else {
+                    chatRoleToggleBtn.textContent = "👤 Mode: Buyer";
+                    chatRoleToggleBtn.style.background = "#0d2c54";
+                    chatInput.placeholder = "Write a message to " + sellerLabel + "...";
+                }
+            }
+
+            if (chatToEmailBtn) {
+                chatToEmailBtn.hidden = isSeller;
+            }
+
+            renderModalQuickChips(activeChatRole);
+        }
+
+        function renderChatMessages(product) {
+            chatMessages.replaceChildren();
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
+            const welcomeBubble = document.createElement("div");
+            welcomeBubble.className = "chat-bubble seller";
+            welcomeBubble.textContent =
+                "👋 Welcome to CampusKart In-Built Chat with " + sellerLabel + " for \"" + (product.name || "this item") +
+                "\" (₹" + (Number(product.price) || 0).toLocaleString("en-IN") + "). Ask questions or arrange a campus meetup below!";
+            chatMessages.appendChild(welcomeBubble);
+
+            const history = getChatHistory(product);
+            history.forEach(function (entry) {
+                const bubble = document.createElement("div");
+                const isBuyer = entry.sender === "buyer";
+                bubble.className = "chat-bubble " + (isBuyer ? "buyer" : "seller");
+
+                const senderTag = document.createElement("strong");
+                senderTag.style.display = "block";
+                senderTag.style.fontSize = "11px";
+                senderTag.style.marginBottom = "3px";
+                senderTag.style.opacity = "0.85";
+                senderTag.textContent = entry.senderName || (isBuyer ? "👤 Buyer" : ("🏪 " + sellerLabel + " (Seller)"));
+                bubble.appendChild(senderTag);
+
+                const msgSpan = document.createElement("span");
+                msgSpan.textContent = entry.text;
+                bubble.appendChild(msgSpan);
+
+                if (entry.time) {
+                    const small = document.createElement("small");
+                    small.textContent = entry.time;
+                    bubble.appendChild(small);
+                }
+                chatMessages.appendChild(bubble);
+            });
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function openChatModal(product) {
+            activeChatProduct = product;
+            activeChatRole = isProductSeller(product) ? "seller" : "buyer";
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Campus Seller");
+            const campusLoc = resolveCampusAndLocation(product);
+            chatModalTitle.textContent = "💬 CampusKart Chat · " + sellerLabel;
+            chatModalSubtitle.textContent = (product.name || "Item") + " · ₹" + (Number(product.price) || 0).toLocaleString("en-IN") + (campusLoc ? " · 📍 " + campusLoc : "");
+            updateRoleToggleUI(product);
+            renderChatMessages(product);
+            chatModal.hidden = false;
+            chatInput.focus();
+        }
+
+        function closeChatModal() {
+            chatModal.hidden = true;
+            activeChatProduct = null;
+        }
+
+        async function sendChatMessage(text) {
+            const cleanText = String(text || "").trim();
+            if (!cleanText || !activeChatProduct) return;
+
+            const product = activeChatProduct;
+            activeChatRole = isProductSeller(product) ? "seller" : "buyer";
+
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
+            const buyerLabel = currentUser
+                ? (currentUser.displayName || (currentUser.email || "Buyer").split("@")[0])
+                : "Campus Buyer";
+            const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+            const history = getChatHistory(product);
+
+            const senderName = activeChatRole === "seller"
+                ? ("🏪 " + sellerLabel + " (Seller)")
+                : ("👤 " + buyerLabel + " (Buyer)");
+
+            history.push({
+                id: "msg_" + Date.now(),
+                sender: activeChatRole,
+                senderName: senderName,
+                text: cleanText,
+                time: nowStr
+            });
+
+            saveChatHistory(product, history);
+            renderChatMessages(product);
+            chatInput.value = "";
+
+            recordLocalInterest(product, cleanText, activeChatRole);
+
+            if (currentUser && activeChatRole === "buyer") {
+                try {
+                    await addDoc(collection(db, "orders"), {
+                        productId: product.id,
+                        productName: product.name || "Product",
+                        price: Number(product.price) || 0,
+                        sellerId: product.sellerId || "",
+                        sellerEmail: product.sellerEmail || "",
+                        buyerId: currentUser.uid,
+                        buyerEmail: currentUser.email || "",
+                        buyerInfo: (currentUser.displayName || currentUser.email || "Student") + " — \"" + cleanText + "\"",
+                        status: "new",
+                        createdAt: serverTimestamp()
+                    });
+                } catch (_) { }
+            }
+
+            showToast(activeChatRole === "seller" ? "Reply sent to Buyer in chat! ✓" : "Message sent to " + sellerLabel + "! ✓");
+        }
+
+        closeChatModalBtn.addEventListener("click", closeChatModal);
+        chatModal.addEventListener("click", function (event) {
+            if (event.target === chatModal) closeChatModal();
+        });
+        chatForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            sendChatMessage(chatInput.value);
+        });
+        chatToEmailBtn.addEventListener("click", function () {
+            if (!activeChatProduct) return;
+            emailSeller(activeChatProduct);
+        });
 
         function goToDetails(product) {
             window.location.href =
@@ -1670,14 +2549,17 @@
             const condition = String(product.condition || "Used");
             const description = String(product.description || "No description provided.");
             const campus = String(product.campus || "");
+            const hostel = String(product.sellerHostel || "");
             const price = Number(product.price) || 0;
+            const originalPrice = Number(product.originalPrice) || 0;
 
+            card.dataset.productId = product.id;
             card.dataset.name = name.toLowerCase();
             card.dataset.category = normalizeCategory(category);
             card.dataset.condition = normalizeCondition(condition);
             card.dataset.price = String(price);
             card.dataset.search = (
-                name + " " + category + " " + description + " " + campus
+                name + " " + category + " " + description + " " + campus + " " + hostel
             ).toLowerCase();
 
             const imageBox = createGallery(product, name, category);
@@ -1686,6 +2568,19 @@
             conditionTag.className = "condition-tag";
             conditionTag.textContent = condition;
             imageBox.appendChild(conditionTag);
+
+            const heartBtn = document.createElement("button");
+            heartBtn.type = "button";
+            const isSaved = savedIds.has(product.id);
+            heartBtn.className = "save-heart-btn" + (isSaved ? " saved" : "");
+            heartBtn.dataset.productId = product.id;
+            heartBtn.textContent = isSaved ? "❤️" : "🤍";
+            heartBtn.title = isSaved ? "Remove from saved items" : "Save to wishlist";
+            heartBtn.addEventListener("click", function (event) {
+                event.stopPropagation();
+                toggleSaveProduct(product, heartBtn);
+            });
+            imageBox.appendChild(heartBtn);
 
             const details = document.createElement("div");
             details.className = "product-details";
@@ -1705,12 +2600,38 @@
             conditionText.className = "product-condition";
             conditionText.textContent = "Condition: " + condition;
 
+            const locationLabel = resolveCampusAndLocation(product);
+            let campusEl = null;
+            if (locationLabel) {
+                campusEl = document.createElement("p");
+                campusEl.className = "product-campus";
+                campusEl.dataset.productId = product.id;
+                campusEl.textContent = "📍 " + locationLabel;
+            }
+
             const bottom = document.createElement("div");
             bottom.className = "product-bottom";
+
+            const priceStack = document.createElement("div");
+            priceStack.className = "price-stack";
 
             const priceText = document.createElement("span");
             priceText.className = "product-price";
             priceText.textContent = "₹" + price.toLocaleString("en-IN");
+            priceStack.appendChild(priceText);
+
+            if (originalPrice > price && price > 0) {
+                const origSpan = document.createElement("span");
+                origSpan.className = "original-price";
+                origSpan.textContent = "₹" + originalPrice.toLocaleString("en-IN");
+
+                const pct = Math.round(((originalPrice - price) / originalPrice) * 100);
+                const discSpan = document.createElement("span");
+                discSpan.className = "discount-badge";
+                discSpan.textContent = pct + "% OFF";
+
+                priceStack.append(origSpan, discSpan);
+            }
 
             const buttonGroup = document.createElement("div");
             buttonGroup.className = "button-group";
@@ -1723,18 +2644,22 @@
                 goToDetails(product);
             });
 
-            const emailButton = document.createElement("button");
-            emailButton.className = "email-button";
-            emailButton.type = "button";
-            emailButton.textContent = "Email Seller";
-            emailButton.addEventListener("click", function () {
-                emailSeller(product);
+            const chatBtn = document.createElement("button");
+            chatBtn.className = "chat-btn";
+            chatBtn.type = "button";
+            chatBtn.dataset.productId = product.id;
+            chatBtn.textContent = isProductSeller(product) ? "💬 Seller Chat" : "💬 Chat with Seller";
+            chatBtn.addEventListener("click", function () {
+                openChatModal(product);
             });
 
-            buttonGroup.append(viewButton, emailButton);
-            bottom.append(priceText, buttonGroup);
+            buttonGroup.append(viewButton, chatBtn);
 
-            details.append(categoryLabel, title, descriptionText, conditionText, bottom);
+            bottom.append(priceStack, buttonGroup);
+
+            details.append(categoryLabel, title, descriptionText, conditionText);
+            if (campusEl) details.appendChild(campusEl);
+            details.appendChild(bottom);
 
             card.append(imageBox, details);
 
@@ -1754,6 +2679,7 @@
             document.getElementById("countElectronics").textContent = counts.electronics + " items";
             document.getElementById("countNotes").textContent = counts.notes + " items";
             document.getElementById("countHostel").textContent = counts.hostel + " items";
+            updateSavedCountBadge();
         }
 
         function renderNotesPreview(products) {
@@ -1779,8 +2705,25 @@
             });
         }
 
+        function applyUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const q = params.get("q");
+            const cat = params.get("category");
+
+            if (q) {
+                searchInput.value = q;
+            }
+
+            if (cat) {
+                const normalized = normalizeCategory(cat);
+                const radio = document.querySelector('input[name="category"][value="' + normalized + '"]');
+                if (radio) radio.checked = true;
+            }
+        }
+
         async function loadProducts() {
             resultsCount.textContent = "Loading products...";
+            applyUrlParams();
 
             try {
                 const snapshot = await getDocs(collection(db, "listings"));
@@ -1792,6 +2735,35 @@
                     .filter(function (product) {
                         return String(product.status || "").toLowerCase() === "active";
                     });
+
+                // Background-enrich seller phones & campus/location from Firestore users/{sellerId}
+                const sellerIdsToFetch = [...new Set(
+                    allProducts.map(function (p) { return p.sellerId; }).filter(Boolean)
+                )];
+                Promise.allSettled(
+                    sellerIdsToFetch.map(async function (uid) {
+                        try {
+                            const uSnap = await getDoc(doc(db, "users", uid));
+                            if (uSnap.exists()) {
+                                const uData = uSnap.data();
+                                sellerProfilesCache[uid] = uData;
+                                if (uData.phone) {
+                                    const ph = String(uData.phone).replace(/\D/g, "").slice(-10);
+                                    if (ph.length === 10) sellerPhonesCache[uid] = ph;
+                                }
+                            }
+                        } catch (_) { }
+                    })
+                ).then(function () {
+                    document.querySelectorAll(".product-campus").forEach(function (el) {
+                        const pid = el.dataset.productId;
+                        const prod = allProducts.find(function (p) { return p.id === pid; });
+                        if (prod) {
+                            const updatedLabel = resolveCampusAndLocation(prod);
+                            if (updatedLabel) el.textContent = "📍 " + updatedLabel;
+                        }
+                    });
+                });
 
                 productGrid.replaceChildren();
 
@@ -1835,7 +2807,8 @@
         }
 
         function setCategory(value) {
-            document.querySelector('input[name="category"][value="' + value + '"]').checked = true;
+            const radio = document.querySelector('input[name="category"][value="' + value + '"]');
+            if (radio) radio.checked = true;
 
             document.querySelectorAll(".category-card").forEach(function (card) {
                 card.classList.toggle("active", card.dataset.category === value);
@@ -1862,6 +2835,7 @@
             });
 
             const filteredProducts = productCards.filter(function (card) {
+                const pid = card.dataset.productId || "";
                 const name = card.dataset.name || "";
                 const keywords = card.dataset.search || "";
                 const productCategory = card.dataset.category || "";
@@ -1872,7 +2846,11 @@
                     name.includes(searchText) || keywords.includes(searchText);
 
                 const matchesCategory =
-                    category === "all" || productCategory === category;
+                    category === "all"
+                        ? true
+                        : category === "saved"
+                            ? savedIds.has(pid)
+                            : productCategory === category;
 
                 const matchesPrice =
                     price >= minPrice && price <= maxPrice;
@@ -1906,8 +2884,13 @@
                 "Showing " + filteredProducts.length + " of " + productCards.length + " products";
 
             if (productCards.length > 0) {
-                emptyTitle.textContent = "No products found";
-                emptyText.textContent = "Try changing your search or removing some filters.";
+                if (category === "saved" && filteredProducts.length === 0) {
+                    emptyTitle.textContent = "No saved items in your wishlist yet";
+                    emptyText.textContent = "Click the 🤍 heart button on any product card to save it here!";
+                } else {
+                    emptyTitle.textContent = "No products found";
+                    emptyText.textContent = "Try changing your search or removing some filters.";
+                }
             }
 
             emptyState.style.display = filteredProducts.length === 0 && productCards.length > 0
@@ -1974,4 +2957,5 @@
     </script>
 
 </body>
+
 </html>

@@ -401,6 +401,7 @@
             border-radius: 15px;
             overflow: hidden;
             transition: 0.25s;
+            cursor: pointer;
         }
 
         .product-card:hover {
@@ -413,6 +414,9 @@
             position: relative;
             background: #e8eef5;
             overflow: hidden;
+            display: grid;
+            place-items: center;
+            font-size: 44px;
         }
 
         .product-image img {
@@ -1090,7 +1094,7 @@
         </div>
     </footer>
 
-    <!-- AUTH (naam + logout) -->
+    <!-- AUTH (naam + logout) + LIVE FEATURED LISTINGS -->
     <script type="module">
         import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
         import {
@@ -1098,14 +1102,6 @@
             onAuthStateChanged,
             signOut
         } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-        
-import {
-    getFirestore,
-    doc,
-    getDoc,
-    collection,
-    getDocs
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 
         const firebaseConfig = {
@@ -1338,6 +1334,13 @@ loadFeaturedProducts();
         const userAvatar = document.getElementById("userAvatar");
         const userName = document.getElementById("userName");
         const logoutButton = document.getElementById("logoutButton");
+        const productGrid = document.getElementById("productGrid");
+        const searchForm = document.getElementById("searchForm");
+        const searchInput = document.getElementById("searchInput");
+        const categoryCards = document.querySelectorAll(".category-card");
+        const emptyMessage = document.getElementById("emptyMessage");
+
+        let selectedCategory = "all";
 
         // Naam: users/{uid}.name -> displayName -> email se
         function getDisplayName(user, profile) {
@@ -1402,75 +1405,6 @@ loadFeaturedProducts();
                 logoutButton.disabled = false;
             }
         });
-    </script>
-
-    <!-- SEARCH AND CATEGORY FILTER -->
-   
-<script>
-    const searchForm = document.getElementById("searchForm");
-    const searchInput = document.getElementById("searchInput");
-    const categoryCards = document.querySelectorAll(".category-card");
-    const emptyMessage = document.getElementById("emptyMessage");
-
-    let selectedCategory = "all";
-
-    function filterProducts() {
-        const searchText = searchInput.value.toLowerCase().trim();
-
-        // Har baar current product cards lo, kyunki Firebase unhe baad mein add karta hai.
-        const productCards = document.querySelectorAll("#productGrid .product-card");
-        let visibleCount = 0;
-
-        productCards.forEach(function (card) {
-            const productName = card.innerText.toLowerCase();
-            const searchKeywords = (card.dataset.search || "").toLowerCase();
-            const category = card.dataset.category || "";
-
-            const matchesSearch =
-                productName.includes(searchText) ||
-                searchKeywords.includes(searchText);
-
-            const matchesCategory =
-                selectedCategory === "all" ||
-                category === selectedCategory;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = "";
-                visibleCount++;
-            } else {
-                card.style.display = "none";
-            }
-        });
-
-        if (visibleCount === 0 && productCards.length > 0) {
-            emptyMessage.textContent =
-                "No matching items found. Try another search.";
-            emptyMessage.style.display = "block";
-        } else if (productCards.length > 0) {
-            emptyMessage.style.display = "none";
-        }
-    }
-
-    searchForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        selectedCategory = "all";
-        filterProducts();
-
-        document.getElementById("products").scrollIntoView({
-            behavior: "smooth"
-        });
-    });
-
-    searchInput.addEventListener("input", filterProducts);
-
-    categoryCards.forEach(function (card) {
-        card.addEventListener("click", function () {
-            selectedCategory = card.dataset.category;
-            searchInput.value = "";
-            filterProducts();
-        });
-    });
-</script>
 
 
 </body>

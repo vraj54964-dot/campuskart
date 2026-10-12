@@ -487,6 +487,26 @@
             font-size: 25px;
             font-weight: 800;
             margin-top: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .preview-original-price {
+            color: var(--muted);
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: line-through;
+        }
+
+        .preview-discount {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 11px;
+            font-weight: 800;
+            padding: 3px 7px;
+            border-radius: 999px;
         }
 
         .preview-condition {
@@ -524,6 +544,13 @@
             border: 1px solid #bcecdf;
             color: #087d70;
             font-size: 13px;
+        }
+
+        .success-message a {
+            color: var(--navy);
+            font-weight: 800;
+            text-decoration: underline;
+            margin-left: 6px;
         }
 
         /* FOOTER */
@@ -863,15 +890,42 @@
                                   required></textarea>
                     </div>
 
-                    <!-- CAMPUS -->
+                    <!-- CAMPUS, LOCATION + WHATSAPP PHONE -->
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="campus">
+                                College / Campus
+                            </label>
+
+                            <input type="text"
+                                   id="campus"
+                                   placeholder="Enter your college name">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="campusLocation">
+                                Campus Location / Hostel / Pickup Spot
+                            </label>
+
+                            <input type="text"
+                                   id="campusLocation"
+                                   placeholder="e.g. Hostel B, Library, Sonipat">
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label for="campus">
-                            College / Campus
+                        <label for="sellerPhoneInput">
+                            WhatsApp / Phone Number
                         </label>
 
-                        <input type="text"
-                               id="campus"
-                               placeholder="Enter your college name">
+                        <input type="tel"
+                               id="sellerPhoneInput"
+                               maxlength="10"
+                               inputmode="numeric"
+                               placeholder="10-digit WhatsApp number">
+                        <span class="help-text">
+                            For direct WhatsApp / Live Chat with buyers.
+                        </span>
                     </div>
 
                     <!-- SUBMIT -->
@@ -919,6 +973,11 @@
                         <p class="preview-description"
                            id="previewDescription">
                             Your product description will appear here.
+                        </p>
+
+                        <p id="previewCampus"
+                           style="font-size: 13px; color: var(--navy); font-weight: 600; margin-bottom: 10px;">
+                            📍 Campus · Location
                         </p>
 
                         <div class="preview-price" id="previewPrice">
@@ -1059,12 +1118,21 @@
     const originalPriceInput = document.getElementById("originalPrice");
     const description = document.getElementById("description");
     const campus = document.getElementById("campus");
+    const campusLocation = document.getElementById("campusLocation");
+    const sellerPhoneInput = document.getElementById("sellerPhoneInput");
+
+    if (sellerPhoneInput) {
+        sellerPhoneInput.addEventListener("input", function () {
+            this.value = this.value.replace(/\D/g, "").slice(0, 10);
+        });
+    }
 
     const previewTitle = document.getElementById("previewTitle");
     const previewCategory = document.getElementById("previewCategory");
     const previewCondition = document.getElementById("previewCondition");
     const previewPrice = document.getElementById("previewPrice");
     const previewDescription = document.getElementById("previewDescription");
+    const previewCampus = document.getElementById("previewCampus");
 
     // Navbar auth elements
     const loginLink = document.getElementById("loginLink");
@@ -1117,20 +1185,45 @@
         userMenu.hidden = true;
     }
 
+    let currentUserProfile = {};
+
     async function showLoggedInNav(user) {
         let profile = {};
         try {
+            const rawLocal = localStorage.getItem("campuskart_profile_" + user.uid) || localStorage.getItem("campuskart_last_profile");
+            if (rawLocal) profile = JSON.parse(rawLocal) || {};
+        } catch (_) {}
+
+        try {
             const snap = await getDoc(doc(db, "users", user.uid));
-            if (snap.exists()) profile = snap.data();
+            if (snap.exists()) profile = { ...profile, ...snap.data() };
         } catch (error) {
             console.warn("User profile load nahi hua, fallback naam use hoga:", error);
         }
 
+        currentUserProfile = profile;
         const name = getDisplayName(user, profile);
 
         userName.textContent = name;
         userName.title = user.email || name;
         userAvatar.textContent = getInitials(name);
+
+        const savedCampus = profile.campus || profile.college || "";
+        if (campus && !campus.value.trim() && savedCampus) {
+            campus.value = savedCampus;
+        }
+
+        const savedLocation = profile.location || (profile.hostel ? (profile.roomNo ? profile.hostel + " (Room " + profile.roomNo + ")" : profile.hostel) : "");
+        if (campusLocation && !campusLocation.value.trim() && savedLocation) {
+            campusLocation.value = savedLocation;
+        }
+
+        const savedPhone = String(profile.phone || "").replace(/\D/g, "").slice(-10);
+        if (sellerPhoneInput && !sellerPhoneInput.value.trim() && savedPhone) {
+            sellerPhoneInput.value = savedPhone;
+        }
+
+        updatePreview();
 
         loginLink.hidden = true;
         userMenu.hidden = false;
@@ -1180,8 +1273,15 @@
     // 8. SUCCESS / ERROR MESSAGE
     // ==========================================
 
-    function showMessage(message, isError = false) {
-        successMessage.textContent = message;
+    function showMessage(message, isError = false, linkHref = "", linkLabel = "") {
+        successMessage.replaceChildren();
+        successMessage.append(document.createTextNode(message));
+        if (linkHref && linkLabel) {
+            const a = document.createElement("a");
+            a.href = linkHref;
+            a.textContent = linkLabel;
+            successMessage.append(a);
+        }
         successMessage.style.display = "block";
         successMessage.style.color = isError ? "#b91c1c" : "#15803d";
 
@@ -1207,20 +1307,52 @@
             condition.value || "Condition";
 
         const sellingPrice = Number(price.value);
+        const origPrice = Number(originalPriceInput.value);
 
-        previewPrice.textContent =
+        previewPrice.replaceChildren();
+
+        const hasValidPrice =
             price.value.trim() !== "" &&
             Number.isFinite(sellingPrice) &&
-            sellingPrice > 0
-                ? "₹" + sellingPrice.toLocaleString("en-IN")
-                : "₹0";
+            sellingPrice > 0;
+
+        previewPrice.append(
+            document.createTextNode(
+                hasValidPrice ? "₹" + sellingPrice.toLocaleString("en-IN") : "₹0"
+            )
+        );
+
+        if (
+            hasValidPrice &&
+            originalPriceInput.value.trim() !== "" &&
+            Number.isFinite(origPrice) &&
+            origPrice > sellingPrice
+        ) {
+            const origSpan = document.createElement("span");
+            origSpan.className = "preview-original-price";
+            origSpan.textContent = "₹" + origPrice.toLocaleString("en-IN");
+
+            const pct = Math.round(((origPrice - sellingPrice) / origPrice) * 100);
+            const discSpan = document.createElement("span");
+            discSpan.className = "preview-discount";
+            discSpan.className = "preview-discount";
+            discSpan.textContent = pct + "% OFF";
+
+            previewPrice.append(origSpan, discSpan);
+        }
 
         previewDescription.textContent =
             description.value.trim() ||
             "Your product description will appear here.";
+
+        if (previewCampus) {
+            const cVal = (campus && campus.value.trim()) || "Your Campus";
+            const lVal = (campusLocation && campusLocation.value.trim()) || "Main Campus Pickup";
+            previewCampus.textContent = "📍 " + cVal + " · " + lVal;
+        }
     }
 
-    [itemName, category, condition, price, description].forEach((element) => {
+    [itemName, category, condition, price, originalPriceInput, description, campus, campusLocation].filter(Boolean).forEach((element) => {
         element.addEventListener("input", updatePreview);
         element.addEventListener("change", updatePreview);
     });
@@ -1439,6 +1571,25 @@
 
             showMessage("Saving your product listing...");
 
+            const sellerDisplayName = getDisplayName(currentUser, currentUserProfile);
+            const campusValue = campus.value.trim() || currentUserProfile.campus || currentUserProfile.college || "";
+            const locationValue = (campusLocation && campusLocation.value.trim()) || currentUserProfile.location || currentUserProfile.hostel || "";
+            const phoneValue = (sellerPhoneInput && sellerPhoneInput.value.trim()) || currentUserProfile.phone || "";
+
+            if (phoneValue || campusValue || locationValue) {
+                currentUserProfile = {
+                    ...currentUserProfile,
+                    phone: phoneValue,
+                    campus: campusValue,
+                    location: locationValue,
+                    hostel: locationValue || currentUserProfile.hostel || ""
+                };
+                try {
+                    localStorage.setItem("campuskart_profile_" + currentUser.uid, JSON.stringify(currentUserProfile));
+                    localStorage.setItem("campuskart_last_profile", JSON.stringify(currentUserProfile));
+                } catch (_) {}
+            }
+
             const docRef = await addDoc(
                 collection(db, "listings"),
                 {
@@ -1455,7 +1606,9 @@
 
                     description: description.value.trim(),
 
-                    campus: campus.value.trim(),
+                    campus: campusValue,
+                    location: locationValue,
+                    campusLocation: locationValue,
 
                     // Cover photo (browse aur dashboard isi ko dikhate hain)
                     imageUrl: imageUrls[0] || "",
@@ -1465,7 +1618,10 @@
                     photoCount: imageUrls.length,
 
                     sellerId: currentUser.uid,
+                    sellerName: sellerDisplayName,
                     sellerEmail: currentUser.email || "",
+                    sellerPhone: phoneValue,
+                    sellerHostel: locationValue || currentUserProfile.hostel || "",
 
                     status: "Active",
                     createdAt: serverTimestamp()
@@ -1474,9 +1630,17 @@
 
             console.log("Listing saved with ID:", docRef.id);
 
-            showMessage("Success! Your product has been saved to CampusKart.");
+            showMessage(
+                "Success! Your product has been saved to CampusKart.",
+                false,
+                `product-details.html?id=${encodeURIComponent(docRef.id)}`,
+                "View Listing →"
+            );
 
             sellForm.reset();
+            if (campus && campusValue) campus.value = campusValue;
+            if (campusLocation && locationValue) campusLocation.value = locationValue;
+            if (sellerPhoneInput && phoneValue) sellerPhoneInput.value = phoneValue;
             clearPhotos();
             updatePreview();
 

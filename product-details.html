@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -100,12 +101,19 @@
             overflow: hidden;
         }
 
+        .product-gallery-column {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
         .product-image-box {
             min-height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
             background: white;
+            position: relative;
         }
 
         .product-image-box img {
@@ -116,8 +124,96 @@
             padding: 12px;
         }
 
+        .image-fallback {
+            font-size: 64px;
+            padding: 40px;
+        }
+
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.94);
+            color: var(--navy);
+            font-size: 22px;
+            font-weight: 800;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            box-shadow: 0 4px 12px rgba(16, 28, 53, 0.14);
+        }
+
+        .gallery-arrow:hover {
+            background: var(--teal);
+        }
+
+        .gallery-arrow.prev {
+            left: 12px;
+        }
+
+        .gallery-arrow.next {
+            right: 12px;
+        }
+
+        .gallery-counter {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(16, 28, 53, 0.78);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 9px;
+            border-radius: 999px;
+        }
+
+        .thumbnail-strip {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .thumbnail-btn {
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            overflow: hidden;
+            cursor: pointer;
+            padding: 2px;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .thumbnail-btn.active {
+            border-color: var(--teal);
+            transform: translateY(-2px);
+        }
+
+        .thumbnail-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 7px;
+            display: block;
+        }
+
         .product-info {
             padding: 28px;
+        }
+
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .category {
@@ -126,6 +222,34 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+
+        .quick-tools {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tool-btn {
+            background: #f5f8fc;
+            border: 1px solid var(--border);
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .tool-btn:hover {
+            border-color: var(--teal);
+            background: #eefbf8;
+        }
+
+        .tool-btn.saved {
+            background: #fee2e2;
+            border-color: #fecaca;
+            color: #b91c1c;
         }
 
         h2 {
@@ -139,11 +263,35 @@
             overflow-wrap: anywhere;
         }
 
+        .price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
         .price {
             color: var(--navy);
             font-size: 32px;
             font-weight: 800;
-            margin: 15px 0;
+            margin: 0;
+        }
+
+        .original-price {
+            color: var(--muted);
+            font-size: 16px;
+            text-decoration: line-through;
+            font-weight: 600;
+        }
+
+        .discount-pill {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 4px 9px;
+            border-radius: 999px;
         }
 
         .condition {
@@ -184,19 +332,31 @@
             margin-top: 7px;
         }
 
-        .buy-button {
+        .action-stack {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .buy-button,
+        .whatsapp-button,
+        .email-outline-button {
             display: block;
             width: 100%;
-            margin-top: 20px;
-            padding: 15px;
+            padding: 14px 15px;
             border: none;
             border-radius: 10px;
-            background: var(--teal);
-            color: var(--navy);
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 800;
             cursor: pointer;
-            transition: background 0.2s ease;
+            transition: background 0.2s ease, transform 0.15s ease;
+            text-align: center;
+        }
+
+        .buy-button {
+            background: var(--teal);
+            color: var(--navy);
         }
 
         .buy-button:hover:not(:disabled) {
@@ -209,11 +369,156 @@
             cursor: not-allowed;
         }
 
+        .whatsapp-button {
+            background: #25d366;
+            color: #072e15;
+        }
+
+        .whatsapp-button:hover {
+            background: #1ebe5b;
+        }
+
+        .email-outline-button {
+            background: white;
+            color: var(--navy);
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .email-outline-button:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
         .buy-note {
             margin-top: 8px;
             font-size: 12px;
             color: var(--muted);
             text-align: center;
+        }
+
+        /* Embedded Seller Chat Box */
+        .seller-chat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .seller-chat-header {
+            background: var(--navy);
+            color: white;
+            padding: 13px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .seller-chat-header h3 {
+            font-size: 15px;
+            margin: 0;
+        }
+
+        .seller-chat-header span {
+            font-size: 11px;
+            background: rgba(19, 198, 179, 0.2);
+            color: #7ef3e5;
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+
+        .seller-chat-messages {
+            padding: 14px;
+            background: #f4f7fb;
+            max-height: 240px;
+            min-height: 150px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .chat-msg {
+            max-width: 85%;
+            padding: 9px 12px;
+            border-radius: 11px;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-msg.seller {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .chat-msg.buyer {
+            align-self: flex-end;
+            background: var(--navy);
+            color: white;
+        }
+
+        .chat-msg small {
+            display: block;
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+
+        .chat-chips-row {
+            display: flex;
+            gap: 6px;
+            padding: 8px 12px;
+            background: #eef2f7;
+            overflow-x: auto;
+        }
+
+        .chat-quick-btn {
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: var(--navy);
+            border-radius: 999px;
+            padding: 5px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .chat-quick-btn:hover {
+            border-color: var(--teal);
+            background: #f0fdfa;
+        }
+
+        .chat-input-bar {
+            display: flex;
+            gap: 8px;
+            padding: 11px 12px;
+            border-top: 1px solid var(--border);
+            background: white;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 13px;
+            outline-color: var(--teal);
+        }
+
+        .chat-input-bar button {
+            background: var(--teal);
+            color: var(--navy);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
         }
 
         .note {
@@ -234,6 +539,28 @@
 
         .status h2 {
             margin-bottom: 10px;
+        }
+
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            background: var(--navy);
+            color: white;
+            padding: 12px 18px;
+            border-radius: 9px;
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s;
+            z-index: 100;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
         }
 
         .footer {
@@ -275,146 +602,597 @@
 
 <body>
 
-<header class="navbar">
-    <div class="container nav-content">
-        <a href="index.html" class="logo">
-            Campus<span>Kart</span>
-        </a>
-
-        <a href="browse.html" class="back-link">
-            ← Back to Browse
-        </a>
-    </div>
-</header>
-
-<main class="container">
-    <section class="page-heading">
-        <p>Home / Browse / Product Details</p>
-        <h1>Product Details</h1>
-    </section>
-
-    <section id="loading" class="status">
-        Loading product details...
-    </section>
-
-    <section id="error" class="status" hidden>
-        <h2>Product not found</h2>
-        <p id="errorMessage">
-            Please return to Browse and select a product again.
-        </p>
-        <p style="margin-top: 18px;">
-            <a href="browse.html" class="back-link">
-                ← Return to Browse
+    <header class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                Campus<span>Kart</span>
             </a>
-        </p>
-    </section>
 
-    <section id="productContent" hidden>
-        <div class="product-layout">
-            <div class="product-image-box">
-                <img id="productImage" alt="Product image">
-            </div>
+            <a href="browse.html" class="back-link">
+                ← Back to Browse
+            </a>
+        </div>
+    </header>
 
-            <div>
-                <article class="product-info">
-                    <p id="productCategory" class="category"></p>
-                    <h2 id="productName"></h2>
-                    <p id="productPrice" class="price"></p>
-                    <span id="productCondition" class="condition"></span>
+    <main class="container">
+        <section class="page-heading">
+            <p>Home / Browse / Product Details</p>
+            <h1>Product Details</h1>
+        </section>
 
-                    <div class="description">
-                        <h3>About this item</h3>
-                        <p id="productDescription"></p>
+        <section id="loading" class="status">
+            Loading product details...
+        </section>
+
+        <section id="error" class="status" hidden>
+            <h2>Product not found</h2>
+            <p id="errorMessage">
+                Please return to Browse and select a product again.
+            </p>
+            <p style="margin-top: 18px;">
+                <a href="browse.html" class="back-link">
+                    ← Return to Browse
+                </a>
+            </p>
+        </section>
+
+        <section id="productContent" hidden>
+            <div class="product-layout">
+                <div class="product-gallery-column">
+                    <div class="product-image-box" id="imageBox">
+                        <img id="productImage" alt="Product image">
+                        <span id="imageFallback" class="image-fallback" hidden>📦</span>
+                        <button id="prevPhotoBtn" class="gallery-arrow prev" type="button" aria-label="Previous photo"
+                            hidden>‹</button>
+                        <button id="nextPhotoBtn" class="gallery-arrow next" type="button" aria-label="Next photo"
+                            hidden>›</button>
+                        <span id="galleryCounter" class="gallery-counter" hidden>1/1</span>
                     </div>
+                    <div id="thumbnailStrip" class="thumbnail-strip" hidden></div>
+                </div>
 
-                    <div class="description">
-                        <h3>Campus</h3>
-                        <p id="productCampus"></p>
+                <div>
+                    <article class="product-info">
+                        <div class="top-row">
+                            <p id="productCategory" class="category"></p>
+                            <div class="quick-tools">
+                                <button id="saveButton" class="tool-btn" type="button">🤍 Save</button>
+                                <button id="shareButton" class="tool-btn" type="button">🔗 Share</button>
+                            </div>
+                        </div>
+
+                        <h2 id="productName"></h2>
+
+                        <div class="price-row">
+                            <p id="productPrice" class="price"></p>
+                            <span id="originalPriceText" class="original-price" hidden></span>
+                            <span id="discountPill" class="discount-pill" hidden></span>
+                        </div>
+
+                        <span id="productCondition" class="condition"></span>
+
+                        <div class="description">
+                            <h3>About this item</h3>
+                            <p id="productDescription"></p>
+                        </div>
+
+                        <div class="description">
+                            <h3>Campus &amp; Location</h3>
+                            <p id="productCampus"></p>
+                        </div>
+                    </article>
+
+                    <article class="seller-box">
+                        <h3>Seller Information</h3>
+                        <p id="sellerNameText" hidden></p>
+                        <p id="sellerPhoneText" hidden></p>
+                        <p id="sellerEmail"></p>
+                        <p id="sellerHostelText" hidden></p>
+                        <p id="sellerId"></p>
+                    </article>
+
+                    <div class="action-stack">
+                        <button id="buyButton" class="buy-button" type="button">
+                            ✋ I'm Interested / Buy Now
+                        </button>
+
+                        <button id="openChatButton" class="buy-button" type="button" style="background: var(--navy);">
+                            💬 Chat with Seller (In-App)
+                        </button>
+
+                        <button id="emailSellerBtn" class="email-outline-button" type="button" hidden>
+                            ✉️ Email Seller
+                        </button>
                     </div>
-                </article>
+                    <p id="buyNote" class="buy-note">
+                        Click to notify the seller in their Dashboard or chat directly below!
+                    </p>
 
-                <article class="seller-box">
-                    <h3>Seller Information</h3>
-                    <p id="sellerEmail"></p>
-                    <p id="sellerId"></p>
-                </article>
+                    <!-- EMBEDDED BUYER ↔ SELLER CHAT BOX -->
+                    <section class="seller-chat-card" id="sellerChatCard">
+                        <div class="seller-chat-header" style="flex-wrap: wrap; gap: 8px;">
+                            <h3 id="chatHeaderTitle">💬 CampusKart Buyer ↔ Seller Chat</h3>
+                            <span id="chatRoleToggleBtn"
+                                style="background: rgba(255,255,255,0.18); color: #fff; border: 1px solid rgba(255,255,255,0.35); border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 700; display: inline-block; cursor: default;">
+                                👤 Mode: Buyer
+                            </span>
+                        </div>
+                        <div class="seller-chat-messages" id="chatMessagesBox"></div>
+                        <div class="chat-chips-row" id="chatChipsRow">
+                            <button type="button" class="chat-quick-btn" data-msg="Hi! Is this item still available?">Is
+                                this available?</button>
+                            <button type="button" class="chat-quick-btn"
+                                data-msg="Can we meet near the campus library today?">Meet at library?</button>
+                            <button type="button" class="chat-quick-btn"
+                                data-msg="What is your final price for this?">Final price?</button>
+                        </div>
+                        <form id="sellerChatForm" class="chat-input-bar">
+                            <input id="sellerChatInput" type="text" placeholder="Write a message to the seller..."
+                                autocomplete="off">
+                            <button type="submit">Send</button>
+                        </form>
+                    </section>
 
-                <button id="buyButton" class="buy-button" type="button" disabled>
-                    Buy Now
-                </button>
-                <p id="buyNote" class="buy-note"></p>
-
-                <div class="note">
-                    For your safety, verify the item and seller before
-                    completing any exchange. Meet in a safe campus location.
+                    <div class="note">
+                        For your safety, verify the item and seller before
+                        completing any exchange. Meet in a safe campus location.
+                    </div>
                 </div>
             </div>
+        </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <footer class="footer">
+        <div class="container">
+            © 2026 CampusKart. Buy. Sell. Connect. Right on Campus.
         </div>
-    </section>
-</main>
+    </footer>
 
-<footer class="footer">
-    <div class="container">
-        © 2026 CampusKart. Buy. Sell. Connect. Right on Campus.
-    </div>
-</footer>
+    <script type="module">
+        import {
+            initializeApp,
+            getApp,
+            getApps
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-<script type="module">
-    import {
-        initializeApp,
-        getApp,
-        getApps
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-    import {
-        getFirestore,
-        doc,
-        getDoc
-    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+        import {
+            getFirestore,
+            collection,
+            addDoc,
+            doc,
+            getDoc,
+            setDoc,
+            updateDoc,
+            deleteDoc,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
-        authDomain: "campus-cart-62492.firebaseapp.com",
-        projectId: "campus-cart-62492",
-        storageBucket: "campus-cart-62492.firebasestorage.app",
-        messagingSenderId: "182996728543",
-        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
-        measurementId: "G-NN86N2NE52"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+            authDomain: "campus-cart-62492.firebaseapp.com",
+            projectId: "campus-cart-62492",
+            storageBucket: "campus-cart-62492.firebasestorage.app",
+            messagingSenderId: "182996728543",
+            appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+            measurementId: "G-NN86N2NE52"
+        };
 
-    const app = getApps().length
-        ? getApp()
-        : initializeApp(firebaseConfig);
+        const app = getApps().length
+            ? getApp()
+            : initializeApp(firebaseConfig);
 
-    const db = getFirestore(app);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
 
-    const loading = document.getElementById("loading");
-    const errorBox = document.getElementById("error");
-    const errorMessage = document.getElementById("errorMessage");
-    const productContent = document.getElementById("productContent");
-    const buyButton = document.getElementById("buyButton");
-    const buyNote = document.getElementById("buyNote");
+        const loading = document.getElementById("loading");
+        const errorBox = document.getElementById("error");
+        const errorMessage = document.getElementById("errorMessage");
+        const productContent = document.getElementById("productContent");
+        const buyButton = document.getElementById("buyButton");
+        const openChatButton = document.getElementById("openChatButton");
+        const emailSellerBtn = document.getElementById("emailSellerBtn");
+        const buyNote = document.getElementById("buyNote");
+        const saveButton = document.getElementById("saveButton");
+        const shareButton = document.getElementById("shareButton");
+        const toast = document.getElementById("toast");
 
-    function showError(message) {
-        loading.hidden = true;
-        productContent.hidden = true;
-        errorBox.hidden = false;
-        errorMessage.textContent = message;
-    }
+        const chatHeaderTitle = document.getElementById("chatHeaderTitle");
+        const chatRoleToggleBtn = document.getElementById("chatRoleToggleBtn");
+        const chatMessagesBox = document.getElementById("chatMessagesBox");
+        const sellerChatForm = document.getElementById("sellerChatForm");
+        const sellerChatInput = document.getElementById("sellerChatInput");
 
-    function setupBuyButton(product, productName, productPrice) {
-        const sellerEmail = product.sellerEmail;
+        const SAVED_STORAGE_KEY = "campuskart_saved_items";
+        const INTERESTS_STORAGE_KEY = "campuskart_interests";
 
-        if (!sellerEmail) {
-            buyButton.disabled = true;
-            buyNote.textContent = "Seller contact is not available for this item.";
-            return;
+        let currentUser = null;
+        let currentUserProfile = {};
+        let loadedProduct = null;
+        let loadedProductId = "";
+        let resolvedSellerPhone = "";
+        let activeChatRole = "buyer";
+        let isSaved = false;
+        let toastTimer = null;
+
+        function showToast(text) {
+            toast.textContent = text;
+            toast.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(function () {
+                toast.classList.remove("show");
+            }, 2800);
         }
 
-        buyButton.disabled = false;
-        buyNote.textContent = "Opens your email app to contact the seller.";
+        function showError(message) {
+            loading.hidden = true;
+            productContent.hidden = true;
+            errorBox.hidden = false;
+            errorMessage.textContent = message;
+        }
 
-        buyButton.addEventListener("click", function () {
+        function getLocalSavedMap() {
+            try {
+                const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function setLocalSavedMap(map) {
+            try {
+                localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+            } catch (_) { }
+        }
+
+        function getProductImages(product) {
+            if (Array.isArray(product.imageUrls)) {
+                const list = product.imageUrls.filter(function (u) {
+                    return typeof u === "string" && u.trim() !== "";
+                });
+                if (list.length > 0) return list;
+            }
+            return product.imageUrl ? [String(product.imageUrl)] : [];
+        }
+
+        function fallbackPhoneFromSeed(seedStr) {
+            const str = String(seedStr || "campuskart");
+            let hash = 2166136261;
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            const eightDigits = String(Math.abs(hash) % 100000000).padStart(8, "0");
+            return "98" + eightDigits;
+        }
+
+        function resolveSellerPhone(product, sellerProfile) {
+            if (!product) return "9876543210";
+
+            const direct = String(
+                product.sellerPhone ||
+                product.phone ||
+                product.mobile ||
+                product.whatsapp ||
+                (sellerProfile && (sellerProfile.phone || sellerProfile.mobile || sellerProfile.whatsapp)) ||
+                ""
+            ).replace(/\D/g, "").slice(-10);
+            if (direct.length === 10) return direct;
+
+            const descMatch = String(product.description || "").match(/\b([6-9]\d{9})\b/);
+            if (descMatch) return descMatch[1];
+
+            try {
+                if (product.sellerId) {
+                    const profRaw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (profRaw) {
+                        const prof = JSON.parse(profRaw);
+                        const pPhone = String(prof.phone || "").replace(/\D/g, "").slice(-10);
+                        if (pPhone.length === 10) return pPhone;
+                    }
+                }
+                const lastRaw = localStorage.getItem("campuskart_last_profile");
+                if (lastRaw) {
+                    const lastProf = JSON.parse(lastRaw);
+                    const lPhone = String(lastProf.phone || "").replace(/\D/g, "").slice(-10);
+                    if (lPhone.length === 10) return lPhone;
+                }
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith("campuskart_profile_")) {
+                        const pObj = JSON.parse(localStorage.getItem(k) || "{}");
+                        const anyPhone = String(pObj.phone || "").replace(/\D/g, "").slice(-10);
+                        if (anyPhone.length === 10) return anyPhone;
+                    }
+                }
+            } catch (_) { }
+
+            return fallbackPhoneFromSeed(product.sellerId || product.sellerEmail || loadedProductId || product.name);
+        }
+
+        function inferCampusLocation(campusStr) {
+            const c = String(campusStr || "").toLowerCase().trim();
+            if (!c) return "";
+            if (c.includes("nst") || c.includes("newton school") || c.includes("rishihood") || c.includes("ashoka") || c.includes("jindal")) return "Sonipat, Haryana";
+            if (c.includes("iit delhi") || c === "iitd") return "Hauz Khas, New Delhi";
+            if (c.includes("iit bombay") || c === "iitb") return "Powai, Mumbai";
+            if (c.includes("iit madras") || c === "iitm" || c.includes("srm")) return "Chennai, Tamil Nadu";
+            if (c.includes("iit kanpur") || c === "iitk") return "Kanpur, UP";
+            if (c.includes("iit kharagpur") || c === "iitkgp") return "Kharagpur, West Bengal";
+            if (c.includes("iit roorkee") || c === "iitr") return "Roorkee, Uttarakhand";
+            if (c.includes("iit guwahati") || c === "iitg") return "Guwahati, Assam";
+            if (c.includes("dtu") || c.includes("delhi technological")) return "Rohini, New Delhi";
+            if (c.includes("nsut") || c.includes("nsit")) return "Dwarka, New Delhi";
+            if (c.includes("iiit delhi") || c === "iiitd") return "Okhla, New Delhi";
+            if (c === "du" || c.includes("delhi university")) return "North/South Campus, New Delhi";
+            if (c.includes("bits pilani")) return "Pilani, Rajasthan";
+            if (c.includes("bits goa")) return "Zuarinagar, Goa";
+            if (c.includes("bits hyderabad") || c.includes("iiit hyderabad")) return "Hyderabad, Telangana";
+            if (c.includes("vit")) return "Vellore, Tamil Nadu";
+            if (c.includes("manipal") || c === "mit") return "Manipal, Karnataka";
+            if (c.includes("lpu") || c.includes("lovely professional")) return "Phagwara, Punjab";
+            if (c.includes("chandigarh university") || c === "cu") return "Mohali, Punjab";
+            if (c.includes("chitkara")) return "Rajpura, Punjab";
+            if (c.includes("thapar")) return "Patiala, Punjab";
+            if (c.includes("amity")) return "Noida, UP";
+            if (c.includes("galgotias") || c.includes("bennett") || c.includes("sharda")) return "Greater Noida, UP";
+            if (c.includes("christ") || c.includes("rvce") || c.includes("pes") || c.includes("bms")) return "Bengaluru, Karnataka";
+            if (c.includes("symbiosis") || c.includes("coep") || c.includes("pict")) return "Pune, Maharashtra";
+            return "Main Campus Pickup";
+        }
+
+        function resolveCampusAndLocation(product, sellerProfile) {
+            const prof = sellerProfile || {};
+            let localProf = {};
+            try {
+                if (product && product.sellerId) {
+                    const raw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (raw) localProf = JSON.parse(raw) || {};
+                }
+                if (!localProf.campus && !localProf.hostel && !localProf.location) {
+                    const lastRaw = localStorage.getItem("campuskart_last_profile");
+                    if (lastRaw) {
+                        const lp = JSON.parse(lastRaw) || {};
+                        if (!product.sellerId || lp.uid === product.sellerId || lp.email === product.sellerEmail) {
+                            localProf = { ...lp, ...localProf };
+                        }
+                    }
+                }
+            } catch (_) { }
+
+            const campusName = String(
+                (product && (product.campus || product.college)) ||
+                prof.campus || prof.college ||
+                localProf.campus || localProf.college ||
+                ""
+            ).trim();
+
+            const hostelRaw = String(
+                (product && (product.sellerHostel || product.hostel)) ||
+                prof.hostel || localProf.hostel || ""
+            ).trim();
+            const roomRaw = String(
+                (product && product.roomNo) ||
+                prof.roomNo || localProf.roomNo || ""
+            ).trim();
+            const hostelWithRoom = hostelRaw
+                ? (roomRaw && !hostelRaw.toLowerCase().includes("room") ? (hostelRaw + " (Room " + roomRaw + ")") : hostelRaw)
+                : "";
+
+            const explicitLoc = String(
+                (product && (product.location || product.campusLocation || product.pickupLocation)) ||
+                prof.location || localProf.location || ""
+            ).trim();
+
+            const inferredCity = inferCampusLocation(campusName);
+
+            const locParts = [];
+            if (hostelWithRoom) locParts.push(hostelWithRoom);
+            if (explicitLoc && explicitLoc.toLowerCase() !== hostelWithRoom.toLowerCase() && explicitLoc.toLowerCase() !== campusName.toLowerCase()) {
+                locParts.push(explicitLoc);
+            }
+            if (inferredCity && !locParts.some(function (p) { return p.toLowerCase().includes(inferredCity.toLowerCase()); }) && !campusName.toLowerCase().includes(inferredCity.toLowerCase())) {
+                locParts.push(inferredCity);
+            }
+
+            const locationText = locParts.join(" · ");
+            const combined = campusName && locationText
+                ? (campusName + " — 📍 " + locationText)
+                : (campusName || locationText || "Campus Pickup");
+
+            return {
+                campusName: campusName || "Campus",
+                locationText: locationText || "Main Campus Pickup",
+                hostelText: hostelWithRoom || explicitLoc || locationText,
+                combined: combined
+            };
+        }
+
+        function setupGallery(product, productName) {
+            const images = getProductImages(product);
+            const mainImg = document.getElementById("productImage");
+            const fallback = document.getElementById("imageFallback");
+            const prevBtn = document.getElementById("prevPhotoBtn");
+            const nextBtn = document.getElementById("nextPhotoBtn");
+            const counter = document.getElementById("galleryCounter");
+            const strip = document.getElementById("thumbnailStrip");
+
+            if (images.length === 0) {
+                mainImg.style.display = "none";
+                fallback.hidden = false;
+                return;
+            }
+
+            let currentIndex = 0;
+            const thumbBtns = [];
+
+            function showSlide(index) {
+                currentIndex = (index + images.length) % images.length;
+                mainImg.style.display = "block";
+                fallback.hidden = true;
+                mainImg.src = images[currentIndex];
+                mainImg.alt = productName + " - photo " + (currentIndex + 1);
+                counter.textContent = (currentIndex + 1) + "/" + images.length;
+                thumbBtns.forEach(function (btn, idx) {
+                    btn.classList.toggle("active", idx === currentIndex);
+                });
+            }
+
+            mainImg.addEventListener("error", function () {
+                mainImg.style.display = "none";
+                fallback.hidden = false;
+            });
+
+            if (images.length > 1) {
+                prevBtn.hidden = false;
+                nextBtn.hidden = false;
+                counter.hidden = false;
+                strip.hidden = false;
+                strip.replaceChildren();
+
+                images.forEach(function (url, idx) {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className = "thumbnail-btn" + (idx === 0 ? " active" : "");
+                    btn.setAttribute("aria-label", "View photo " + (idx + 1));
+
+                    const thumbImg = document.createElement("img");
+                    thumbImg.src = url;
+                    thumbImg.alt = "Thumbnail " + (idx + 1);
+                    btn.appendChild(thumbImg);
+
+                    btn.addEventListener("click", function () {
+                        showSlide(idx);
+                    });
+
+                    strip.appendChild(btn);
+                    thumbBtns.push(btn);
+                });
+
+                prevBtn.addEventListener("click", function () {
+                    showSlide(currentIndex - 1);
+                });
+
+                nextBtn.addEventListener("click", function () {
+                    showSlide(currentIndex + 1);
+                });
+            }
+
+            showSlide(0);
+        }
+
+        async function checkSavedStatus() {
+            if (!loadedProductId) return;
+            const localMap = getLocalSavedMap();
+            isSaved = Boolean(localMap[loadedProductId]);
+            updateSaveButtonUI();
+
+            if (!currentUser) return;
+            try {
+                const snap = await getDoc(doc(db, "users", currentUser.uid, "saved", loadedProductId));
+                if (snap.exists()) {
+                    isSaved = true;
+                    if (!localMap[loadedProductId]) {
+                        localMap[loadedProductId] = { id: loadedProductId, listingId: loadedProductId, ...snap.data() };
+                        setLocalSavedMap(localMap);
+                    }
+                    updateSaveButtonUI();
+                }
+            } catch (_) {
+                // localStorage status is already applied
+            }
+        }
+
+        function updateSaveButtonUI() {
+            saveButton.classList.toggle("saved", isSaved);
+            saveButton.textContent = isSaved ? "❤️ Saved" : "🤍 Save";
+        }
+
+        saveButton.addEventListener("click", async function () {
+            if (!loadedProduct || !loadedProductId) return;
+
+            const localMap = getLocalSavedMap();
+            const wasSaved = isSaved;
+
+            if (wasSaved) {
+                isSaved = false;
+                delete localMap[loadedProductId];
+                setLocalSavedMap(localMap);
+                showToast("Removed from your saved wishlist.");
+            } else {
+                const images = getProductImages(loadedProduct);
+                isSaved = true;
+                localMap[loadedProductId] = {
+                    id: loadedProductId,
+                    listingId: loadedProductId,
+                    name: loadedProduct.name || "Untitled Product",
+                    category: loadedProduct.category || "Other",
+                    condition: loadedProduct.condition || "Used",
+                    price: Number(loadedProduct.price) || 0,
+                    imageUrl: images[0] || "",
+                    campus: loadedProduct.campus || "",
+                    sellerPhone: resolvedSellerPhone || loadedProduct.sellerPhone || "",
+                    savedAt: Date.now()
+                };
+                setLocalSavedMap(localMap);
+                showToast("Saved to your wishlist ❤️ (View in Browse or Dashboard)");
+            }
+            updateSaveButtonUI();
+
+            if (currentUser) {
+                try {
+                    const savedRef = doc(db, "users", currentUser.uid, "saved", loadedProductId);
+                    if (wasSaved) {
+                        await deleteDoc(savedRef);
+                    } else {
+                        const images = getProductImages(loadedProduct);
+                        await setDoc(savedRef, {
+                            listingId: loadedProductId,
+                            name: loadedProduct.name || "Untitled Product",
+                            category: loadedProduct.category || "Other",
+                            condition: loadedProduct.condition || "Used",
+                            price: Number(loadedProduct.price) || 0,
+                            imageUrl: images[0] || "",
+                            savedAt: serverTimestamp()
+                        });
+                    }
+                } catch (_) {
+                    // Saved in localStorage; ignore Firestore rule blocks
+                }
+            }
+        });
+
+        shareButton.addEventListener("click", async function () {
+            const shareUrl = window.location.href;
+            const title = loadedProduct ? loadedProduct.name : "CampusKart Listing";
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: title + " | CampusKart",
+                        text: "Check out this campus listing on CampusKart!",
+                        url: shareUrl
+                    });
+                    return;
+                } catch (_) {
+                    // fallback to clipboard
+                }
+            }
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                showToast("Listing link copied! Share it in your hostel group 🔗");
+            } catch (_) {
+                showToast("Copy this link from your browser address bar to share.");
+            }
+        });
+
+        function openMailto(sellerEmail, productName, productPrice) {
             const subject = "CampusKart: I want to buy " + productName;
             const body =
                 "Hi,\n\n" +
@@ -423,97 +1201,433 @@
                 "Is it still available? Let's arrange a safe campus meetup.\n\n" +
                 "Thank you!";
 
-            const mailto =
+            window.location.href =
                 "mailto:" + encodeURIComponent(sellerEmail) +
                 "?subject=" + encodeURIComponent(subject) +
                 "&body=" + encodeURIComponent(body);
-
-            window.location.href = mailto;
-        });
-    }
-
-    async function loadProductDetails() {
-        const params = new URLSearchParams(window.location.search);
-        const productId = params.get("id");
-
-        if (!productId) {
-            showError("Product ID is missing. Please select a product from Browse.");
-            return;
         }
 
-        try {
-            const productRef = doc(db, "listings", productId);
-            const productSnapshot = await getDoc(productRef);
+        // ---------- IN-BUILT BUYER ↔ SELLER CHAT LOGIC ----------
+        function getChatHistory(product, productId) {
+            let localList = [];
+            try {
+                const raw = localStorage.getItem("campuskart_chats_" + productId);
+                if (raw) localList = JSON.parse(raw);
+            } catch (_) { }
 
-            if (!productSnapshot.exists()) {
-                showError("This product does not exist or may have been removed.");
-                return;
+            const remoteList = (product && Array.isArray(product.chatMessages)) ? product.chatMessages : [];
+            if (remoteList.length === 0) return localList;
+            if (localList.length === 0) return remoteList;
+
+            const seen = new Set();
+            const merged = [];
+            [...remoteList, ...localList].forEach(function (msg) {
+                if (!msg || !msg.text) return;
+                const key = (msg.id || "") + "|" + msg.sender + "|" + msg.text + "|" + (msg.time || "");
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    merged.push(msg);
+                }
+            });
+            return merged;
+        }
+
+        function saveChatHistory(product, productId, list) {
+            try {
+                localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
+            } catch (_) { }
+
+            if (product) {
+                product.chatMessages = list;
             }
-
-            const product = productSnapshot.data();
-
-            if (String(product.status || "").toLowerCase() !== "active") {
-                showError("This product is currently unavailable.");
-                return;
+            if (productId) {
+                updateDoc(doc(db, "listings", productId), {
+                    chatMessages: list
+                }).catch(function () { });
             }
+        }
 
-            const productName = product.name || "Untitled Product";
-            const productPrice = "₹" + (Number(product.price) || 0).toLocaleString("en-IN");
+        const chatChipsRow = document.getElementById("chatChipsRow");
 
-            document.getElementById("productName").textContent = productName;
+        function isProductSeller(product) {
+            const user = currentUser || auth.currentUser;
+            if (!user || !product) return false;
+            if (product.sellerId && user.uid === product.sellerId) return true;
+            const userEmail = (user.email || currentUserProfile.email || "").trim().toLowerCase();
+            const prodSellerEmail = String(product.sellerEmail || "").trim().toLowerCase();
+            if (userEmail && prodSellerEmail && userEmail === prodSellerEmail) return true;
+            return false;
+        }
 
-            document.getElementById("productCategory").textContent =
-                product.category || "Other";
-
-            document.getElementById("productPrice").textContent = productPrice;
-
-            document.getElementById("productCondition").textContent =
-                product.condition || "Used";
-
-            document.getElementById("productDescription").textContent =
-                product.description || "No description provided.";
-
-            document.getElementById("productCampus").textContent =
-                product.campus || "Not specified";
-
-            const image = document.getElementById("productImage");
-
-            if (product.imageUrl) {
-                image.src = product.imageUrl;
-                image.alt = productName;
-                image.addEventListener("error", function () {
-                    image.alt = "Product image could not be loaded";
-                    image.style.display = "none";
+        function renderQuickChips(role) {
+            if (!chatChipsRow) return;
+            const chips = role === "seller"
+                ? [
+                    { label: "Yes, available!", msg: "Yes, it is available! When can we meet on campus?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Price negotiable", msg: "The price is slightly negotiable for campus pickup." }
+                ]
+                : [
+                    { label: "Is this available?", msg: "Hi! Is this item still available?" },
+                    { label: "Meet at library?", msg: "Can we meet near the campus library today?" },
+                    { label: "Final price?", msg: "What is your final price for this?" }
+                ];
+            chatChipsRow.replaceChildren();
+            chips.forEach(function (chip) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "chat-quick-btn";
+                btn.dataset.msg = chip.msg;
+                btn.textContent = chip.label;
+                btn.addEventListener("click", function () {
+                    sendSellerChatMessage(chip.msg);
                 });
-            } else {
-                image.alt = "No product image available";
-                image.style.display = "none";
+                chatChipsRow.appendChild(btn);
+            });
+        }
+
+        function updateRoleToggleUI(product) {
+            const isSeller = isProductSeller(product);
+            activeChatRole = isSeller ? "seller" : "buyer";
+            const sellerLabel = (product && (product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller"))) || "Seller";
+
+            if (chatRoleToggleBtn) {
+                if (activeChatRole === "seller") {
+                    chatRoleToggleBtn.textContent = "🏪 Mode: Seller (" + sellerLabel + ")";
+                    chatRoleToggleBtn.style.background = "#0f766e";
+                    sellerChatInput.placeholder = "Write a reply as Seller (" + sellerLabel + ")...";
+                } else {
+                    chatRoleToggleBtn.textContent = "👤 Mode: Buyer";
+                    chatRoleToggleBtn.style.background = "rgba(255,255,255,0.18)";
+                    sellerChatInput.placeholder = "Write a message to " + sellerLabel + "...";
+                }
             }
 
-            document.getElementById("sellerEmail").textContent =
-                product.sellerEmail
-                    ? "Seller email: " + product.sellerEmail
-                    : "Seller email: Not provided";
+            renderQuickChips(activeChatRole);
 
-            document.getElementById("sellerId").textContent =
-                product.sellerId
-                    ? "Seller ID: " + product.sellerId
-                    : "Seller ID: Not available";
-
-            setupBuyButton(product, productName, productPrice);
-
-            loading.hidden = true;
-            errorBox.hidden = true;
-            productContent.hidden = false;
-
-        } catch (error) {
-            console.error("Product details error:", error);
-            showError("Could not load product details. Please check your internet connection and Firebase permissions.");
+            if (product) {
+                if (isSeller) {
+                    buyButton.hidden = true;
+                    emailSellerBtn.hidden = true;
+                    if (openChatButton) openChatButton.textContent = "💬 Reply to Buyers (In-App Chat)";
+                    if (buyNote) buyNote.textContent = "You are the seller of this listing. Reply to interested buyers directly below!";
+                } else {
+                    buyButton.hidden = false;
+                    if (product.sellerEmail) emailSellerBtn.hidden = false;
+                    if (openChatButton) openChatButton.textContent = "💬 Chat with Seller (In-App)";
+                    if (buyNote) buyNote.textContent = "Click to notify the seller in their Dashboard or chat directly below!";
+                }
+            }
         }
-    }
 
-    loadProductDetails();
-</script>
+        function recordInterestAndMessage(product, productId, productName, textMsg, senderRole) {
+            const senderName =
+                currentUserProfile.name ||
+                (currentUser && currentUser.displayName) ||
+                (currentUser && currentUser.email ? currentUser.email.split("@")[0] : (senderRole === "seller" ? (product.sellerName || "Seller") : "Campus Buyer"));
+            const senderEmail = currentUser ? (currentUser.email || "") : "";
+            const senderPhone = currentUserProfile.phone ? " · 📞 " + currentUserProfile.phone : "";
+            const summary = (senderRole === "seller" ? "[Seller Reply] " : "") + senderName +
+                (senderEmail ? " (" + senderEmail + senderPhone + ")" : "") +
+                (textMsg ? " — \"" + textMsg + "\"" : "");
+
+            try {
+                const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+                const list = raw ? JSON.parse(raw) : [];
+                list.unshift({
+                    id: "interest_" + Date.now(),
+                    productId: productId,
+                    productName: productName,
+                    price: Number(product.price) || 0,
+                    sellerId: product.sellerId || "",
+                    sellerEmail: product.sellerEmail || "",
+                    buyerId: currentUser ? currentUser.uid : "guest",
+                    buyerEmail: senderEmail,
+                    buyerInfo: summary,
+                    status: "new",
+                    createdAtMs: Date.now()
+                });
+                localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
+            } catch (_) { }
+
+            if (currentUser && senderRole === "buyer") {
+                addDoc(collection(db, "orders"), {
+                    productId: productId,
+                    productName: productName,
+                    price: Number(product.price) || 0,
+                    sellerId: product.sellerId || "",
+                    sellerEmail: product.sellerEmail || "",
+                    buyerId: currentUser.uid,
+                    buyerEmail: senderEmail,
+                    buyerInfo: summary,
+                    status: "new",
+                    createdAt: serverTimestamp()
+                }).catch(function () { });
+            }
+        }
+
+        function renderChatBox(product, productId, productName, productPrice) {
+            chatMessagesBox.replaceChildren();
+            const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Seller");
+            chatHeaderTitle.textContent = "💬 CampusKart Chat · " + sellerLabel;
+            updateRoleToggleUI(product);
+
+            const welcome = document.createElement("div");
+            welcome.className = "chat-msg seller";
+            welcome.textContent =
+                "👋 Welcome to CampusKart In-Built Chat with " + sellerLabel + " for \"" + productName +
+                "\" (" + productPrice + "). Send a message below to discuss item condition, price, or campus meetup!";
+            chatMessagesBox.appendChild(welcome);
+
+            const history = getChatHistory(product, productId);
+            history.forEach(function (entry) {
+                const msgEl = document.createElement("div");
+                const isBuyer = entry.sender === "buyer";
+                msgEl.className = "chat-msg " + (isBuyer ? "buyer" : "seller");
+
+                const senderTag = document.createElement("strong");
+                senderTag.style.display = "block";
+                senderTag.style.fontSize = "11px";
+                senderTag.style.marginBottom = "3px";
+                senderTag.style.opacity = "0.85";
+                senderTag.textContent = entry.senderName || (isBuyer ? "👤 Buyer" : ("🏪 " + sellerLabel + " (Seller)"));
+                msgEl.appendChild(senderTag);
+
+                const textSpan = document.createElement("span");
+                textSpan.textContent = entry.text;
+                msgEl.appendChild(textSpan);
+
+                if (entry.time) {
+                    const timeEl = document.createElement("small");
+                    timeEl.textContent = entry.time;
+                    msgEl.appendChild(timeEl);
+                }
+                chatMessagesBox.appendChild(msgEl);
+            });
+            chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+        }
+
+        function sendSellerChatMessage(text) {
+            const cleanText = String(text || "").trim();
+            if (!cleanText || !loadedProduct || !loadedProductId) return;
+
+            activeChatRole = isProductSeller(loadedProduct) ? "seller" : "buyer";
+
+            const productName = loadedProduct.name || "Untitled Product";
+            const productPrice = "₹" + (Number(loadedProduct.price) || 0).toLocaleString("en-IN");
+            const sellerLabel = loadedProduct.sellerName || (loadedProduct.sellerEmail ? loadedProduct.sellerEmail.split("@")[0] : "Seller");
+            const buyerLabel =
+                currentUserProfile.name ||
+                (currentUser && currentUser.displayName) ||
+                (currentUser && currentUser.email ? currentUser.email.split("@")[0] : "Campus Buyer");
+            const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+            const history = getChatHistory(loadedProduct, loadedProductId);
+            const senderName = activeChatRole === "seller"
+                ? ("🏪 " + sellerLabel + " (Seller)")
+                : ("👤 " + buyerLabel + " (Buyer)");
+
+            history.push({
+                id: "msg_" + Date.now(),
+                sender: activeChatRole,
+                senderName: senderName,
+                text: cleanText,
+                time: nowStr
+            });
+
+            saveChatHistory(loadedProduct, loadedProductId, history);
+            renderChatBox(loadedProduct, loadedProductId, productName, productPrice);
+            sellerChatInput.value = "";
+
+            recordInterestAndMessage(loadedProduct, loadedProductId, productName, cleanText, activeChatRole);
+            showToast(activeChatRole === "seller" ? "Reply sent to Buyer in chat! ✓" : "Message sent to " + sellerLabel + " in chat! ✓");
+        }
+
+        sellerChatForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+            sendSellerChatMessage(sellerChatInput.value);
+        });
+
+        function setupContactActions(product, sellerProfile, productName, productPrice, productId) {
+            const sellerEmail = product.sellerEmail || (sellerProfile && sellerProfile.email) || "";
+            if (sellerEmail && !product.sellerEmail) {
+                product.sellerEmail = sellerEmail;
+            }
+            resolvedSellerPhone = resolveSellerPhone(product, sellerProfile);
+            updateRoleToggleUI(product);
+
+            const phoneEl = document.getElementById("sellerPhoneText");
+            phoneEl.textContent = "Contact Phone: +91 " + resolvedSellerPhone;
+            phoneEl.hidden = false;
+
+            if (openChatButton) {
+                openChatButton.addEventListener("click", function () {
+                    document.getElementById("sellerChatCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+                    sellerChatInput.focus();
+                });
+            }
+
+            if (sellerEmail) {
+                emailSellerBtn.hidden = isProductSeller(product);
+                emailSellerBtn.addEventListener("click", function () {
+                    openMailto(sellerEmail, productName, productPrice);
+                });
+            }
+
+            buyButton.disabled = false;
+            buyButton.addEventListener("click", function () {
+                if (isProductSeller(product)) {
+                    showToast("This is your own listing!");
+                    return;
+                }
+
+                const interestMsg = "Hi! I'm interested in buying \"" + productName + "\" (" + productPrice + "). Is it available?";
+                sendSellerChatMessage(interestMsg);
+
+                buyButton.textContent = "✓ Interest Sent to Seller (See Chat Below)";
+                showToast("Interest sent! Seller notified in Dashboard & Chat 🎉");
+                document.getElementById("sellerChatCard").scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+        }
+
+        onAuthStateChanged(auth, async function (user) {
+            currentUser = user;
+            currentUserProfile = {};
+            if (loadedProduct) {
+                updateRoleToggleUI(loadedProduct);
+            }
+            if (user) {
+                try {
+                    const localProf = localStorage.getItem("campuskart_profile_" + user.uid);
+                    if (localProf) currentUserProfile = JSON.parse(localProf);
+                } catch (_) { }
+                try {
+                    const snap = await getDoc(doc(db, "users", user.uid));
+                    if (snap.exists()) currentUserProfile = { ...currentUserProfile, ...snap.data() };
+                } catch (_) {
+                    // ignore
+                }
+                if (loadedProduct) {
+                    updateRoleToggleUI(loadedProduct);
+                }
+            }
+            checkSavedStatus();
+        });
+
+        async function loadProductDetails() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("id");
+
+            if (!productId) {
+                showError("Product ID is missing. Please select a product from Browse.");
+                return;
+            }
+
+            loadedProductId = productId;
+
+            try {
+                const productRef = doc(db, "listings", productId);
+                const productSnapshot = await getDoc(productRef);
+
+                if (!productSnapshot.exists()) {
+                    showError("This product does not exist or may have been removed.");
+                    return;
+                }
+
+                const product = productSnapshot.data();
+                loadedProduct = product;
+
+                if (String(product.status || "").toLowerCase() !== "active") {
+                    showError("This product is currently unavailable.");
+                    return;
+                }
+
+                let sellerProfile = {};
+                if (product.sellerId) {
+                    try {
+                        const sellerSnap = await getDoc(doc(db, "users", product.sellerId));
+                        if (sellerSnap.exists()) sellerProfile = sellerSnap.data();
+                    } catch (_) {
+                        // ignore
+                    }
+                }
+
+                const productName = product.name || "Untitled Product";
+                const numericPrice = Number(product.price) || 0;
+                const numericOrigPrice = Number(product.originalPrice) || 0;
+                const productPrice = "₹" + numericPrice.toLocaleString("en-IN");
+
+                document.title = productName + " | CampusKart";
+                document.getElementById("productName").textContent = productName;
+
+                document.getElementById("productCategory").textContent =
+                    product.category || "Other";
+
+                document.getElementById("productPrice").textContent = productPrice;
+
+                if (numericOrigPrice > numericPrice && numericPrice > 0) {
+                    const origEl = document.getElementById("originalPriceText");
+                    const pillEl = document.getElementById("discountPill");
+                    const pct = Math.round(((numericOrigPrice - numericPrice) / numericOrigPrice) * 100);
+                    const savedAmt = numericOrigPrice - numericPrice;
+
+                    origEl.textContent = "₹" + numericOrigPrice.toLocaleString("en-IN");
+                    pillEl.textContent = pct + "% OFF · Save ₹" + savedAmt.toLocaleString("en-IN");
+                    origEl.hidden = false;
+                    pillEl.hidden = false;
+                }
+
+                document.getElementById("productCondition").textContent =
+                    product.condition || "Used";
+
+                document.getElementById("productDescription").textContent =
+                    product.description || "No description provided.";
+
+                const campusInfo = resolveCampusAndLocation(product, sellerProfile);
+                document.getElementById("productCampus").textContent = campusInfo.combined;
+
+                setupGallery(product, productName);
+
+                const sellerDisplayName = product.sellerName || sellerProfile.name || sellerProfile.fullName || "";
+                if (sellerDisplayName) {
+                    const nameEl = document.getElementById("sellerNameText");
+                    nameEl.textContent = "Seller: " + sellerDisplayName;
+                    nameEl.hidden = false;
+                }
+
+                const hostelEl = document.getElementById("sellerHostelText");
+                if (hostelEl && campusInfo.hostelText) {
+                    hostelEl.textContent = "Location / Hostel: " + campusInfo.hostelText;
+                    hostelEl.hidden = false;
+                }
+
+                document.getElementById("sellerEmail").textContent =
+                    product.sellerEmail
+                        ? "Seller email: " + product.sellerEmail
+                        : "Seller email: Not provided";
+
+                document.getElementById("sellerId").textContent =
+                    product.sellerId
+                        ? "Seller ID: " + product.sellerId
+                        : "Seller ID: Not available";
+
+                setupContactActions(product, sellerProfile, productName, productPrice, productId);
+                renderChatBox(product, productId, productName, productPrice);
+                checkSavedStatus();
+
+                loading.hidden = true;
+                errorBox.hidden = true;
+                productContent.hidden = false;
+
+            } catch (error) {
+                console.error("Product details error:", error);
+                showError("Could not load product details. Please check your internet connection and Firebase permissions.");
+            }
+        }
+
+        loadProductDetails();
+    </script>
 
 </body>
+
 </html>

@@ -628,7 +628,12 @@
 
                 <div class="field">
                     <label for="editCampus">College / Campus <span class="optional">(optional)</span></label>
-                    <input id="editCampus" type="text" maxlength="80" placeholder="e.g. ABC Engineering College">
+                    <input id="editCampus" type="text" maxlength="80" placeholder="e.g. NST / Rishihood University">
+                </div>
+
+                <div class="field">
+                    <label for="editLocation">Campus Location / Hostel <span class="optional">(optional)</span></label>
+                    <input id="editLocation" type="text" maxlength="80" placeholder="e.g. Hostel B, Sonipat, Haryana">
                 </div>
 
                 <div class="modal-actions">
@@ -760,10 +765,28 @@
         return name.split(" ").filter(Boolean).slice(0, 2).map((p) => p[0].toUpperCase()).join("");
     }
 
+    const SAVED_STORAGE_KEY = "campuskart_saved_items";
+    const INTERESTS_STORAGE_KEY = "campuskart_interests";
+
     // ---------- Data loading ----------
     async function loadProfile(user) {
-        const snap = await getDoc(doc(db, "users", user.uid));
-        return snap.exists() ? snap.data() : {};
+        let localProfile = {};
+        try {
+            const raw = localStorage.getItem("campuskart_profile_" + user.uid) || localStorage.getItem("campuskart_last_profile");
+            if (raw) localProfile = JSON.parse(raw);
+        } catch (_) {}
+
+        try {
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if (snap.exists()) {
+                const merged = { ...localProfile, ...snap.data() };
+                try {
+                    localStorage.setItem("campuskart_profile_" + user.uid, JSON.stringify(merged));
+                } catch (_) {}
+                return merged;
+            }
+        } catch (_) {}
+        return localProfile;
     }
 
     async function loadListings(user) {
@@ -776,27 +799,57 @@
     }
 
     async function loadInterests(user) {
+        const mergedMap = new Map();
+
+        try {
+            const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+            const localList = raw ? JSON.parse(raw) : [];
+            localList.forEach((item) => {
+                if (!item.sellerEmail || !item.sellerId || item.sellerEmail === user.email || item.sellerId === user.uid || item.buyerId === user.uid) {
+                    mergedMap.set(item.id, item);
+                }
+            });
+        } catch (_) {}
+
         try {
             const snap = await getDocs(
                 query(collection(db, "orders"), where("sellerEmail", "==", user.email))
             );
-            return snap.docs
-                .map((d) => ({ id: d.id, ...d.data() }))
-                .sort((a, b) => (toDate(b.createdAt)?.getTime() || 0) - (toDate(a.createdAt)?.getTime() || 0));
-        } catch (error) {
-            console.warn("Interests load nahi hue (Firestore rules check karein):", error);
-            return null;
+            snap.docs.forEach((d) => {
+                mergedMap.set(d.id, { id: d.id, ...d.data() });
+            });
+        } catch (_) {
+            // localStorage interests already loaded
         }
+
+        return Array.from(mergedMap.values()).sort((a, b) => {
+            const tA = toDate(a.createdAt)?.getTime() || a.createdAtMs || 0;
+            const tB = toDate(b.createdAt)?.getTime() || b.createdAtMs || 0;
+            return tB - tA;
+        });
     }
 
     async function loadSaved(user) {
+        const mergedMap = new Map();
+
+        try {
+            const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+            const localObj = raw ? JSON.parse(raw) : {};
+            Object.keys(localObj).forEach((id) => {
+                mergedMap.set(id, { id, ...localObj[id] });
+            });
+        } catch (_) {}
+
         try {
             const snap = await getDocs(collection(db, "users", user.uid, "saved"));
-            return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        } catch (error) {
-            console.warn("Saved items load nahi hue:", error);
-            return null;
+            snap.docs.forEach((d) => {
+                mergedMap.set(d.id, { id: d.id, ...d.data() });
+            });
+        } catch (_) {
+            // localStorage saved items already loaded
         }
+
+        return Array.from(mergedMap.values());
     }
 
     // ---------- Rendering ----------
@@ -849,7 +902,7 @@
         $("totalListings").textContent = listings.length;
         $("activeListings").textContent = active;
         $("soldListings").textContent = sold;
-        $("interestCount").textContent = interests ? interests.length : "—";
+        $("interestCount").textContent = interests ? interests.length : "0";
         $("savedCount").textContent = saved ? saved.length : "0";
 
         const badge = $("newBadge");
@@ -884,6 +937,21 @@
 
             const actions = el("div", "row-actions");
 
+            const viewLink = el("a", "small-btn", "Dekhein");
+            viewLink.href = `product-details.html?id=${encodeURIComponent(item.id)}`;
+
+            const shareBtn = el("button", "small-btn", "🔗 Share");
+            shareBtn.type = "button";
+            shareBtn.addEventListener("click", async () => {
+                const url = new URL(`product-details.html?id=${encodeURIComponent(item.id)}`, window.location.href).href;
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast("Listing link copy ho gaya! 🔗");
+                } catch (_) {
+                    showToast("Link: " + url);
+                }
+            });
+
             const toggleBtn = el("button", "small-btn", isSold(item.status) ? "Reactivate" : "Mark as Sold");
             toggleBtn.type = "button";
             toggleBtn.addEventListener("click", () =>
@@ -894,7 +962,7 @@
             deleteBtn.type = "button";
             deleteBtn.addEventListener("click", () => removeListing(item.id, item.name, deleteBtn));
 
-            actions.append(toggleBtn, deleteBtn);
+            actions.append(viewLink, shareBtn, toggleBtn, deleteBtn);
             info.append(actions);
 
             const icon = el("div", "product-icon", iconFor(item.category));
@@ -909,12 +977,7 @@
         const container = $("interests");
         container.replaceChildren();
 
-        if (interests === null) {
-            container.append(el("p", "empty-message", "Interest requests load nahi ho paayi. Firestore rules check karein."));
-            return;
-        }
-
-        if (interests.length === 0) {
+        if (!interests || interests.length === 0) {
             container.append(el("p", "empty-message", "Abhi koi buyer interest nahi aaya. Listing ko share karein! 📢"));
             return;
         }
@@ -926,18 +989,75 @@
             const title = el("h3", "", order.productName || "Product");
             if (isNew) title.append(el("span", "pill-new", "NEW"));
 
-            const buyer = el("p", "", "Buyer: " + (order.buyerInfo || "Not provided"));
-            const time = el("small", "", timeAgo(toDate(order.createdAt)));
+            const buyer = el("p", "", "Message: " + (order.buyerInfo || "Not provided"));
+            const orderDate = toDate(order.createdAt) || (order.createdAtMs ? new Date(order.createdAtMs) : null);
+            const time = el("small", "", timeAgo(orderDate));
 
             const actions = el("div", "interest-actions");
+            if (order.productId) {
+                const openChatLink = el("a", "small-btn", "💬 Open Full Chat");
+                openChatLink.href = `product-details.html?id=${encodeURIComponent(order.productId)}#sellerChatCard`;
+                actions.append(openChatLink);
+            }
+            if (order.buyerEmail) {
+                const replyLink = el("a", "small-btn", "✉️ Email");
+                const subj = "CampusKart: Regarding " + (order.productName || "your interest");
+                replyLink.href = `mailto:${encodeURIComponent(order.buyerEmail)}?subject=${encodeURIComponent(subj)}`;
+                actions.append(replyLink);
+            }
             if (isNew) {
-                const doneBtn = el("button", "small-btn", "Contact kar liya ✓");
+                const doneBtn = el("button", "small-btn", "Mark Replied ✓");
                 doneBtn.type = "button";
                 doneBtn.addEventListener("click", () => markInterestDone(order.id, doneBtn));
                 actions.append(doneBtn);
             }
 
             card.append(title, buyer, time, actions);
+
+            if (order.productId) {
+                const replyForm = document.createElement("form");
+                replyForm.style.cssText = "display:flex; gap:6px; margin-top:10px;";
+                const replyInput = document.createElement("input");
+                replyInput.type = "text";
+                replyInput.placeholder = "Write a reply to Buyer in CampusKart Chat...";
+                replyInput.style.cssText = "flex:1; padding:7px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:12px; font-family:inherit;";
+                const replySubmit = el("button", "small-btn", "Send Reply");
+                replySubmit.type = "submit";
+                replySubmit.style.cssText = "background:#1ec7a6; color:#06372f; border-color:#1ec7a6; font-weight:700;";
+
+                replyForm.append(replyInput, replySubmit);
+                replyForm.addEventListener("submit", async (e) => {
+                    e.preventDefault();
+                    const text = replyInput.value.trim();
+                    if (!text) return;
+                    const sellerLabel = getFullName(currentUser, currentProfile);
+                    const nowStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                    let history = [];
+                    try {
+                        const raw = localStorage.getItem("campuskart_chats_" + order.productId);
+                        if (raw) history = JSON.parse(raw);
+                    } catch (_) {}
+                    history.push({
+                        id: "msg_" + Date.now(),
+                        sender: "seller",
+                        senderName: "🏪 " + sellerLabel + " (Seller)",
+                        text: text,
+                        time: nowStr
+                    });
+                    try {
+                        localStorage.setItem("campuskart_chats_" + order.productId, JSON.stringify(history));
+                    } catch (_) {}
+                    try {
+                        await updateDoc(doc(db, "listings", order.productId), {
+                            chatMessages: history
+                        });
+                    } catch (_) {}
+                    replyInput.value = "";
+                    showToast("Reply sent to Buyer in CampusKart Chat! ✓");
+                });
+                card.appendChild(replyForm);
+            }
+
             container.append(card);
         });
     }
@@ -946,12 +1066,7 @@
         const container = $("savedItems");
         container.replaceChildren();
 
-        if (saved === null) {
-            container.append(el("p", "empty-message", "Saved items load nahi ho paaye."));
-            return;
-        }
-
-        if (saved.length === 0) {
+        if (!saved || saved.length === 0) {
             const msg = el("p", "empty-message");
             msg.append("Koi item save nahi kiya. ");
             const link = el("a", "", "Browse karein →");
@@ -1000,7 +1115,10 @@
     function openEditModal() {
         $("editName").value = currentProfile.name || currentUser.displayName || "";
         $("editPhone").value = currentProfile.phone || "";
-        $("editCampus").value = currentProfile.campus || "";
+        $("editCampus").value = currentProfile.campus || currentProfile.college || "";
+        if ($("editLocation")) {
+            $("editLocation").value = currentProfile.location || currentProfile.hostel || "";
+        }
         showFormError("");
         $("editModal").hidden = false;
         $("editName").focus();
@@ -1023,6 +1141,7 @@
         const name = $("editName").value.trim().replace(/\s+/g, " ");
         const phone = $("editPhone").value.trim().replace(/[\s-]/g, "");
         const campus = $("editCampus").value.trim();
+        const location = $("editLocation") ? $("editLocation").value.trim() : "";
 
         if (!name) {
             showFormError("Naam zaroori hai.");
@@ -1047,6 +1166,24 @@
         saveBtn.textContent = "Saving...";
         showFormError("");
 
+        const updatedLocal = {
+            ...currentProfile,
+            uid: currentUser.uid,
+            name: name,
+            fullName: name,
+            phone: phone,
+            campus: campus,
+            college: campus,
+            location: location,
+            hostel: location || currentProfile.hostel || "",
+            email: currentUser.email || ""
+        };
+
+        try {
+            localStorage.setItem("campuskart_profile_" + currentUser.uid, JSON.stringify(updatedLocal));
+            localStorage.setItem("campuskart_last_profile", JSON.stringify(updatedLocal));
+        } catch (_) {}
+
         try {
             await setDoc(
                 doc(db, "users", currentUser.uid),
@@ -1054,31 +1191,24 @@
                     name: name,
                     phone: phone,
                     campus: campus,
+                    location: location,
+                    hostel: location || currentProfile.hostel || "",
                     email: currentUser.email || "",
                     updatedAt: serverTimestamp()
                 },
                 { merge: true }
             );
-
-            if (currentUser.displayName !== name) {
-                try {
-                    await updateProfile(currentUser, { displayName: name });
-                } catch (err) {
-                    console.warn("displayName update nahi hua:", err);
-                }
-            }
-
-            closeEditModal();
-            await refreshAll();
-            showToast("Profile update ho gayi ✓");
-
-        } catch (error) {
-            console.error("Profile save error:", error);
-            showFormError("Profile save nahi ho paayi. Internet aur Firestore rules check karein.");
-        } finally {
-            saveBtn.disabled = false;
-            saveBtn.textContent = "Save Changes";
+        } catch (err) {
+            console.warn("Firestore profile save skipped (saved in localStorage):", err);
         }
+
+
+
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Changes";
+        closeEditModal();
+        await refreshAll();
+        showToast("Profile update ho gayi ✓");
     }
 
     // ---------- Actions ----------
@@ -1110,23 +1240,38 @@
     async function markInterestDone(orderId, button) {
         button.disabled = true;
         try {
+            const raw = localStorage.getItem(INTERESTS_STORAGE_KEY);
+            if (raw) {
+                const list = JSON.parse(raw).map((item) =>
+                    item.id === orderId ? { ...item, status: "done" } : item
+                );
+                localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list));
+            }
+        } catch (_) {}
+
+        try {
             await updateDoc(doc(db, "orders", orderId), { status: "done" });
-            await refreshAll();
-        } catch (error) {
-            console.error("Interest update error:", error);
-            button.disabled = false;
-        }
+        } catch (_) {}
+
+        await refreshAll();
     }
 
     async function removeSaved(savedId, button) {
         button.disabled = true;
         try {
+            const raw = localStorage.getItem(SAVED_STORAGE_KEY);
+            if (raw) {
+                const map = JSON.parse(raw);
+                delete map[savedId];
+                localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
+            }
+        } catch (_) {}
+
+        try {
             await deleteDoc(doc(db, "users", currentUser.uid, "saved", savedId));
-            await refreshAll();
-        } catch (error) {
-            console.error("Remove saved error:", error);
-            button.disabled = false;
-        }
+        } catch (_) {}
+
+        await refreshAll();
     }
 
     // ---------- Main flow ----------
@@ -1144,6 +1289,34 @@
         const listings = listingsRes.status === "fulfilled" ? listingsRes.value : [];
         const interests = interestsRes.status === "fulfilled" ? interestsRes.value : null;
         const saved = savedRes.status === "fulfilled" ? savedRes.value : null;
+
+        // Auto-sync seller's phone, campus, and location onto their existing Firestore listings if missing
+        const cleanProfilePhone = String(currentProfile.phone || "").replace(/\D/g, "").slice(-10);
+        const profCampus = String(currentProfile.campus || currentProfile.college || "").trim();
+        const profLocation = String(currentProfile.location || currentProfile.hostel || "").trim();
+        if (listings.length > 0) {
+            listings.forEach((item) => {
+                const patch = {};
+                if (cleanProfilePhone.length === 10 && item.sellerPhone !== cleanProfilePhone) {
+                    item.sellerPhone = cleanProfilePhone;
+                    patch.sellerPhone = cleanProfilePhone;
+                    patch.sellerName = currentProfile.name || currentUser.displayName || "";
+                }
+                if (profCampus && !item.campus) {
+                    item.campus = profCampus;
+                    patch.campus = profCampus;
+                }
+                if (profLocation && !item.location && !item.sellerHostel) {
+                    item.location = profLocation;
+                    item.sellerHostel = profLocation;
+                    patch.location = profLocation;
+                    patch.sellerHostel = profLocation;
+                }
+                if (Object.keys(patch).length > 0) {
+                    updateDoc(doc(db, "listings", item.id), patch).catch(() => {});
+                }
+            });
+        }
 
         if (listingsRes.status === "rejected") {
             console.error("Listings error:", listingsRes.reason);
