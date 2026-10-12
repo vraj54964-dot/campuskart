@@ -1095,316 +1095,446 @@
     </footer>
 
     <!-- AUTH (naam + logout) + LIVE FEATURED LISTINGS -->
-    <script type="module">
-        import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-        import {
-            getAuth,
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+   
 
+<script type="module">
+    // 1. Firebase imports
+    import {
+        initializeApp,
+        getApp,
+        getApps
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
-            authDomain: "campus-cart-62492.firebaseapp.com",
-            projectId: "campus-cart-62492",
-            storageBucket: "campus-cart-62492.firebasestorage.app",
-            messagingSenderId: "182996728543",
-            appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
-            measurementId: "G-NN86N2NE52"
-        };
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 
-        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
+    import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-function normalizeCategory(category) {
-    const value = String(category || "").toLowerCase().trim();
+    // 2. Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyAo5yUfQp1V5OoPW1o21UJne9I0Zz9ApLU",
+        authDomain: "campus-cart-62492.firebaseapp.com",
+        projectId: "campus-cart-62492",
+        storageBucket: "campus-cart-62492.firebasestorage.app",
+        messagingSenderId: "182996728543",
+        appId: "1:182996728543:web:9fc39d8abed5983f37c76a",
+        measurementId: "G-NN86N2NE52"
+    };
 
-    if (value.includes("book")) return "books";
-    if (
-        value.includes("electronic") ||
-        value.includes("calculator") ||
-        value.includes("gadget")
-    ) return "electronics";
-    if (value.includes("note") || value.includes("study")) return "notes";
-    if (
-        value.includes("hostel") ||
-        value.includes("bag") ||
-        value.includes("daily")
-    ) return "hostel";
+    const app = getApps().length
+        ? getApp()
+        : initializeApp(firebaseConfig);
 
-    return value || "other";
-}
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-async function loadFeaturedProducts() {
+    // 3. HTML elements
+    const loginLink = document.getElementById("loginLink");
+    const userMenu = document.getElementById("userMenu");
+    const userAvatar = document.getElementById("userAvatar");
+    const userName = document.getElementById("userName");
+    const logoutButton = document.getElementById("logoutButton");
+
     const productGrid = document.getElementById("productGrid");
+    const searchForm = document.getElementById("searchForm");
+    const searchInput = document.getElementById("searchInput");
+    const categoryCards = document.querySelectorAll(".category-card");
     const emptyMessage = document.getElementById("emptyMessage");
 
-    productGrid.replaceChildren();
+    let selectedCategory = "all";
+    let allProductsLoaded = false;
 
-    const loadingMessage = document.createElement("p");
-    loadingMessage.textContent = "Loading products...";
-    loadingMessage.style.padding = "20px";
-    productGrid.appendChild(loadingMessage);
+    // 4. Normalize categories
+    function normalizeCategory(category) {
+        const value = String(category || "").toLowerCase().trim();
 
-    try {
-        const snapshot = await getDocs(collection(db, "listings"));
-        productGrid.replaceChildren();
+        if (value.includes("book")) return "books";
 
-        let count = 0;
+        if (
+            value.includes("electronic") ||
+            value.includes("calculator") ||
+            value.includes("gadget")
+        ) return "electronics";
 
-        snapshot.forEach(function (productDoc) {
-            const product = productDoc.data();
+        if (
+            value.includes("note") ||
+            value.includes("study")
+        ) return "notes";
 
-            // Sirf active listings homepage par dikhani hain.
-            if (String(product.status || "").toLowerCase() !== "active") {
-                return;
-            }
+        if (
+            value.includes("hostel") ||
+            value.includes("bag") ||
+            value.includes("daily")
+        ) return "hostel";
 
-            const name = String(product.name || "Student Item");
-            const category = String(product.category || "Other");
-            const condition = String(product.condition || "Condition not specified");
-            const description = String(product.description || "Student marketplace listing");
-            const price = Number(product.price);
-            const imageUrl = String(product.imageUrl || "");
-
-            const card = document.createElement("article");
-            card.className = "product-card";
-            card.dataset.category = normalizeCategory(category);
-            card.dataset.search = (
-                name + " " + category + " " + description + " " +
-                condition + " " + String(product.campus || "")
-            ).toLowerCase();
-
-            const imageBox = document.createElement("div");
-            imageBox.className = "product-image";
-
-            if (imageUrl && /^https?:\/\//i.test(imageUrl)) {
-                const img = document.createElement("img");
-                img.src = imageUrl;
-                img.alt = name;
-                img.loading = "lazy";
-                img.onerror = function () {
-                    img.remove();
-                };
-                imageBox.appendChild(img);
-            } else {
-                imageBox.style.display = "grid";
-                imageBox.style.placeItems = "center";
-                imageBox.style.color = "#6b7890";
-                imageBox.style.fontSize = "14px";
-                imageBox.textContent = "No image available";
-            }
-
-            const tag = document.createElement("span");
-            tag.className = "product-tag";
-            tag.textContent = "Student Listing";
-            imageBox.appendChild(tag);
-
-            const info = document.createElement("div");
-            info.className = "product-info";
-
-            const categoryLabel = document.createElement("span");
-            categoryLabel.className = "product-category";
-            categoryLabel.textContent = category;
-
-            const title = document.createElement("h3");
-            title.textContent = name;
-
-            const desc = document.createElement("p");
-            desc.className = "product-description";
-            desc.textContent = description;
-
-            const bottom = document.createElement("div");
-            bottom.className = "product-bottom";
-
-            const priceLabel = document.createElement("span");
-            priceLabel.className = "price";
-            priceLabel.textContent =
-                Number.isFinite(price) && price >= 0
-                    ? "₹" + price.toLocaleString("en-IN")
-                    : "Price unavailable";
-
-            const conditionLabel = document.createElement("span");
-            conditionLabel.className = "condition";
-            conditionLabel.textContent = condition;
-
-            
-bottom.append(priceLabel, conditionLabel);
-
-// Buttons container
-const actions = document.createElement("div");
-actions.style.display = "flex";
-actions.style.gap = "8px";
-actions.style.marginTop = "14px";
-
-// View Details button
-const detailsButton = document.createElement("button");
-detailsButton.type = "button";
-detailsButton.textContent = "View Details";
-detailsButton.style.flex = "1";
-detailsButton.style.padding = "10px 6px";
-detailsButton.style.border = "none";
-detailsButton.style.borderRadius = "8px";
-detailsButton.style.background = "#101c35";
-detailsButton.style.color = "white";
-detailsButton.style.cursor = "pointer";
-
-detailsButton.addEventListener("click", function () {
-    const params = new URLSearchParams({
-        id: productDoc.id
-    });
-
-    window.location.href = "product-details.html?" + params.toString();
-});
-
-// Email Seller button
-const emailButton = document.createElement("button");
-emailButton.type = "button";
-emailButton.textContent = "Email Seller";
-emailButton.style.flex = "1";
-emailButton.style.padding = "10px 6px";
-emailButton.style.border = "1px solid #16c6b1";
-emailButton.style.borderRadius = "8px";
-emailButton.style.background = "#e8faf7";
-emailButton.style.color = "#101c35";
-emailButton.style.fontWeight = "700";
-emailButton.style.cursor = "pointer";
-
-emailButton.addEventListener("click", function () {
-    const sellerEmail = String(product.sellerEmail || "").trim();
-
-    if (!sellerEmail) {
-        alert("Seller ka email available nahi hai.");
-        return;
+        return value || "other";
     }
 
-    const subject = "CampusKart: " + name;
-    const body =
-        "Hi,\n\n" +
-        "Mujhe aapki listing '" + name + "' (₹" + price +
-        ") ke baare mein baat karni hai.\n" +
-        "Kya yeh item abhi available hai?\n\nThanks";
+    // 5. Search and category filters
+    function filterProducts() {
+        const searchText = searchInput.value.toLowerCase().trim();
+        const cards = productGrid.querySelectorAll(".product-card");
 
-    window.location.href =
-        "mailto:" + sellerEmail +
-        "?subject=" + encodeURIComponent(subject) +
-        "&body=" + encodeURIComponent(body);
-});
+        let visibleCount = 0;
 
-actions.append(detailsButton, emailButton);
-info.append(categoryLabel, title, desc, bottom, actions);
-card.append(imageBox, info);
-productGrid.appendChild(card);
+        cards.forEach(function (card) {
+            const productText = card.dataset.search || "";
+            const productCategory = card.dataset.category || "other";
 
-            count++;
+            const matchesSearch = productText.includes(searchText);
+            const matchesCategory =
+                selectedCategory === "all" ||
+                productCategory === selectedCategory;
+
+            const visible = matchesSearch && matchesCategory;
+
+            card.style.display = visible ? "" : "none";
+
+            if (visible) visibleCount++;
         });
 
-        if (count === 0) {
+        if (visibleCount === 0) {
             productGrid.style.display = "none";
-            emptyMessage.textContent =
-                "Abhi koi active listing nahi hai. Pehla item sell karke shuruaat karo!";
             emptyMessage.style.display = "block";
+
+            if (!allProductsLoaded) {
+                emptyMessage.textContent = "Loading products...";
+            } else if (cards.length === 0) {
+                emptyMessage.textContent =
+                    "Abhi koi active listing nahi hai. Sell Item se pehli listing add karo!";
+            } else {
+                emptyMessage.textContent =
+                    "No matching items found. Try another search or category.";
+            }
         } else {
             productGrid.style.display = "";
             emptyMessage.style.display = "none";
         }
-
-        // Products load hone ke baad search/category filters dobara apply karo.
-        if (typeof filterProducts === "function") {
-            filterProducts();
-        }
-    } catch (error) {
-        console.error("Homepage products load error:", error);
-
-        productGrid.replaceChildren();
-        productGrid.style.display = "none";
-        emptyMessage.textContent =
-            "Products load nahi ho paaye. Internet aur Firestore rules check karo.";
-        emptyMessage.style.display = "block";
     }
-}
 
-loadFeaturedProducts();
+    searchForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        filterProducts();
+    });
 
+    searchInput.addEventListener("input", filterProducts);
 
-        const loginLink = document.getElementById("loginLink");
-        const userMenu = document.getElementById("userMenu");
-        const userAvatar = document.getElementById("userAvatar");
-        const userName = document.getElementById("userName");
-        const logoutButton = document.getElementById("logoutButton");
-        const productGrid = document.getElementById("productGrid");
-        const searchForm = document.getElementById("searchForm");
-        const searchInput = document.getElementById("searchInput");
-        const categoryCards = document.querySelectorAll(".category-card");
-        const emptyMessage = document.getElementById("emptyMessage");
-
-        let selectedCategory = "all";
-
-        // Naam: users/{uid}.name -> displayName -> email se
-        function getDisplayName(user, profile) {
-            if (profile && profile.name) return String(profile.name).trim();
-            if (user.displayName) return user.displayName.trim();
-            const base = (user.email || "Student").split("@")[0].replace(/[._-]+/g, " ");
-            return base.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-        }
-
-        function getInitials(name) {
-            return name
-                .split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map(function (p) { return p[0].toUpperCase(); })
-                .join("");
-        }
-
-        function showLoggedOutNav() {
-            loginLink.hidden = false;
-            userMenu.hidden = true;
-        }
-
-        async function showLoggedInNav(user) {
-            let profile = {};
-            try {
-                const snap = await getDoc(doc(db, "users", user.uid));
-                if (snap.exists()) profile = snap.data();
-            } catch (error) {
-                console.warn("User profile load nahi hua, fallback naam use hoga:", error);
-            }
-
-            const name = getDisplayName(user, profile);
-
-            userName.textContent = name;
-            userName.title = user.email || name;
-            userAvatar.textContent = getInitials(name);
-
-            loginLink.hidden = true;
-            userMenu.hidden = false;
-        }
-
-        // Page load par aur login/logout ke baad state update hoti hai.
-        // Firebase login ko browser mein save rakhta hai, isliye refresh par bhi user logged in rahta hai.
-        onAuthStateChanged(auth, function (user) {
-            if (user) {
-                showLoggedInNav(user);
-            } else {
-                showLoggedOutNav();
-            }
+    categoryCards.forEach(function (card) {
+        card.addEventListener("click", function () {
+            selectedCategory = normalizeCategory(card.dataset.category);
+            filterProducts();
         });
+    });
 
-        logoutButton.addEventListener("click", async function () {
-            logoutButton.disabled = true;
-            try {
-                await signOut(auth);
-                showLoggedOutNav();
-            } catch (error) {
-                console.error("Logout error:", error);
-                alert("Logout nahi ho paaya. Dobara try karein.");
-            } finally {
-                logoutButton.disabled = false;
-            }
+    // 6. Load products from Firestore
+    async function loadFeaturedProducts() {
+        productGrid.replaceChildren();
+        productGrid.style.display = "";
+        emptyMessage.style.display = "none";
+        allProductsLoaded = false;
+
+        const loadingMessage = document.createElement("p");
+        loadingMessage.textContent = "Loading products from CampusKart...";
+        loadingMessage.style.padding = "20px";
+        productGrid.appendChild(loadingMessage);
+
+        try {
+            const snapshot = await getDocs(collection(db, "listings"));
+
+            productGrid.replaceChildren();
+
+            snapshot.forEach(function (productDoc) {
+                const product = productDoc.data();
+
+                // Only show active listings
+                if (
+                    String(product.status || "").toLowerCase().trim()
+                    !== "active"
+                ) {
+                    return;
+                }
+
+                const productId = productDoc.id;
+                const name = String(product.name || "Student Item");
+                const category = String(product.category || "Other");
+                const condition = String(product.condition || "Not specified");
+                const description = String(
+                    product.description || "Student marketplace listing"
+                );
+                const price = Number(product.price);
+
+                const imageUrl = String(
+                    product.imageUrl ||
+                    (Array.isArray(product.imageUrls)
+                        ? product.imageUrls[0] || ""
+                        : "")
+                );
+
+                // Product card
+                const card = document.createElement("article");
+                card.className = "product-card";
+                card.dataset.category = normalizeCategory(category);
+                card.dataset.search = (
+                    name + " " +
+                    category + " " +
+                    description + " " +
+                    condition + " " +
+                    String(product.campus || "")
+                ).toLowerCase();
+
+                // Product image
+                const imageBox = document.createElement("div");
+                imageBox.className = "product-image";
+
+                if (imageUrl && /^https?:\/\//i.test(imageUrl)) {
+                    const img = document.createElement("img");
+                    img.src = imageUrl;
+                    img.alt = name;
+                    img.loading = "lazy";
+
+                    img.addEventListener("error", function () {
+                        img.remove();
+                        const fallback = document.createElement("span");
+                        fallback.textContent = "📦 Image unavailable";
+                        fallback.style.fontSize = "14px";
+                        imageBox.prepend(fallback);
+                    });
+
+                    imageBox.appendChild(img);
+                } else {
+                    imageBox.textContent = "📦";
+                    imageBox.style.fontSize = "38px";
+                    imageBox.style.color = "#6b7890";
+                }
+
+                const tag = document.createElement("span");
+                tag.className = "product-tag";
+                tag.textContent = "Student Listing";
+                imageBox.appendChild(tag);
+
+                // Product information
+                const info = document.createElement("div");
+                info.className = "product-info";
+
+                const categoryLabel = document.createElement("span");
+                categoryLabel.className = "product-category";
+                categoryLabel.textContent = category;
+
+                const title = document.createElement("h3");
+                title.textContent = name;
+
+                const desc = document.createElement("p");
+                desc.className = "product-description";
+                desc.textContent = description;
+
+                // Price and condition
+                const bottom = document.createElement("div");
+                bottom.className = "product-bottom";
+
+                const priceLabel = document.createElement("span");
+                priceLabel.className = "price";
+                priceLabel.textContent =
+                    Number.isFinite(price) && price >= 0
+                        ? "₹" + price.toLocaleString("en-IN")
+                        : "Price unavailable";
+
+                const conditionLabel = document.createElement("span");
+                conditionLabel.className = "condition";
+                conditionLabel.textContent = condition;
+
+                bottom.append(priceLabel, conditionLabel);
+
+                // Action buttons
+                const actions = document.createElement("div");
+                actions.style.display = "flex";
+                actions.style.flexWrap = "wrap";
+                actions.style.gap = "8px";
+                actions.style.marginTop = "14px";
+
+                // FIX: View Details opens the existing details page
+                const detailsButton = document.createElement("button");
+                detailsButton.type = "button";
+                detailsButton.textContent = "View Details";
+                detailsButton.style.flex = "1";
+                detailsButton.style.padding = "10px 6px";
+                detailsButton.style.border = "none";
+                detailsButton.style.borderRadius = "8px";
+                detailsButton.style.background = "#101c35";
+                detailsButton.style.color = "white";
+                detailsButton.style.cursor = "pointer";
+
+                detailsButton.addEventListener("click", function () {
+                    window.location.href =
+                        "product-details.html?id=" +
+                        encodeURIComponent(productId);
+                });
+
+                // Email seller
+                const emailButton = document.createElement("button");
+                emailButton.type = "button";
+                emailButton.textContent = "Email Seller";
+                emailButton.style.flex = "1";
+                emailButton.style.padding = "10px 6px";
+                emailButton.style.border = "1px solid #16c6b1";
+                emailButton.style.borderRadius = "8px";
+                emailButton.style.background = "#e8faf7";
+                emailButton.style.color = "#101c35";
+                emailButton.style.fontWeight = "700";
+                emailButton.style.cursor = "pointer";
+
+                emailButton.addEventListener("click", function () {
+                    const sellerEmail = String(
+                        product.sellerEmail || ""
+                    ).trim();
+
+                    if (!sellerEmail) {
+                        alert("Seller ka email available nahi hai.");
+                        return;
+                    }
+
+                    const subject = "CampusKart: " + name;
+
+                    const body =
+                        "Hi,\n\n" +
+                        "Mujhe aapki listing '" + name + "' (" +
+                        (
+                            Number.isFinite(price) && price >= 0
+                                ? "₹" + price.toLocaleString("en-IN")
+                                : "price unavailable"
+                        ) +
+                        ") ke baare mein baat karni hai.\n" +
+                        "Kya yeh item abhi available hai?\n\nThanks";
+
+                    window.location.href =
+                        "mailto:" + encodeURIComponent(sellerEmail) +
+                        "?subject=" + encodeURIComponent(subject) +
+                        "&body=" + encodeURIComponent(body);
+                });
+
+                actions.append(detailsButton, emailButton);
+                info.append(categoryLabel, title, desc, bottom, actions);
+                card.append(imageBox, info);
+                productGrid.appendChild(card);
+            });
+
+            allProductsLoaded = true;
+            filterProducts();
+
+            console.log("CampusKart: Firestore documents fetched:", snapshot.size);
+            console.log(
+                "CampusKart: Active product cards:",
+                productGrid.querySelectorAll(".product-card").length
+            );
+
+        } catch (error) {
+            console.error("Homepage products load error:", error);
+
+            allProductsLoaded = true;
+            productGrid.replaceChildren();
+            productGrid.style.display = "none";
+            emptyMessage.textContent =
+                "Products load nahi ho paaye. Internet, Firebase configuration aur Firestore rules check karo.";
+            emptyMessage.style.display = "block";
+        }
+    }
+
+    // 7. User name and login status
+    function getDisplayName(user, profile) {
+        if (profile && profile.name) {
+            return String(profile.name).trim();
+        }
+
+        if (user.displayName) {
+            return user.displayName.trim();
+        }
+
+        const base = (user.email || "Student")
+            .split("@")[0]
+            .replace(/[._-]+/g, " ");
+
+        return base.replace(/\b\w/g, function (letter) {
+            return letter.toUpperCase();
         });
+    }
+
+    function getInitials(name) {
+        return name
+            .split(" ")
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(function (part) {
+                return part[0].toUpperCase();
+            })
+            .join("") || "?";
+    }
+
+    function showLoggedOutNav() {
+        loginLink.hidden = false;
+        userMenu.hidden = true;
+    }
+
+    async function showLoggedInNav(user) {
+        let profile = {};
+
+        try {
+            const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+
+            if (profileSnapshot.exists()) {
+                profile = profileSnapshot.data();
+            }
+        } catch (error) {
+            console.warn("User profile load nahi hua:", error);
+        }
+
+        // Avoid showing an old user's details if account changed during loading
+        if (!auth.currentUser || auth.currentUser.uid !== user.uid) {
+            return;
+        }
+
+        const name = getDisplayName(user, profile);
+        userName.textContent = name;
+        userName.title = user.email || name;
+        userAvatar.textContent = getInitials(name);
+
+        loginLink.hidden = true;
+        userMenu.hidden = false;
+    }
+
+    onAuthStateChanged(auth, function (user) {
+        if (user) {
+            showLoggedInNav(user);
+        } else {
+            showLoggedOutNav();
+        }
+    });
+
+    // 8. Logout
+    logoutButton.addEventListener("click", async function () {
+        logoutButton.disabled = true;
+
+        try {
+            await signOut(auth);
+            showLoggedOutNav();
+        } catch (error) {
+            console.error("Logout error:", error);
+            alert("Logout nahi ho paaya. Dobara try karein.");
+        } finally {
+            logoutButton.disabled = false;
+        }
+    });
+
+    // 9. Start homepage
+    loadFeaturedProducts();
+</script>
 
 
 </body>
