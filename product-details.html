@@ -677,7 +677,7 @@
                         </div>
 
                         <div class="description">
-                            <h3>Campus</h3>
+                            <h3>Campus &amp; Location</h3>
                             <p id="productCampus"></p>
                         </div>
                     </article>
@@ -915,6 +915,104 @@
             } catch (_) { }
 
             return fallbackPhoneFromSeed(product.sellerId || product.sellerEmail || loadedProductId || product.name);
+        }
+
+        function inferCampusLocation(campusStr) {
+            const c = String(campusStr || "").toLowerCase().trim();
+            if (!c) return "";
+            if (c.includes("nst") || c.includes("newton school") || c.includes("rishihood") || c.includes("ashoka") || c.includes("jindal")) return "Sonipat, Haryana";
+            if (c.includes("iit delhi") || c === "iitd") return "Hauz Khas, New Delhi";
+            if (c.includes("iit bombay") || c === "iitb") return "Powai, Mumbai";
+            if (c.includes("iit madras") || c === "iitm" || c.includes("srm")) return "Chennai, Tamil Nadu";
+            if (c.includes("iit kanpur") || c === "iitk") return "Kanpur, UP";
+            if (c.includes("iit kharagpur") || c === "iitkgp") return "Kharagpur, West Bengal";
+            if (c.includes("iit roorkee") || c === "iitr") return "Roorkee, Uttarakhand";
+            if (c.includes("iit guwahati") || c === "iitg") return "Guwahati, Assam";
+            if (c.includes("dtu") || c.includes("delhi technological")) return "Rohini, New Delhi";
+            if (c.includes("nsut") || c.includes("nsit")) return "Dwarka, New Delhi";
+            if (c.includes("iiit delhi") || c === "iiitd") return "Okhla, New Delhi";
+            if (c === "du" || c.includes("delhi university")) return "North/South Campus, New Delhi";
+            if (c.includes("bits pilani")) return "Pilani, Rajasthan";
+            if (c.includes("bits goa")) return "Zuarinagar, Goa";
+            if (c.includes("bits hyderabad") || c.includes("iiit hyderabad")) return "Hyderabad, Telangana";
+            if (c.includes("vit")) return "Vellore, Tamil Nadu";
+            if (c.includes("manipal") || c === "mit") return "Manipal, Karnataka";
+            if (c.includes("lpu") || c.includes("lovely professional")) return "Phagwara, Punjab";
+            if (c.includes("chandigarh university") || c === "cu") return "Mohali, Punjab";
+            if (c.includes("chitkara")) return "Rajpura, Punjab";
+            if (c.includes("thapar")) return "Patiala, Punjab";
+            if (c.includes("amity")) return "Noida, UP";
+            if (c.includes("galgotias") || c.includes("bennett") || c.includes("sharda")) return "Greater Noida, UP";
+            if (c.includes("christ") || c.includes("rvce") || c.includes("pes") || c.includes("bms")) return "Bengaluru, Karnataka";
+            if (c.includes("symbiosis") || c.includes("coep") || c.includes("pict")) return "Pune, Maharashtra";
+            return "Main Campus Pickup";
+        }
+
+        function resolveCampusAndLocation(product, sellerProfile) {
+            const prof = sellerProfile || {};
+            let localProf = {};
+            try {
+                if (product && product.sellerId) {
+                    const raw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (raw) localProf = JSON.parse(raw) || {};
+                }
+                if (!localProf.campus && !localProf.hostel && !localProf.location) {
+                    const lastRaw = localStorage.getItem("campuskart_last_profile");
+                    if (lastRaw) {
+                        const lp = JSON.parse(lastRaw) || {};
+                        if (!product.sellerId || lp.uid === product.sellerId || lp.email === product.sellerEmail) {
+                            localProf = { ...lp, ...localProf };
+                        }
+                    }
+                }
+            } catch (_) { }
+
+            const campusName = String(
+                (product && (product.campus || product.college)) ||
+                prof.campus || prof.college ||
+                localProf.campus || localProf.college ||
+                ""
+            ).trim();
+
+            const hostelRaw = String(
+                (product && (product.sellerHostel || product.hostel)) ||
+                prof.hostel || localProf.hostel || ""
+            ).trim();
+            const roomRaw = String(
+                (product && product.roomNo) ||
+                prof.roomNo || localProf.roomNo || ""
+            ).trim();
+            const hostelWithRoom = hostelRaw
+                ? (roomRaw && !hostelRaw.toLowerCase().includes("room") ? (hostelRaw + " (Room " + roomRaw + ")") : hostelRaw)
+                : "";
+
+            const explicitLoc = String(
+                (product && (product.location || product.campusLocation || product.pickupLocation)) ||
+                prof.location || localProf.location || ""
+            ).trim();
+
+            const inferredCity = inferCampusLocation(campusName);
+
+            const locParts = [];
+            if (hostelWithRoom) locParts.push(hostelWithRoom);
+            if (explicitLoc && explicitLoc.toLowerCase() !== hostelWithRoom.toLowerCase() && explicitLoc.toLowerCase() !== campusName.toLowerCase()) {
+                locParts.push(explicitLoc);
+            }
+            if (inferredCity && !locParts.some(function (p) { return p.toLowerCase().includes(inferredCity.toLowerCase()); }) && !campusName.toLowerCase().includes(inferredCity.toLowerCase())) {
+                locParts.push(inferredCity);
+            }
+
+            const locationText = locParts.join(" · ");
+            const combined = campusName && locationText
+                ? (campusName + " — 📍 " + locationText)
+                : (campusName || locationText || "Campus Pickup");
+
+            return {
+                campusName: campusName || "Campus",
+                locationText: locationText || "Main Campus Pickup",
+                hostelText: hostelWithRoom || explicitLoc || locationText,
+                combined: combined
+            };
         }
 
         function setupGallery(product, productName) {
@@ -1445,7 +1543,7 @@
                 }
 
                 let sellerProfile = {};
-                if (product.sellerId && (!product.sellerPhone || !product.sellerName)) {
+                if (product.sellerId) {
                     try {
                         const sellerSnap = await getDoc(doc(db, "users", product.sellerId));
                         if (sellerSnap.exists()) sellerProfile = sellerSnap.data();
@@ -1485,8 +1583,8 @@
                 document.getElementById("productDescription").textContent =
                     product.description || "No description provided.";
 
-                document.getElementById("productCampus").textContent =
-                    product.campus || sellerProfile.campus || sellerProfile.college || "Not specified";
+                const campusInfo = resolveCampusAndLocation(product, sellerProfile);
+                document.getElementById("productCampus").textContent = campusInfo.combined;
 
                 setupGallery(product, productName);
 
@@ -1497,10 +1595,9 @@
                     nameEl.hidden = false;
                 }
 
-                const hostelName = product.sellerHostel || sellerProfile.hostel || "";
-                if (hostelName) {
-                    const hostelEl = document.getElementById("sellerHostelText");
-                    hostelEl.textContent = "Hostel: " + hostelName;
+                const hostelEl = document.getElementById("sellerHostelText");
+                if (hostelEl && campusInfo.hostelText) {
+                    hostelEl.textContent = "Location / Hostel: " + campusInfo.hostelText;
                     hostelEl.hidden = false;
                 }
 

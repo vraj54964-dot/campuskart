@@ -628,7 +628,12 @@
 
                 <div class="field">
                     <label for="editCampus">College / Campus <span class="optional">(optional)</span></label>
-                    <input id="editCampus" type="text" maxlength="80" placeholder="e.g. ABC Engineering College">
+                    <input id="editCampus" type="text" maxlength="80" placeholder="e.g. NST / Rishihood University">
+                </div>
+
+                <div class="field">
+                    <label for="editLocation">Campus Location / Hostel <span class="optional">(optional)</span></label>
+                    <input id="editLocation" type="text" maxlength="80" placeholder="e.g. Hostel B, Sonipat, Haryana">
                 </div>
 
                 <div class="modal-actions">
@@ -1110,7 +1115,10 @@
     function openEditModal() {
         $("editName").value = currentProfile.name || currentUser.displayName || "";
         $("editPhone").value = currentProfile.phone || "";
-        $("editCampus").value = currentProfile.campus || "";
+        $("editCampus").value = currentProfile.campus || currentProfile.college || "";
+        if ($("editLocation")) {
+            $("editLocation").value = currentProfile.location || currentProfile.hostel || "";
+        }
         showFormError("");
         $("editModal").hidden = false;
         $("editName").focus();
@@ -1133,6 +1141,7 @@
         const name = $("editName").value.trim().replace(/\s+/g, " ");
         const phone = $("editPhone").value.trim().replace(/[\s-]/g, "");
         const campus = $("editCampus").value.trim();
+        const location = $("editLocation") ? $("editLocation").value.trim() : "";
 
         if (!name) {
             showFormError("Naam zaroori hai.");
@@ -1165,6 +1174,8 @@
             phone: phone,
             campus: campus,
             college: campus,
+            location: location,
+            hostel: location || currentProfile.hostel || "",
             email: currentUser.email || ""
         };
 
@@ -1180,6 +1191,8 @@
                     name: name,
                     phone: phone,
                     campus: campus,
+                    location: location,
+                    hostel: location || currentProfile.hostel || "",
                     email: currentUser.email || "",
                     updatedAt: serverTimestamp()
                 },
@@ -1283,16 +1296,30 @@
         const interests = interestsRes.status === "fulfilled" ? interestsRes.value : null;
         const saved = savedRes.status === "fulfilled" ? savedRes.value : null;
 
-        // Auto-sync seller's phone number onto their existing Firestore listings if missing
+        // Auto-sync seller's phone, campus, and location onto their existing Firestore listings if missing
         const cleanProfilePhone = String(currentProfile.phone || "").replace(/\D/g, "").slice(-10);
-        if (cleanProfilePhone.length === 10 && listings.length > 0) {
+        const profCampus = String(currentProfile.campus || currentProfile.college || "").trim();
+        const profLocation = String(currentProfile.location || currentProfile.hostel || "").trim();
+        if (listings.length > 0) {
             listings.forEach((item) => {
-                if (item.sellerPhone !== cleanProfilePhone) {
+                const patch = {};
+                if (cleanProfilePhone.length === 10 && item.sellerPhone !== cleanProfilePhone) {
                     item.sellerPhone = cleanProfilePhone;
-                    updateDoc(doc(db, "listings", item.id), {
-                        sellerPhone: cleanProfilePhone,
-                        sellerName: currentProfile.name || currentUser.displayName || ""
-                    }).catch(() => {});
+                    patch.sellerPhone = cleanProfilePhone;
+                    patch.sellerName = currentProfile.name || currentUser.displayName || "";
+                }
+                if (profCampus && !item.campus) {
+                    item.campus = profCampus;
+                    patch.campus = profCampus;
+                }
+                if (profLocation && !item.location && !item.sellerHostel) {
+                    item.location = profLocation;
+                    item.sellerHostel = profLocation;
+                    patch.location = profLocation;
+                    patch.sellerHostel = profLocation;
+                }
+                if (Object.keys(patch).length > 0) {
+                    updateDoc(doc(db, "listings", item.id), patch).catch(() => {});
                 }
             });
         }

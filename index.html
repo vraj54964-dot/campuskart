@@ -1416,9 +1416,22 @@
             priceSpan.className = "price";
             priceSpan.textContent = "₹" + price.toLocaleString("en-IN");
 
+            const campusName = String(product.campus || product.college || "").trim();
+            const locRaw = String(product.location || product.campusLocation || product.sellerHostel || product.hostel || "").trim();
+            const cLower = campusName.toLowerCase();
+            const inferredCity = !locRaw && cLower
+                ? (cLower.includes("nst") || cLower.includes("newton") || cLower.includes("rishihood") || cLower.includes("ashoka") || cLower.includes("jindal")
+                    ? "Sonipat, Haryana"
+                    : "Main Campus")
+                : "";
+            const locPart = locRaw || inferredCity;
+            const campusWithLoc = campusName && locPart && !cLower.includes(locPart.toLowerCase())
+                ? (campusName + " · " + locPart)
+                : (campusName || locPart);
+
             const condSpan = document.createElement("span");
             condSpan.className = "condition";
-            condSpan.textContent = product.campus ? "📍 " + product.campus : cond;
+            condSpan.textContent = campusWithLoc ? "📍 " + campusWithLoc : cond;
 
             bottom.append(priceSpan, condSpan);
             info.append(catSpan, h3, pDesc, bottom);

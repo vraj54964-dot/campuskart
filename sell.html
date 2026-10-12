@@ -890,7 +890,7 @@
                                   required></textarea>
                     </div>
 
-                    <!-- CAMPUS + WHATSAPP PHONE -->
+                    <!-- CAMPUS, LOCATION + WHATSAPP PHONE -->
                     <div class="form-row">
                         <div class="form-group">
                             <label for="campus">
@@ -903,19 +903,29 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="sellerPhoneInput">
-                                WhatsApp / Phone Number
+                            <label for="campusLocation">
+                                Campus Location / Hostel / Pickup Spot
                             </label>
 
-                            <input type="tel"
-                                   id="sellerPhoneInput"
-                                   maxlength="10"
-                                   inputmode="numeric"
-                                   placeholder="10-digit WhatsApp number">
-                            <span class="help-text">
-                                For direct WhatsApp chat with buyers.
-                            </span>
+                            <input type="text"
+                                   id="campusLocation"
+                                   placeholder="e.g. Hostel B, Library, Sonipat">
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sellerPhoneInput">
+                            WhatsApp / Phone Number
+                        </label>
+
+                        <input type="tel"
+                               id="sellerPhoneInput"
+                               maxlength="10"
+                               inputmode="numeric"
+                               placeholder="10-digit WhatsApp number">
+                        <span class="help-text">
+                            For direct WhatsApp / Live Chat with buyers.
+                        </span>
                     </div>
 
                     <!-- SUBMIT -->
@@ -963,6 +973,11 @@
                         <p class="preview-description"
                            id="previewDescription">
                             Your product description will appear here.
+                        </p>
+
+                        <p id="previewCampus"
+                           style="font-size: 13px; color: var(--navy); font-weight: 600; margin-bottom: 10px;">
+                            📍 Campus · Location
                         </p>
 
                         <div class="preview-price" id="previewPrice">
@@ -1103,6 +1118,7 @@
     const originalPriceInput = document.getElementById("originalPrice");
     const description = document.getElementById("description");
     const campus = document.getElementById("campus");
+    const campusLocation = document.getElementById("campusLocation");
     const sellerPhoneInput = document.getElementById("sellerPhoneInput");
 
     if (sellerPhoneInput) {
@@ -1116,6 +1132,7 @@
     const previewCondition = document.getElementById("previewCondition");
     const previewPrice = document.getElementById("previewPrice");
     const previewDescription = document.getElementById("previewDescription");
+    const previewCampus = document.getElementById("previewCampus");
 
     // Navbar auth elements
     const loginLink = document.getElementById("loginLink");
@@ -1196,10 +1213,17 @@
             campus.value = savedCampus;
         }
 
+        const savedLocation = profile.location || (profile.hostel ? (profile.roomNo ? profile.hostel + " (Room " + profile.roomNo + ")" : profile.hostel) : "");
+        if (campusLocation && !campusLocation.value.trim() && savedLocation) {
+            campusLocation.value = savedLocation;
+        }
+
         const savedPhone = String(profile.phone || "").replace(/\D/g, "").slice(-10);
         if (sellerPhoneInput && !sellerPhoneInput.value.trim() && savedPhone) {
             sellerPhoneInput.value = savedPhone;
         }
+
+        updatePreview();
 
         loginLink.hidden = true;
         userMenu.hidden = false;
@@ -1311,6 +1335,7 @@
             const pct = Math.round(((origPrice - sellingPrice) / origPrice) * 100);
             const discSpan = document.createElement("span");
             discSpan.className = "preview-discount";
+            discSpan.className = "preview-discount";
             discSpan.textContent = pct + "% OFF";
 
             previewPrice.append(origSpan, discSpan);
@@ -1319,9 +1344,15 @@
         previewDescription.textContent =
             description.value.trim() ||
             "Your product description will appear here.";
+
+        if (previewCampus) {
+            const cVal = (campus && campus.value.trim()) || "Your Campus";
+            const lVal = (campusLocation && campusLocation.value.trim()) || "Main Campus Pickup";
+            previewCampus.textContent = "📍 " + cVal + " · " + lVal;
+        }
     }
 
-    [itemName, category, condition, price, originalPriceInput, description].forEach((element) => {
+    [itemName, category, condition, price, originalPriceInput, description, campus, campusLocation].filter(Boolean).forEach((element) => {
         element.addEventListener("input", updatePreview);
         element.addEventListener("change", updatePreview);
     });
@@ -1542,10 +1573,17 @@
 
             const sellerDisplayName = getDisplayName(currentUser, currentUserProfile);
             const campusValue = campus.value.trim() || currentUserProfile.campus || currentUserProfile.college || "";
+            const locationValue = (campusLocation && campusLocation.value.trim()) || currentUserProfile.location || currentUserProfile.hostel || "";
             const phoneValue = (sellerPhoneInput && sellerPhoneInput.value.trim()) || currentUserProfile.phone || "";
 
-            if (phoneValue || campusValue) {
-                currentUserProfile = { ...currentUserProfile, phone: phoneValue, campus: campusValue };
+            if (phoneValue || campusValue || locationValue) {
+                currentUserProfile = {
+                    ...currentUserProfile,
+                    phone: phoneValue,
+                    campus: campusValue,
+                    location: locationValue,
+                    hostel: locationValue || currentUserProfile.hostel || ""
+                };
                 try {
                     localStorage.setItem("campuskart_profile_" + currentUser.uid, JSON.stringify(currentUserProfile));
                     localStorage.setItem("campuskart_last_profile", JSON.stringify(currentUserProfile));
@@ -1569,6 +1607,8 @@
                     description: description.value.trim(),
 
                     campus: campusValue,
+                    location: locationValue,
+                    campusLocation: locationValue,
 
                     // Cover photo (browse aur dashboard isi ko dikhate hain)
                     imageUrl: imageUrls[0] || "",
@@ -1581,7 +1621,7 @@
                     sellerName: sellerDisplayName,
                     sellerEmail: currentUser.email || "",
                     sellerPhone: phoneValue,
-                    sellerHostel: currentUserProfile.hostel || "",
+                    sellerHostel: locationValue || currentUserProfile.hostel || "",
 
                     status: "Active",
                     createdAt: serverTimestamp()
@@ -1599,6 +1639,7 @@
 
             sellForm.reset();
             if (campus && campusValue) campus.value = campusValue;
+            if (campusLocation && locationValue) campusLocation.value = locationValue;
             if (sellerPhoneInput && phoneValue) sellerPhoneInput.value = phoneValue;
             clearPhotos();
             updatePreview();

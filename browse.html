@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,7 +43,9 @@
             color: inherit;
         }
 
-        button, input, select {
+        button,
+        input,
+        select {
             font: inherit;
         }
 
@@ -1004,8 +1007,13 @@
         }
 
         @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         /* ===== 12. EMPTY STATE ===== */
@@ -1274,6 +1282,7 @@
         }
 
         @media (max-width: 360px) {
+
             .product-grid,
             .notes-grid {
                 grid-template-columns: 1fr;
@@ -1344,12 +1353,8 @@
         <section class="search-wrapper">
             <div class="container">
                 <form class="search-box" id="searchForm">
-                    <input
-                        type="search"
-                        id="searchInput"
-                        placeholder="Search books, calculators, notes, bags..."
-                        aria-label="Search products"
-                    >
+                    <input type="search" id="searchInput" placeholder="Search books, calculators, notes, bags..."
+                        aria-label="Search products">
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -1523,9 +1528,27 @@
                     </div>
 
                     <div class="product-grid" id="productGrid">
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
-                        <div class="skeleton"><div class="skeleton-image"></div><div class="skeleton-body"><div class="skeleton-line"></div><div class="skeleton-line short"></div></div></div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                        <div class="skeleton">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-body">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="empty-state" id="emptyState">
@@ -1580,9 +1603,12 @@
             </div>
             <div id="chatMessages" class="chat-messages"></div>
             <div class="chat-quick-chips" id="chatQuickChips">
-                <button type="button" class="chat-chip" data-msg="Hi! Is this item still available?">Is this available?</button>
-                <button type="button" class="chat-chip" data-msg="Can we meet near the campus library today?">Meet at library?</button>
-                <button type="button" class="chat-chip" data-msg="What is your final price for this?">Best price?</button>
+                <button type="button" class="chat-chip" data-msg="Hi! Is this item still available?">Is this
+                    available?</button>
+                <button type="button" class="chat-chip" data-msg="Can we meet near the campus library today?">Meet at
+                    library?</button>
+                <button type="button" class="chat-chip" data-msg="What is your final price for this?">Best
+                    price?</button>
             </div>
             <form id="chatForm" class="chat-input-row">
                 <input id="chatInput" type="text" placeholder="Type your message here..." autocomplete="off">
@@ -1697,7 +1723,7 @@
         function setLocalSavedMap(map) {
             try {
                 localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(map));
-            } catch (_) {}
+            } catch (_) { }
         }
 
         function updateSavedCountBadge() {
@@ -1736,7 +1762,7 @@
             try {
                 const localProf = localStorage.getItem("campuskart_profile_" + user.uid);
                 if (localProf) profile = JSON.parse(localProf);
-            } catch (_) {}
+            } catch (_) { }
             try {
                 const snap = await getDoc(doc(db, "users", user.uid));
                 if (snap.exists()) profile = { ...profile, ...snap.data() };
@@ -1972,7 +1998,7 @@
             const sameSellerItem = allProducts.find(function (p) {
                 return (
                     ((product.sellerId && p.sellerId === product.sellerId) ||
-                     (product.sellerEmail && p.sellerEmail === product.sellerEmail)) &&
+                        (product.sellerEmail && p.sellerEmail === product.sellerEmail)) &&
                     String(p.sellerPhone || "").replace(/\D/g, "").slice(-10).length === 10
                 );
             });
@@ -2003,9 +2029,103 @@
                         if (anyPhone.length === 10) return anyPhone;
                     }
                 }
-            } catch (_) {}
+            } catch (_) { }
 
             return fallbackPhoneFromSeed(product.sellerId || product.sellerEmail || product.id || product.name);
+        }
+
+        const sellerProfilesCache = {};
+
+        function inferCampusLocation(campusStr) {
+            const c = String(campusStr || "").toLowerCase().trim();
+            if (!c) return "";
+            if (c.includes("nst") || c.includes("newton school") || c.includes("rishihood") || c.includes("ashoka") || c.includes("jindal")) return "Sonipat, Haryana";
+            if (c.includes("iit delhi") || c === "iitd") return "Hauz Khas, New Delhi";
+            if (c.includes("iit bombay") || c === "iitb") return "Powai, Mumbai";
+            if (c.includes("iit madras") || c === "iitm" || c.includes("srm")) return "Chennai, Tamil Nadu";
+            if (c.includes("iit kanpur") || c === "iitk") return "Kanpur, UP";
+            if (c.includes("iit kharagpur") || c === "iitkgp") return "Kharagpur, West Bengal";
+            if (c.includes("iit roorkee") || c === "iitr") return "Roorkee, Uttarakhand";
+            if (c.includes("iit guwahati") || c === "iitg") return "Guwahati, Assam";
+            if (c.includes("dtu") || c.includes("delhi technological")) return "Rohini, New Delhi";
+            if (c.includes("nsut") || c.includes("nsit")) return "Dwarka, New Delhi";
+            if (c.includes("iiit delhi") || c === "iiitd") return "Okhla, New Delhi";
+            if (c === "du" || c.includes("delhi university")) return "North/South Campus, New Delhi";
+            if (c.includes("bits pilani")) return "Pilani, Rajasthan";
+            if (c.includes("bits goa")) return "Zuarinagar, Goa";
+            if (c.includes("bits hyderabad") || c.includes("iiit hyderabad")) return "Hyderabad, Telangana";
+            if (c.includes("vit")) return "Vellore, Tamil Nadu";
+            if (c.includes("manipal") || c === "mit") return "Manipal, Karnataka";
+            if (c.includes("lpu") || c.includes("lovely professional")) return "Phagwara, Punjab";
+            if (c.includes("chandigarh university") || c === "cu") return "Mohali, Punjab";
+            if (c.includes("chitkara")) return "Rajpura, Punjab";
+            if (c.includes("thapar")) return "Patiala, Punjab";
+            if (c.includes("amity")) return "Noida, UP";
+            if (c.includes("galgotias") || c.includes("bennett") || c.includes("sharda")) return "Greater Noida, UP";
+            if (c.includes("christ") || c.includes("rvce") || c.includes("pes") || c.includes("bms")) return "Bengaluru, Karnataka";
+            if (c.includes("symbiosis") || c.includes("coep") || c.includes("pict")) return "Pune, Maharashtra";
+            return "Main Campus Pickup";
+        }
+
+        function resolveCampusAndLocation(product) {
+            const prof = (product && product.sellerId && sellerProfilesCache[product.sellerId]) || {};
+            let localProf = {};
+            try {
+                if (product && product.sellerId) {
+                    const raw = localStorage.getItem("campuskart_profile_" + product.sellerId);
+                    if (raw) localProf = JSON.parse(raw) || {};
+                }
+                if (!localProf.campus && !localProf.hostel && !localProf.location) {
+                    const lastRaw = localStorage.getItem("campuskart_last_profile");
+                    if (lastRaw) {
+                        const lp = JSON.parse(lastRaw) || {};
+                        if (!product.sellerId || lp.uid === product.sellerId || lp.email === product.sellerEmail) {
+                            localProf = { ...lp, ...localProf };
+                        }
+                    }
+                }
+            } catch (_) { }
+
+            const campusName = String(
+                (product && (product.campus || product.college)) ||
+                prof.campus || prof.college ||
+                localProf.campus || localProf.college ||
+                ""
+            ).trim();
+
+            const hostelRaw = String(
+                (product && (product.sellerHostel || product.hostel)) ||
+                prof.hostel || localProf.hostel || ""
+            ).trim();
+            const roomRaw = String(
+                (product && product.roomNo) ||
+                prof.roomNo || localProf.roomNo || ""
+            ).trim();
+            const hostelWithRoom = hostelRaw
+                ? (roomRaw && !hostelRaw.toLowerCase().includes("room") ? (hostelRaw + " (Room " + roomRaw + ")") : hostelRaw)
+                : "";
+
+            const explicitLoc = String(
+                (product && (product.location || product.campusLocation || product.pickupLocation)) ||
+                prof.location || localProf.location || ""
+            ).trim();
+
+            const inferredCity = inferCampusLocation(campusName);
+
+            const locParts = [];
+            if (hostelWithRoom) locParts.push(hostelWithRoom);
+            if (explicitLoc && explicitLoc.toLowerCase() !== hostelWithRoom.toLowerCase() && explicitLoc.toLowerCase() !== campusName.toLowerCase()) {
+                locParts.push(explicitLoc);
+            }
+            if (inferredCity && !locParts.some(function (p) { return p.toLowerCase().includes(inferredCity.toLowerCase()); }) && !campusName.toLowerCase().includes(inferredCity.toLowerCase())) {
+                locParts.push(inferredCity);
+            }
+
+            const locationText = locParts.join(" · ");
+            if (campusName && locationText) {
+                return campusName + " · " + locationText;
+            }
+            return campusName || locationText || "";
         }
 
         function emailSeller(product) {
@@ -2075,7 +2195,7 @@
             try {
                 const raw = localStorage.getItem("campuskart_chats_" + productId);
                 if (raw) localList = JSON.parse(raw);
-            } catch (_) {}
+            } catch (_) { }
 
             const remoteList = (product && Array.isArray(product.chatMessages)) ? product.chatMessages : [];
             if (remoteList.length === 0) return localList;
@@ -2099,12 +2219,12 @@
             if (!productId) return;
             try {
                 localStorage.setItem("campuskart_chats_" + productId, JSON.stringify(list));
-            } catch (_) {}
+            } catch (_) { }
             if (product && typeof product === "object") {
                 product.chatMessages = list;
                 updateDoc(doc(db, "listings", productId), {
                     chatMessages: list
-                }).catch(function () {});
+                }).catch(function () { });
             }
         }
 
@@ -2130,7 +2250,7 @@
                     createdAtMs: Date.now()
                 });
                 localStorage.setItem(INTERESTS_STORAGE_KEY, JSON.stringify(list.slice(0, 50)));
-            } catch (_) {}
+            } catch (_) { }
         }
 
         function updateRoleToggleUI(product) {
@@ -2199,8 +2319,9 @@
             activeChatProduct = product;
             activeChatRole = isProductSeller(product) ? "seller" : "buyer";
             const sellerLabel = product.sellerName || (product.sellerEmail ? product.sellerEmail.split("@")[0] : "Campus Seller");
+            const campusLoc = resolveCampusAndLocation(product);
             chatModalTitle.textContent = "💬 CampusKart Chat · " + sellerLabel;
-            chatModalSubtitle.textContent = (product.name || "Item") + " · ₹" + (Number(product.price) || 0).toLocaleString("en-IN") + (product.campus ? " · 📍 " + product.campus : "");
+            chatModalSubtitle.textContent = (product.name || "Item") + " · ₹" + (Number(product.price) || 0).toLocaleString("en-IN") + (campusLoc ? " · 📍 " + campusLoc : "");
             updateRoleToggleUI(product);
             renderChatMessages(product);
             chatModal.hidden = false;
@@ -2258,7 +2379,7 @@
                         status: "new",
                         createdAt: serverTimestamp()
                     });
-                } catch (_) {}
+                } catch (_) { }
             }
 
             showToast(activeChatRole === "seller" ? "Reply sent to Buyer in chat! ✓" : "Message sent to " + sellerLabel + "! ✓");
@@ -2479,11 +2600,12 @@
             conditionText.className = "product-condition";
             conditionText.textContent = "Condition: " + condition;
 
-            const locationLabel = hostel || campus;
+            const locationLabel = resolveCampusAndLocation(product);
             let campusEl = null;
             if (locationLabel) {
                 campusEl = document.createElement("p");
                 campusEl.className = "product-campus";
+                campusEl.dataset.productId = product.id;
                 campusEl.textContent = "📍 " + locationLabel;
             }
 
@@ -2614,7 +2736,7 @@
                         return String(product.status || "").toLowerCase() === "active";
                     });
 
-                // Background-enrich seller phones from Firestore users/{sellerId}
+                // Background-enrich seller phones & campus/location from Firestore users/{sellerId}
                 const sellerIdsToFetch = [...new Set(
                     allProducts.map(function (p) { return p.sellerId; }).filter(Boolean)
                 )];
@@ -2622,13 +2744,26 @@
                     sellerIdsToFetch.map(async function (uid) {
                         try {
                             const uSnap = await getDoc(doc(db, "users", uid));
-                            if (uSnap.exists() && uSnap.data().phone) {
-                                const ph = String(uSnap.data().phone).replace(/\D/g, "").slice(-10);
-                                if (ph.length === 10) sellerPhonesCache[uid] = ph;
+                            if (uSnap.exists()) {
+                                const uData = uSnap.data();
+                                sellerProfilesCache[uid] = uData;
+                                if (uData.phone) {
+                                    const ph = String(uData.phone).replace(/\D/g, "").slice(-10);
+                                    if (ph.length === 10) sellerPhonesCache[uid] = ph;
+                                }
                             }
-                        } catch (_) {}
+                        } catch (_) { }
                     })
-                );
+                ).then(function () {
+                    document.querySelectorAll(".product-campus").forEach(function (el) {
+                        const pid = el.dataset.productId;
+                        const prod = allProducts.find(function (p) { return p.id === pid; });
+                        if (prod) {
+                            const updatedLabel = resolveCampusAndLocation(prod);
+                            if (updatedLabel) el.textContent = "📍 " + updatedLabel;
+                        }
+                    });
+                });
 
                 productGrid.replaceChildren();
 
@@ -2822,4 +2957,5 @@
     </script>
 
 </body>
+
 </html>
