@@ -1202,13 +1202,7 @@
             console.warn("Firestore profile save skipped (saved in localStorage):", err);
         }
 
-        if (currentUser.displayName !== name) {
-            try {
-                await updateProfile(currentUser, { displayName: name });
-            } catch (err) {
-                console.warn("displayName update nahi hua:", err);
-            }
-        }
+
 
         saveBtn.disabled = false;
         saveBtn.textContent = "Save Changes";
@@ -1363,7 +1357,6 @@
     $("cancelEdit").addEventListener("click", closeEditModal);
     $("profileForm").addEventListener("submit", saveProfile);
 
-    // Modal ke bahar click ya Escape par band
     $("editModal").addEventListener("click", (event) => {
         if (event.target === $("editModal")) closeEditModal();
     });
